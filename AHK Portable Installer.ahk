@@ -9,6 +9,14 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 Global oGui, Settings
 SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML), Settings["toggle"] := 0 ; load settings
 
+OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
+WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
+	If (hwnd = oGui["ActivateExe"].Hwnd)
+		ToolTip "Modify settings as desired first, including templates.`r`nThen click this button."
+	Else
+		ToolTip
+}
+
 runGui()
 
 runGui() {
