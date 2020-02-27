@@ -76,3 +76,7 @@ This is a PORTABLE installer, so this script:
 Some of these features may change in the future.
 
 One more thing this program will not do is circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
+
+---
+
+Any feedback would be appreciated.  Hopefully this tool will help people, and just get better over time.
