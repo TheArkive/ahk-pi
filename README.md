@@ -26,7 +26,7 @@ The following settings are available:
 * Toggle checking for updates on program start.
 * Define a custom text editor, or revert back to `notepad.exe`.
 
-Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder WITH `Ahk2Exe` and all necessary support files (including `mpress.exe` if you want to use it).
+Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (including `mpress.exe` if you want to use it).
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
@@ -44,8 +44,12 @@ As a portable installer, based on your selected/activated version, here's what i
 * Writes `InstallDir` and `Version` registry entries in `HKEY_LOCAL_MACHINE/Software/AutoHotkey`.
 * Checks for updates when prompted, or does so automatially if enabled.
 * Displays the latest versions of AHK v1 and v2 (with internet connection of course).
-* Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
+* Displays currently active version of AHK.
 * Easy access to edit templates for new AutoHotkey.ahk files with Context Menu > New > ...
+* Provides links to AHK v1 and v2 download pages / version archives.
+* Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
+
+If you installed with a setup exe, then `HKEY_LOCAL_MACHINE/Software/AutoHotkey` may not be removable until after you uninstall it first.
 
 ## What this does NOT do...
 
@@ -54,3 +58,4 @@ This is a PORTABLE installer, so this script:
 * WILL NOT write or remove registry entries that deal with installing or uninstalling.
 * WILL NOT run two versions of AutoHotkey side-by-side.
 * WILL NOT create a separate `.ahk2` extension or any other extension.
+* WILL NOT automatically download new verstions.
