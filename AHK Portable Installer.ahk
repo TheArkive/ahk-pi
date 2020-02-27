@@ -13,6 +13,8 @@ OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
 	If (hwnd = oGui["ActivateExe"].Hwnd)
 		ToolTip "Modify settings as desired first, including templates.`r`nThen click this button."
+	Else If (hwnd = oGui["ExeList"].Hwnd)
+		ToolTip "Double-click to activate."
 	Else
 		ToolTip
 }
