@@ -42,6 +42,9 @@ As a portable installer, based on your selected/activated version, here's what i
 * Writes registry values to define the default `.bin` file to use with Ahk2Exe compiler.
 * Writes registry values to enable `mpress.exe` if present in `Compiler` folder (or disables it if not).
 * Writes `InstallDir` and `Version` registry entries in `HKEY_LOCAL_MACHINE/Software/AutoHotkey`.
+
+This program will also:
+
 * Checks for updates when prompted, or does so automatially if enabled.
 * Displays the latest versions of AHK v1 and v2 (with internet connection of course).
 * Displays currently active version of AHK.
@@ -49,7 +52,7 @@ As a portable installer, based on your selected/activated version, here's what i
 * Provides links to AHK v1 and v2 download pages / version archives.
 * Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
 
-If you installed with a setup exe, then `HKEY_LOCAL_MACHINE/Software/AutoHotkey` may not be removable until after you uninstall it first.
+If you installed AutoHotkey with a setup file, then `HKEY_LOCAL_MACHINE/Software/AutoHotkey` may not be removable until after you uninstall it first.
 
 ## What this does NOT do...
 
@@ -57,5 +60,9 @@ This is a PORTABLE installer, so this script:
 
 * WILL NOT write or remove registry entries that deal with installing or uninstalling.
 * WILL NOT run two versions of AutoHotkey side-by-side.
-* WILL NOT create a separate `.ahk2` extension or any other extension.
+* WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
 * WILL NOT automatically download new verstions.
+
+Some of these features may change in the future.
+
+One more thing this program will not do is circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
