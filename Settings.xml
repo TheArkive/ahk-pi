@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Base>
-	<ActiveVersion></ActiveVersion>
-	<ActiveVersionPath></ActiveVersionPath>
+	<ActiveVersion>AutoHotkey Unicode 32-bit 2.0-a108-a2fa0498</ActiveVersion>
+	<ActiveVersionPath>D:\Apps\DEV\AutoHotkey\AutoHotkey v2.0-a108-a2fa0498\AutoHotkeyU32.exe</ActiveVersionPath>
 	<Ahk1Url>https://www.autohotkey.com/download/1.1/</Ahk1Url>
 	<Ahk1Version>1.1.32.00</Ahk1Version>
 	<Ahk2Url>https://www.autohotkey.com/download/2.0/</Ahk2Url>
 	<Ahk2Version>2.0-a108-a2fa0498</Ahk2Version>
 	<AutoUpdateCheck>0</AutoUpdateCheck>
-	<BaseFolder></BaseFolder>
+	<BaseFolder>D:\Apps\DEV\AutoHotkey</BaseFolder>
 	<TextEditorPath>notepad.exe</TextEditorPath>
 	<UpdateCheckDate>2020-02-27</UpdateCheckDate>
-	<toggle>1</toggle>
+	<toggle>0</toggle>
 </Base>

@@ -12,7 +12,7 @@ SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML), Setti
 runGui()
 
 runGui() {
-	oGui := GuiCreate("","AHK Portable Install Switcher")
+	oGui := GuiCreate("","AHK Portable Installer")
 	oGui.OnEvent("Close","gui_Close")
 	
 	Ahk1Version := (Settings.Has("Ahk1Version")) ? Settings["Ahk1Version"] : ""
@@ -153,7 +153,7 @@ GuiEvents(oCtl,Info) {
 		Ahk2ExeBin := ahkType " " bitness ".bin"
 		mpress := (FileExist(exeDir "\Compiler\mpress.exe")) ? 1 : 0
 		
-		Ahk1Template := FileRead("Templates\TemplateV1.ahk"), Ahk2Template := FileRead("Templates\TemplateV2.ahk")
+		Ahk1Template := FileRead("resources\TemplateV1.ahk"), Ahk2Template := FileRead("resources\TemplateV2.ahk")
 		
 		If (bitness = "64-bit")
 			SetRegView 64
@@ -236,9 +236,9 @@ GuiEvents(oCtl,Info) {
 		helpFile := regDir "\AutoHotkey.chm"
 		Run helpFile,, "Max"
 	} Else If (oCtl.Name = "EditAhk1Template") {
-		Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) "Templates\TemplateV1.ahk"
+		Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) "resources\TemplateV1.ahk"
 	} Else If (oCtl.Name = "EditAhk2Template") {
-		Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) "Templates\TemplateV2.ahk"
+		Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) "resources\TemplateV2.ahk"
 	} Else If (oCtl.Name = "WindowSpy") {
 		If (Settings.Has("ActiveVersionPath") And Settings["ActiveVersionPath"] != "") {
 			SplitPath Settings["ActiveVersionPath"], exeFile, exeDir
@@ -246,9 +246,9 @@ GuiEvents(oCtl,Info) {
 		}
 	} Else If (oCtl.Name = "Uninstall") {
 		SetRegView 32
-		Run "regedit.exe /s Uninstall_AHK.reg"
+		Run "regedit.exe /s resources\Uninstall_AHK.reg"
 		SetRegView 64
-		Run "regedit.exe /s Uninstall_AHK.reg"
+		Run "regedit.exe /s resources\Uninstall_AHK.reg"
 		
 		Settings["ActiveVersion"] := "", Settings["ActiveVersionPath"] := ""
 		SetActiveVersionGui()

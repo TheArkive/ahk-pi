@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk]
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript]
+[-HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey]
+[-HKEY_CURRENT_USER\Software\AutoHotkey]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\AutoHotkey]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\AutoHotkeyScript]
