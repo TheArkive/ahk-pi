@@ -72,9 +72,8 @@ This is a PORTABLE installer, so this script:
 * WILL NOT run two versions of AutoHotkey side-by-side.
 * WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
 * WILL NOT automatically download new verstions.
-* MAY NOT fully register certain aspects of file associations until after user selection.
 
-The user may be prompted to specify a program to associate before everything works nicely.  I haven't has this problem yet.  Let me know if you do.
+The user may be prompted to specify a program to associate before everything works nicely.  This shouldn't happen.  I haven't has this problem yet.  Let me know if you do.
 
 Some of these features may change or be added in the future.
 
