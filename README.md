@@ -18,6 +18,14 @@ C:\AutoHotkey    <-- place the base folder anywhere you want
              \etc...
 ```
 
+NOTE: If you are using AutoHotkey_H, you will need to append the appropriate suffix to the exe file name:
+
+```
+AutoHotkey.exe  --->  AutoHotkey_x64w_MT.exe
+```
+
+It doesn't matter what you add or how you add it, but make sure it isn't plain `AutoHotkey.exe`.  This file is deleted and the selected EXE is copied to `AutoHotkey.exe`.
+
 There is no "installation" for this script/program.  You can download and unzip to your `base folder` that contains all your subfolders of extracted AHK `.zip` versions, or you can place it anywhere and specify your `base folder` in the settings.
 
 The following settings are available:
