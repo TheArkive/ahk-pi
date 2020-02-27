@@ -31,7 +31,7 @@ runGui() {
 	oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vActivateExe x+55 yp","Activate EXE").OnEvent("Click","GuiEvents")
 	
-	oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for script directory)")
+	oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
 	oGui.Add("Edit","y+0 r1 w390 vBaseFolder ReadOnly")
 	oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","x+0 vClearBaseFolder","X").OnEvent("Click","GuiEvents")
@@ -215,7 +215,7 @@ GuiEvents(oCtl,Info) {
 			oGui["BaseFolder"].Value := BaseFolder
 			Settings["BaseFolder"] := BaseFolder
 			ListExes()
-		} Else If (!DirExist(BaseFolder))
+		} Else If (!DirExist(BaseFolder) And BaseFolder != "")
 			MsgBox "Chosen folder does not exist."
 	} Else If (oCtl.Name = "Ahk1Url") {
 		Settings["Ahk1Url"] := oCtl.Value

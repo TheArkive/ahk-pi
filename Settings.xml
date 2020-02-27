@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Base>
+	<ActiveVersion></ActiveVersion>
+	<ActiveVersionPath></ActiveVersionPath>
 	<Ahk1Url>https://www.autohotkey.com/download/1.1/</Ahk1Url>
 	<Ahk1Version>1.1.32.00</Ahk1Version>
 	<Ahk2Url>https://www.autohotkey.com/download/2.0/</Ahk2Url>
