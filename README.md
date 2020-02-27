@@ -71,7 +71,7 @@ This is a PORTABLE installer, so this script:
 * WILL NOT write or remove registry entries that deal with installing or uninstalling.
 * WILL NOT run two versions of AutoHotkey side-by-side.
 * WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
-* WILL NOT automatically download new verstions.
+* WILL NOT automatically download new versions.
 
 The user may be prompted to specify a program to associate before everything works nicely.  This shouldn't happen.  I haven't has this problem yet.  Let me know if you do.
 
