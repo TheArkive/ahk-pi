@@ -10,5 +10,5 @@
 	<BaseFolder>D:\Apps\DEV\AutoHotkey</BaseFolder>
 	<TextEditorPath>notepad.exe</TextEditorPath>
 	<UpdateCheckDate>2020-02-27</UpdateCheckDate>
-	<toggle>0</toggle>
+	<toggle>1</toggle>
 </Base>
