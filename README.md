@@ -1,6 +1,6 @@
 # AHK Portable Installer
 
-This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written for AHKv2 (hence the need to compile).  Trying to run this as a script will likely eventually break.  For best results, please comipile, or use the included precompiled EXE.
+This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written for AHKv2 (hence the need to compile).  If you run this as a script, switch to AHK v1, close, and try to reopen the script, it will not work.  For best results, please comipile, or use the included precompiled EXE.
 
 ## Basic Setup
 
