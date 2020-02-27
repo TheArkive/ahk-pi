@@ -53,7 +53,7 @@ As a portable installer, based on your selected/activated version, here's what i
 * Writes registry values to enable `mpress.exe` if present in `Compiler` folder (or disables it if not).
 * Writes `InstallDir` and `Version` registry entries in `HKEY_LOCAL_MACHINE/Software/AutoHotkey`.
 
-This program will also:
+This program also:
 
 * Checks for updates when prompted, or does so automatially if enabled.
 * Displays the latest versions of AHK v1 and v2 (with internet connection of course).
