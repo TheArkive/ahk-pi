@@ -44,7 +44,7 @@ Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Com
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
-This package includes two template files, one for AHK v1 and one for AHK v2.  You can customize them as you like, and when you activate an EXE (same as installing... sort of) that template will be automatically written to `C:\Windows\ShellNew\Template.ahk` based on the major version number of the EXE you selected.
+When you activate an EXE (same as installing... sort of) the template that corresponds to the major version (v1 or v2) will be automatically written to `C:\Windows\ShellNew\Template.ahk` based on the EXE you selected.
 
 You can get a copy of Window Spy for AHK v2 [here](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333&sid=3b87fff7974d5900bc41619869692564).
 
