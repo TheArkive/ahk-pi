@@ -258,7 +258,7 @@ GuiEvents(oCtl,Info) {
 		RegWrite Ahk2ExeBin, "REG_SZ", "HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe", "LastBinFile"	; auto set .bin file
 		RegWrite mpress, "REG_SZ", "HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe", "LastUseMPRESS"		; auto set mpress usage
 		RegWrite Ahk2ExePath, "REG_SZ", "HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe", "Ahk2ExePath"	; for easy reference...
-		RegWrite "All", "REG_SZ", "HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe", "BitFilter"
+		RegWrite bitness, "REG_SZ", "HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe", "BitFilter"
 		
 		; HKLM / Software / AutoHotkey install and version info
 		RegWrite exeDir, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "InstallDir"				; Default entries

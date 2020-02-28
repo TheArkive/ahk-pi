@@ -37,13 +37,16 @@ If (!bf)
 bfStr := "All|32-Bit|64-bit|"
 BitFilterStr := StrReplace(bfStr,bf "|",bf "||"), BitFilterStr := (SubStr(BitFilterStr,-2) = "||") ? BitFilterStr : Trim(BitFilterStr,"|")
 
-AhkPath := RegRead("HKEY_CURRENT_USER\Software\AutoHotkey","InstallDir")
+SetRegView 64
+AhkPath := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","InstallDir")
+SetRegView 32
 If (!AhkPath)
 	AhkPath := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\AutoHotkey","InstallDir")
 If (!AhkPath){
 	MsgBox "AHK install seems to be corrupt.  Please uninstall and reinstall."
 	ExitApp
 }
+SetRegView "Default"
 Ahk2ExeBinPath := Ahk2ExeDir "\*.bin"
 ; MajorVersion := RegRead("HKEY_CURRENT_USER\Software\AutoHotkey","MajorVersion")
 
