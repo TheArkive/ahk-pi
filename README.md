@@ -38,6 +38,7 @@ The following settings are available:
   * https://www.autohotkey.com/download/2.0/
 * Toggle checking for updates on program start.
 * Define a custom text editor, or revert back to `notepad.exe`.
+* Modify templates for `.ahk` files for AHK v1 and v2.
 
 Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (including `mpress.exe` if you want to use it).
 
