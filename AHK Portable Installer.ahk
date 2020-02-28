@@ -5,7 +5,12 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE Lib\_FileXpro.ahk
 #INCLUDE Lib\TheArkive_XA_LoadSave.ahk
 
-Global oGui, Settings
+Global oGui, Settings, AhkPisVersion
+AhkPisVersion := "v1.2"
+
+If (FileExist("Settings.xml.blank"))
+	FileMove "Settings.xml.blank", "Settings.xml"
+
 SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML), Settings["toggle"] := 0 ; load settings
 
 OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
@@ -27,7 +32,7 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
 runGui()
 
 runGui() {
-	oGui := GuiCreate("","AHK Portable Installer")
+	oGui := GuiCreate("","AHK Portable Installer " AhkPisVersion)
 	oGui.OnEvent("Close","gui_Close")
 	
 	Ahk1Version := (Settings.Has("Ahk1Version")) ? Settings["Ahk1Version"] : ""
