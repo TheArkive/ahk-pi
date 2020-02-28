@@ -32,20 +32,21 @@ It doesn't matter what you add or how you add it, but make sure it isn't plain `
 
 There is no "installation" for this script/program.  You can download and unzip to your `base folder` that contains all your subfolders of extracted AHK `.zip` versions, or you can place it anywhere and specify your `base folder` in the settings.
 
-The following settings are available:
-* Select base folder.
+The following settings can be modified:
+* Selecting the base AHK folder.
 * Define AHK v1 and v2 update URLs, ie.
   * https://www.autohotkey.com/download/1.1/
   * https://www.autohotkey.com/download/2.0/
 * Toggle checking for updates on program start.
 * Define a custom text editor, or revert back to `notepad.exe`.
 * Modify templates for `.ahk` files for AHK v1 and v2.
+* Specify location for Ahk2Exe and use the fancy Ahk2Exe Handler.
 
-Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (including `mpress.exe` if you want to use it).
+In general, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).  If you use the Ahk2Exe Handler and specify a single location for Ahk2Exe, then you don't need this in every AHK folder.
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
-When you activate an EXE (same as installing... sort of) the template that corresponds to the major version (v1 or v2) will be automatically written to `C:\Windows\ShellNew\Template.ahk` based on the EXE you selected.
+When you activate an EXE (which writes reg entries for the `.ahk` extension) the template that corresponds to the major version (v1 or v2) will be automatically written to `C:\Windows\ShellNew\Template.ahk` based on the EXE you selected.
 
 You can get a copy of Window Spy for AHK v2 [here](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333&sid=3b87fff7974d5900bc41619869692564).
 
@@ -58,6 +59,10 @@ As a portable installer, based on your selected/activated version, here's what i
 * Writes registry values to enable `mpress.exe` if present in `Compiler` folder (or disables it if not).
 * Writes `InstallDir` and `Version` registry entries in `HKEY_LOCAL_MACHINE/Software/AutoHotkey`.
 
+The auto loading of the `.bin` files requires that each AHK folder has it's own Ahk2Exe `Compiler` folder, and that all `.bin` files retain their original names.  If you use the fancy Ahk2Exe Handler, then this is handled differently, and you can place all your `.bin` files in one location with Ahk2Exe.  Rename them like this:
+
+![](/images/ahk-pi5.png)
+
 This program also:
 
 * Checks for updates when prompted, or does so automatially if enabled.
@@ -67,7 +72,7 @@ This program also:
 * Provides links to AHK v1 and v2 download pages / version archives.
 * Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
 
-Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE.
+Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
 
 ## What this does NOT do...
 
@@ -83,6 +88,8 @@ The user may be prompted to specify a program to associate before everything wor
 Some of these features may change or be added in the future.
 
 One more thing this program will not do is circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
+
+I may take some hints from the `Installer.ahk` and attempt to work around this, but this program does enough in the registry (for my preference).
 
 ---
 
