@@ -7,7 +7,7 @@ This is a portable install manager.  This script is meant to be run compiled, an
 Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE.
 
 <!-- ![Settings pane toggled open](/images/ahk-pi.png) ![Main window](/images/ahk-pi2.png) -->
-<img src="/images/ahk-pi2.png" width="420" align="top"/><img src="/images/ahk-pi.png" width="420"/>
+<img src="/images/ahk-pi2.png" width="420" align="top"/><img src="/images/ahk-pi6.png" width="420"/>
 
 ## Basic Setup
 
