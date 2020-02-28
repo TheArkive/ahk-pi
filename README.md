@@ -42,7 +42,7 @@ The following settings can be modified:
 * Modify templates for `.ahk` files for AHK v1 and v2.
 * Specify location for Ahk2Exe and use the fancy Ahk2Exe Handler.
 
-In general, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).  If you use the Ahk2Exe Handler and specify a single location for Ahk2Exe, then you don't need this in every AHK folder.
+In general, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
@@ -59,9 +59,7 @@ As a portable installer, based on your selected/activated version, here's what i
 * Writes registry values to enable `mpress.exe` if present in `Compiler` folder (or disables it if not).
 * Writes `InstallDir` and `Version` registry entries in `HKEY_LOCAL_MACHINE/Software/AutoHotkey`.
 
-The auto loading of the `.bin` files requires that each AHK folder has it's own Ahk2Exe `Compiler` folder, and that all `.bin` files retain their original names.  If you use the fancy Ahk2Exe Handler, then this is handled differently, and you can place all your `.bin` files in one location with Ahk2Exe.  Rename them like this:
-
-![](/images/ahk-pi5.png)
+If not using the fancy Ahk2Exe Handler (the default), the auto loading of the `.bin` files requires that each AHK folder has it's own Ahk2Exe `Compiler` folder, and that all `.bin` files retain their original names.
 
 This program also:
 
@@ -73,6 +71,20 @@ This program also:
 * Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
 
 Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
+
+# fancy Ahk2Exe Handler
+
+If you don't use the fancy Ahk2Exe Handler (default) then each AHK folder should have its own `Compiler` folder with `.bin` files and `mpress.exe` if you need it.  Otherwise you can place Ahk2Exe in a single folder and not have it copied into every AHK folder.  If you do this be sure to rename the `.bin` files to add " v1" or " v2" as needed, except for `AutoHotkeySC.bin`.  Leave that one alone, and configure it the way you want it.
+
+An example for renaming the bin files:
+
+![](/images/ahk-pi5.png)
+
+When you use the context menu and click `Compile`, a small selection window will open:
+
+![](/images/ahk-pi7.png)
+
+The filter remembers your last selection.  Double-click the list to move quickly, or single-click to customize the output exe.
 
 ## What this does NOT do...
 
