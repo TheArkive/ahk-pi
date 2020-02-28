@@ -66,7 +66,7 @@ This program also:
 * Provides links to AHK v1 and v2 download pages / version archives.
 * Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
 
-If you installed AutoHotkey with a setup file, then `HKEY_LOCAL_MACHINE/Software/AutoHotkey` may not be removable until after you uninstall it first.
+Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE.
 
 ## What this does NOT do...
 
