@@ -74,7 +74,7 @@ This program also:
 
 Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
 
-# fancy Ahk2Exe Handler
+## fancy Ahk2Exe Handler
 
 If you don't use the fancy Ahk2Exe Handler (default) then each AHK folder should have its own `Compiler` folder with `.bin` files and `mpress.exe` if you need it.  Otherwise you can place Ahk2Exe in a single folder and not have it copied into every AHK folder.  If you do this, and you want to combine AHK v1 and v2 `.bin` files, be sure to rename the `.bin` files to add " v1" or " v2" as needed, except for `AutoHotkeySC.bin`.  Otherwise if you only use `.bin` files from a particular version of AHK, then you don't need to rename them.
 
