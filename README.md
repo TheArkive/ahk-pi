@@ -92,12 +92,22 @@ After you have made your selection, the Ahk2Exe window will open up with all sel
 
 ![](/images/ahk-pi8.png)
 
+## AHK Launcher
+
+Now you can run AutoHotkey v1 and v2 side-by-side.  I've designed the AhkLauncher.exe to look for the following info to determine the AHK version of the script:
+
+* append `_AHKv#` to the file name
+* add `; AHKv#` as line 1 in the script
+* for course replace `#` with 1 or 2 corresponding to the AHK version
+
+You can select the desired AHK exe to use for v1 and v2 in the main window settings.
+
 ## What this does NOT do...
 
 This is a PORTABLE installer, so this script:
 
 * WILL NOT write or remove registry entries that deal with installing or uninstalling.
-* WILL NOT run two versions of AutoHotkey side-by-side.
+~~* WILL NOT run two versions of AutoHotkey side-by-side.~~
 * WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
 * WILL NOT automatically download new versions.
 
