@@ -107,7 +107,6 @@ You can select the desired AHK exe to use for v1 and v2 in the main window setti
 This is a PORTABLE installer, so this script:
 
 * WILL NOT write or remove registry entries that deal with installing or uninstalling.
-~~* WILL NOT run two versions of AutoHotkey side-by-side.~~
 * WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
 * WILL NOT automatically download new versions.
 
