@@ -43,6 +43,7 @@ The following settings can be modified:
 * Define a custom text editor, or revert back to `notepad.exe`.
 * Modify templates for `.ahk` files for AHK v1 and v2.
 * Specify location for Ahk2Exe and use the fancy Ahk2Exe Handler.
+* Specify EXEs to use for AHK v1 and v2 if using the AHK Launcher
 
 In general, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
@@ -59,7 +60,7 @@ As a portable installer, based on your selected/activated version, here's what i
 * Writes registry values to associate the `.ahk` extension.
 * Writes registry values to define the default `.bin` file to use with Ahk2Exe compiler.
 * Writes registry values to enable `mpress.exe` if present in `Compiler` folder (or disables it if not).
-* Writes `InstallDir` and `Version` registry entries in `HKEY_LOCAL_MACHINE/Software/AutoHotkey`.
+* Writes registry entries to associate `.ahk` extension with AutoHotkey.
 
 If not using the fancy Ahk2Exe Handler (the default), the auto loading of the `.bin` files requires that each AHK folder has it's own Ahk2Exe `Compiler` folder, and that all `.bin` files retain their original names.
 
@@ -71,6 +72,7 @@ This program also:
 * Easy access to edit templates for new AutoHotkey.ahk files with Context Menu > New > ...
 * Provides links to AHK v1 and v2 download pages / version archives.
 * Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
+* Allows running AHK v1 and v2 side-by-side with minimal modification (see AHK Launcher below).
 
 Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
 
