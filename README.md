@@ -84,8 +84,8 @@ See directly below for an example renaming the bin files.  When you use the cont
 
 <table width="100%">
   <tr>
-    <th>col1</th>
-    <th>col2</th>
+    <th>Rename example</th>
+    <th>fancy AHK Handler</th>
   </tr>
   <tr>
     <td width="200"><img src="/images/ahk-pi5.png" /></td>
