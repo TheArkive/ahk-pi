@@ -80,13 +80,9 @@ Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The u
 
 If you don't use the fancy Ahk2Exe Handler (default) then each AHK folder should have its own `Compiler` folder with `.bin` files and `mpress.exe` if you need it (and of course `Ahk2Exe.exe`).  Otherwise you can place Ahk2Exe in a single folder and not have it copied into every AHK folder.  If you do this, and you want to combine AHK v1 and v2 `.bin` files, be sure to rename the `.bin` files to add " v1" or " v2" as needed, except for `AutoHotkeySC.bin`.  Otherwise if you only use `.bin` files from a particular version of AHK, then you don't need to rename them.
 
-An example for renaming the bin files:
+See directly below for an example renaming the bin files.  When you use the context menu and click `Compile`, a small selection window will open.
 
-![](/images/ahk-pi5.png)
-
-When you use the context menu and click `Compile`, a small selection window will open:
-
-![](/images/ahk-pi7.png)
+<img src="/images/ahk-pi5.png" /> <img src="/images/ahk-pi7.png" />
 
 Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
 
