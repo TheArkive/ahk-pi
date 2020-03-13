@@ -94,6 +94,8 @@ Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers you
 
 After you have made your selection, the Ahk2Exe window will open up with all selected options pre-filled.  Also, if you have an `.ico` file named the same as your `.ahk` script, then the icon selection will be auto-filled as well.
 
+Options to Auto-Start and Auto-Close the compiler are in the main GUI > Extras tab.
+
 ![](/images/ahk-pi8.png)
 
 ## AHK Launcher
