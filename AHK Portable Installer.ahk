@@ -7,7 +7,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE Lib\TheArkive_XA_LoadSave.ahk
 
 Global oGui, Settings, AhkPisVersion
-AhkPisVersion := "v1.4"
+AhkPisVersion := "v1.45"
 
 If (FileExist("Settings.xml.blank"))
 	FileMove "Settings.xml.blank", "Settings.xml"
@@ -16,20 +16,22 @@ SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML), Setti
 
 OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
-	If (hwnd = oGui["ActivateExe"].Hwnd)
-		ToolTip "Modify settings as desired first, including templates.`r`nThen click this button."
-	Else If (hwnd = oGui["ExeList"].Hwnd)
-		ToolTip "Double-click to activate.`r`nBe sure to modify settings as desired first, including templates."
-	Else If (hwnd = oGui["CurrentPath"].Hwnd)
-		ToolTip oGui["CurrentPath"].Value
-	Else If (hwnd = oGui["Ahk2ExeHandler"].Hwnd)
-		ToolTip "This changes the " Chr(34) "Compile" Chr(34) " context menu to use the handler`r`nwhich quickly pre-populates a destination EXE, icon if exists`r`nwith script file name, and the .bin file to use."
-	Else If (hwnd = oGui["Ahk2ExePath"].Hwnd)
-		ToolTip "This is useful if you want to dump all the .bin files in one place.  Make sure`r`nyou append " Chr(34) " v#" Chr(34) " to the file names so you don't overwrite them.  This is`r`nparticularly important if you use AHK v1 and v2 .bin files together in the`r`nsame Ahk2Exe folder."
-	Else If (hwnd = oGui["AhkLauncher"].Hwnd)
-		ToolTip "Run AHK v1 and v2 scripts side by side without needing a separate file association.`r`n`r`nAppend " Chr(34) "_AHKv#" Chr(34) " to the file name, or add " Chr(34) ";AHKv#" Chr(34) " to the first line of the script." 
-	Else
-		ToolTip
+	If (!Settings["DisableTooltips"]) {
+		If (hwnd = oGui["ActivateExe"].Hwnd)
+			ToolTip "Modify settings as desired first, including templates.`r`nThen click this button."
+		Else If (hwnd = oGui["ExeList"].Hwnd)
+			ToolTip "Double-click to activate.`r`nBe sure to modify settings as desired first, including templates."
+		Else If (hwnd = oGui["CurrentPath"].Hwnd)
+			ToolTip oGui["CurrentPath"].Value
+		Else If (hwnd = oGui["Ahk2ExeHandler"].Hwnd)
+			ToolTip "This changes the " Chr(34) "Compile" Chr(34) " context menu to use the handler`r`nwhich quickly pre-populates a destination EXE, icon if exists`r`nwith script file name, and the .bin file to use."
+		Else If (hwnd = oGui["Ahk2ExePath"].Hwnd)
+			ToolTip "This is useful if you want to dump all the .bin files in one place.  Make sure`r`nyou append " Chr(34) " v#" Chr(34) " to the file names so you don't overwrite them.  This is`r`nparticularly important if you use AHK v1 and v2 .bin files together in the`r`nsame Ahk2Exe folder."
+		Else If (hwnd = oGui["AhkLauncher"].Hwnd)
+			ToolTip "Run AHK v1 and v2 scripts side by side without needing a separate file association.`r`n`r`nAppend " Chr(34) "_AHKv#" Chr(34) " to the file name, or add " Chr(34) ";AHKv#" Chr(34) " to the first line of the script." 
+		Else
+			ToolTip
+	}
 }
 
 runGui()
@@ -58,7 +60,7 @@ runGui() {
 	oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vActivateExe x+55 yp","Activate EXE").OnEvent("Click","GuiEvents")
 	
-	tabs := oGui.Add("Tab","y+10 x2 w456","Basics|Extras")
+	tabs := oGui.Add("Tab","y+10 x2 w456 h255","Basics|Extras")
 	
 	oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
 	oGui.Add("Edit","y+0 r1 w390 vBaseFolder ReadOnly")
@@ -101,6 +103,8 @@ runGui() {
 	oGui.Add("Edit","vAhkLaunchV2 xm y+0 w390 ReadOnly")
 	oGui.Add("Button","vPickAhkLaunchV2 x+0","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vClearAhkLaunchV2 x+0","X").OnEvent("Click","GuiEvents")
+	
+	oGui.Add("Checkbox","vDisableTooltips xm y+10","Disable Tooltips").OnEvent("Click","GuiEvents")
 	
 	x := Settings["posX"], y := Settings["posY"]
 	
@@ -187,6 +191,10 @@ PopulateSettings() {
 	If (!Settings.Has("Ahk2ExeAutoClose"))
 		Settings["Ahk2ExeAutoClose"] := 0
 	oGui["Ahk2ExeAutoClose"].Value := Settings["Ahk2ExeAutoClose"]
+	
+	If (!Settings.Has("DisableTooltips"))
+		Settings["DisableTooltips"] := 0
+	oGui["DisableTooltips"].Value := Settings["DisableTooltips"]
 	
 	oCtl := ""
 }
@@ -287,7 +295,7 @@ CheckUpdate(override:=0) {
 	
 	oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
 	oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
-
+	
 	FileDelete "version1.txt"
 	FileDelete "version2.txt"
 	
@@ -300,7 +308,7 @@ GuiEvents(oCtl,Info) {
 		p := oGui.Pos, scrW := SysGet(78), scrH := SysGet(79)
 		
 		If ((p.y + newH) > scrH)
-			diff := (p.y + newH) - scrH + SysGet(4) + (SysGet(8) * 2) + (SysGet(6) * 2) + (SysGet(33) * 2)
+			diff := (p.y + newH) - scrH + SysGet(4) + (SysGet(8) * 2) + (SysGet(33) * 2) ; (SysGet(6) * 2)
 		Else
 			diff := 0
 		
@@ -508,6 +516,8 @@ GuiEvents(oCtl,Info) {
 	} Else If (oCtl.Name = "Ahk2ExeAutoStart") {
 		Settings[oCtl.Name] := oCtl.Value
 	} Else If (oCtl.Name = "Ahk2ExeAutoClose") {
+		Settings[oCtl.Name] := oCtl.Value
+	} Else If (oCtl.Name = "DisableTooltips") {
 		Settings[oCtl.Name] := oCtl.Value
 	}
 	oCtl := ""

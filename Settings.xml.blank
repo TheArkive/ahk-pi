@@ -15,6 +15,7 @@
 	<AhkLauncher>0</AhkLauncher>
 	<AutoUpdateCheck>0</AutoUpdateCheck>
 	<BaseFolder></BaseFolder>
+	<DisableTooltips>0</DisableTooltips>
 	<TextEditorPath>notepad.exe</TextEditorPath>
 	<UpdateCheckDate></UpdateCheckDate>
 	<curPosX>0</curPosX>
