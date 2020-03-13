@@ -4,6 +4,8 @@
 
 Check [releases](https://github.com/TheArkive/ahk-pi/releases) for binaries.
 
+* known issue:  AHK Launcher isn't setting WorkingDir properly, and dependencies are not properly located (arg)
+
 This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written for AHKv2 (hence the need to compile).  If you run this as a script, switch to AHK v1, close, and try to reopen the script, it will not work.  For best results, please comipile, or use the included precompiled EXE(s).
 
 Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
