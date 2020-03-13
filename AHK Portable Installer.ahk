@@ -7,7 +7,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE Lib\TheArkive_XA_LoadSave.ahk
 
 Global oGui, Settings, AhkPisVersion
-AhkPisVersion := "v1.3"
+AhkPisVersion := "v1.4"
 
 If (FileExist("Settings.xml.blank"))
 	FileMove "Settings.xml.blank", "Settings.xml"
@@ -58,6 +58,8 @@ runGui() {
 	oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vActivateExe x+55 yp","Activate EXE").OnEvent("Click","GuiEvents")
 	
+	tabs := oGui.Add("Tab","y+10 x2 w456","Basics|Extras")
+	
 	oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
 	oGui.Add("Edit","y+0 r1 w390 vBaseFolder ReadOnly")
 	oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click","GuiEvents")
@@ -75,9 +77,10 @@ runGui() {
 	oGui.Add("Button","x+0 vPickTextEditor","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","x+0 vDefaultTextEditor","X").OnEvent("Click","GuiEvents")
 	
-	oGui.Add("Button","vEditAhk1Template xm w220","Edit AHK v1 Template").OnEvent("Click","GuiEvents")
+	oGui.Add("Button","vEditAhk1Template xm y+10 w220","Edit AHK v1 Template").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vEditAhk2Template x+0 w220","Edit AHK v2 Template").OnEvent("Click","GuiEvents")
 	
+	tabs.UseTab("Extras")
 	oGui.Add("Checkbox","vAhk2ExeHandler xm y+10","Use fancy Ahk2Exe handler").OnEvent("Click","GuiEvents")
 	oGui.Add("Checkbox","vAhk2ExeAutoStart x+20","Auto Start Compiler").OnEvent("Click","GuiEvents")
 	oGui.Add("Checkbox","vAhk2ExeAutoClose x+20","Auto Close Compiler").OnEvent("Click","GuiEvents")
@@ -99,10 +102,12 @@ runGui() {
 	oGui.Add("Button","vPickAhkLaunchV2 x+0","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vClearAhkLaunchV2 x+0","X").OnEvent("Click","GuiEvents")
 	
+	x := Settings["posX"], y := Settings["posY"]
+	
 	PopulateSettings()
 	ListExes()
 	; oGui.Show()
-	oGui.Show("w460 h220")
+	oGui.Show("w460 h220 x" x " y" y)
 	
 	result := CheckUpdate()
 	If (result And result != "NoUpdate")
@@ -238,13 +243,76 @@ ListClick(oCtl,Info) {
 	DisplayPathGui(oCtl,Info)
 }
 
+CheckUpdate(override:=0) {
+	If (!override) {
+		If (!Settings.Has("AutoUpdateCheck") Or Settings["AutoUpdateCheck"] = 0)
+			return "NoUpdate"
+		Else If (Settings.Has("UpdateCheckDate") And Settings["UpdateCheckDate"] = FormatTime(,"yyyy-MM-dd"))
+			return "NoUpdate"
+	}
+	
+	errMsg := ""
+	Download Settings["Ahk1Url"] "version.txt", "version1.txt"
+	If (ErrorLevel)
+		errMsg := "Could not reach AHKv1 page."
+	Download Settings["Ahk2Url"] "version.txt", "version2.txt"
+	If (ErrorLevel)
+		errMsg .= errMsg ? "`n`n" : "", errMsg .= "Could not reach AHKv2 page."
+	
+	If (!errMsg) {
+		Settings["UpdateCheckDate"] := FormatTime(,"yyyy-MM-dd")
+	}
+	
+	Ahk1Version := (Settings.Has("Ahk1Version")) ? Settings["Ahk1Version"] : ""
+	If (!FileExist("version1.txt"))
+		NewAhk1Version := Settings["Ahk1Version"]
+	Else
+		NewAhk1Version := Trim(FileRead("version1.txt")," `t`r`n")
+
+	Ahk2Version := (Settings.Has("Ahk2Version")) ? Settings["Ahk2Version"] : ""
+	If (!FileExist("version2.txt"))
+		NewAhk2Version := Settings["Ahk2Version"]
+	Else
+		NewAhk2Version := Trim(FileRead("version2.txt")," `t`r`n")
+
+	If (Ahk1Version != NewAhk1Version) {
+		MsgBox "New AutoHotkey v1 update!"
+		Settings["Ahk1Version"] := NewAhk1Version
+	}
+
+	If (Ahk2Version != NewAhk2Version) {
+		MsgBox "New AutoHotkey v2 update!"
+		Settings["Ahk2Version"] := NewAhk2Version
+	}
+	
+	oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
+	oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
+
+	FileDelete "version1.txt"
+	FileDelete "version2.txt"
+	
+	return errMsg
+}
+
 GuiEvents(oCtl,Info) {
 	If (oCtl.Name = "ToggleSettings") {
-		toggle := Settings["toggle"]
-		If (toggle)
-			oGui.Show("w460 h220"), Settings["toggle"] := 0
+		newH := 480
+		p := oGui.Pos, scrW := SysGet(78), scrH := SysGet(79)
+		
+		If ((p.y + newH) > scrH)
+			diff := (p.y + newH) - scrH + SysGet(4) + (SysGet(8) * 2) + (SysGet(6) * 2) + (SysGet(33) * 2)
 		Else
-			oGui.Show("w460 h618"), Settings["toggle"] := 1
+			diff := 0
+		
+		toggle := Settings["toggle"]
+		If (toggle) {
+			newY := Settings["curPosY"]
+			oGui.Show("w460 h220 y" newY), Settings["toggle"] := 0
+		} Else {
+			newY := p.y - diff
+			Settings["curPosX"] := p.x, Settings["curPosY"] := p.y
+			oGui.Show("w460 h" newH " y" newY), Settings["toggle"] := 1
+		}
 	} Else If (oCtl.Name = "ActivateExe" or oCtl.Name = "ExeList") { ; <---------------------------------- activate exe
 		LV := oGui["ExeList"]
 		row := LV.GetNext(), exeFullPath := LV.GetText(row,4), ver := LV.GetText(row,2), desc := LV.GetText(row,1)
@@ -253,7 +321,9 @@ GuiEvents(oCtl,Info) {
 		
 		ActiveVersion := desc " " ver
 		Settings["ActiveVersion"] := ActiveVersion, Settings["ActiveVersionPath"] := exeFullPath
-		SetActiveVersionGui()
+		
+		; clear active version
+		dispCtl := oGui["ActiveVersion"], dispCtl.Text := "Installed:    ", dispCtl := ""
 		
 		SplitPath exeFullPath, exeFile, exeDir
 		
@@ -265,15 +335,6 @@ GuiEvents(oCtl,Info) {
 		
 		templateText := FileRead("resources\" template)
 		
-		If (bitness = "64-bit")
-			SetRegView 64
-		Else If (bitness = "32-bit")
-			SetRegView 32
-		Else {
-			MsgBox "Bitness can't be determined.`r`n`r`nCancelling."
-			return
-		}
-		
 		; .ahk extension and template settings
 		RegWrite "AutoHotkeyScript", "REG_SZ", "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk" ; defines ProgID - this should NOT CHANGE!
 		RegWrite "AutoHotkey Script v" majorVer, "REG_SZ", "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew", "ItemName" ; defines context menu > New text
@@ -282,6 +343,15 @@ GuiEvents(oCtl,Info) {
 		; update template accordingn to majorVer
 		FileDelete A_WinDir "\ShellNew\Template.ahk"
 		FileAppend templateText, A_WinDir "\ShellNew\Template.ahk"
+		
+		SetRegView 64
+		Run "reg delete HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\AutoHotkey /f /reg:64",,"Hide"
+		Run "reg delete HKEY_LOCAL_MACHINE\Software\AutoHotkey /f /reg:64",,"Hide"
+		SetRegView 32
+		Run "reg delete HKEY_LOCAL_MACHINE\Software\AutoHotkey /f /reg:32",,"Hide"
+		SetRegView "Default"
+		
+		Sleep 500
 		
 		; update ProgID
 		RegWrite "AutoHotkey Script v" majorVer, "REG_SZ", "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript"	; ProgID title, asthetic only?
@@ -329,6 +399,8 @@ GuiEvents(oCtl,Info) {
 		FileCopy exeFullPath, exeDir "\AutoHotkey.exe"
 		
 		SetRegView "Default"
+		
+		SetActiveVersionGui()
 		
 	} Else If (oCtl.Name = "CheckUpdateNow") {
 		result := CheckUpdate(1)
@@ -441,59 +513,10 @@ GuiEvents(oCtl,Info) {
 	oCtl := ""
 }
 
-CheckUpdate(override:=0) {
-	If (!override) {
-		If (!Settings.Has("AutoUpdateCheck") Or Settings["AutoUpdateCheck"] = 0)
-			return "NoUpdate"
-		Else If (Settings.Has("UpdateCheckDate") And Settings["UpdateCheckDate"] = FormatTime(,"yyyy-MM-dd"))
-			return "NoUpdate"
-	}
-	
-	errMsg := ""
-	Download Settings["Ahk1Url"] "version.txt", "version1.txt"
-	If (ErrorLevel)
-		errMsg := "Could not reach AHKv1 page."
-	Download Settings["Ahk2Url"] "version.txt", "version2.txt"
-	If (ErrorLevel)
-		errMsg .= errMsg ? "`n`n" : "", errMsg .= "Could not reach AHKv2 page."
-	
-	If (!errMsg) {
-		Settings["UpdateCheckDate"] := FormatTime(,"yyyy-MM-dd")
-	}
-	
-	Ahk1Version := (Settings.Has("Ahk1Version")) ? Settings["Ahk1Version"] : ""
-	If (!FileExist("version1.txt"))
-		NewAhk1Version := Settings["Ahk1Version"]
-	Else
-		NewAhk1Version := Trim(FileRead("version1.txt")," `t`r`n")
-
-	Ahk2Version := (Settings.Has("Ahk2Version")) ? Settings["Ahk2Version"] : ""
-	If (!FileExist("version2.txt"))
-		NewAhk2Version := Settings["Ahk2Version"]
-	Else
-		NewAhk2Version := Trim(FileRead("version2.txt")," `t`r`n")
-
-	If (Ahk1Version != NewAhk1Version) {
-		MsgBox "New AutoHotkey v1 update!"
-		Settings["Ahk1Version"] := NewAhk1Version
-	}
-
-	If (Ahk2Version != NewAhk2Version) {
-		MsgBox "New AutoHotkey v2 update!"
-		Settings["Ahk2Version"] := NewAhk2Version
-	}
-	
-	oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
-	oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
-
-	FileDelete "version1.txt"
-	FileDelete "version2.txt"
-	
-	return errMsg
-}
-
 gui_Close(o) {
 	Settings["BaseFolder"] := o["BaseFolder"].Value
+	dims := oGui.Pos
+	Settings["posX"] := dims.x, Settings["posY"] := dims.y
 	FileDelete "Settings.xml"
 	SettingsXML := XA_Save(Settings)
 	FileAppend SettingsXML, "Settings.xml"

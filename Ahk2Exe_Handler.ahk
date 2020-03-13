@@ -163,9 +163,11 @@ DoCompile(outFile) {
 	compileStr := Chr(34) Ahk2ExeFullPath Chr(34)
 	
 	oGui.Destroy(), oGui := ""
+	ToolTip
+	
 	Run compileStr,,, pid
 	
-	WinWait "ahk_pid " pid
+	WinWaitActive "ahk_pid " pid
 	ControlSetText inFile, "Edit1", "ahk_pid " pid
 	ControlSetText fileDir "\" outFile, "Edit2", "ahk_pid " pid
 	
@@ -173,8 +175,11 @@ DoCompile(outFile) {
 	If (FileExist(icoFile))
 		ControlSetText icoFile, "Edit3", "ahk_pid " pid
 	
-	If (Settings["Ahk2ExeAutoStart"])
-		ControlClick "Button7", "ahk_pid " pid
+	If (Settings["Ahk2ExeAutoStart"]) {
+		; msgbox "ready!"
+		; ControlClick "Button7", "ahk_pid " pid
+		ControlSend "{Space}", "Button7", "ahk_pid " pid
+	}
 	
 	If (Settings["Ahk2ExeAutoClose"]) {
 		WinWait "ahk_pid " pid, "Conversion complete."

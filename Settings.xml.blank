@@ -17,5 +17,9 @@
 	<BaseFolder></BaseFolder>
 	<TextEditorPath>notepad.exe</TextEditorPath>
 	<UpdateCheckDate></UpdateCheckDate>
+	<curPosX>0</curPosX>
+	<curPosY>0</curPosY>
+	<posX>0</posX>
+	<posY>0</posY>
 	<toggle>0</toggle>
 </Base>
