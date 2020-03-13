@@ -101,7 +101,11 @@ After you have made your selection, the Ahk2Exe window will open up with all sel
 Now you can run AutoHotkey v1 and v2 side-by-side.  I've designed the AhkLauncher.exe to look for the following info to determine the AHK version of the script:
 
 * append `_AHKv#` to the file name
+    * Example: `myScript_AHKv2.ahk`
 * add `; AHKv#` as line 1 in the script
+    * Example: `; AHK v1` - a few spacing variations are accepted
+    * Example: `;AHK v2`
+    * Example: `;AHKv1`
 * for course replace `#` with 1 or 2 corresponding to the AHK version
 
 You can select the desired AHK exe to use for v1 and v2 in the main window settings.
