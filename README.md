@@ -114,6 +114,7 @@ Now you can run AutoHotkey v1 and v2 side-by-side.  I've designed the AhkLaunche
     * Example: `;AHK v2`
     * Example: `;AHKv1`
     * Example: `; AHKv2`
+    * without these modifications, the fallback operation is the activated/installed AHK exe
 
 You can select the desired AHK exe to use for v1 and v2 in the main window settings.
 
