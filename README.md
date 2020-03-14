@@ -133,3 +133,6 @@ I may take some hints from the `Installer.ahk` and attempt to work around this, 
 ---
 
 Any feedback would be appreciated.  Hopefully this tool will help people, and just get better over time.
+
+If you need a version of Window Spy for AHK v2 go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) 
+on AHK forums.
