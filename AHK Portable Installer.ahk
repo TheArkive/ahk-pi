@@ -7,7 +7,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE Lib\TheArkive_XA_LoadSave.ahk
 
 Global oGui, Settings, AhkPisVersion
-AhkPisVersion := "v1.45"
+AhkPisVersion := "v1.5"
 
 If (FileExist("Settings.xml.blank"))
 	FileMove "Settings.xml.blank", "Settings.xml"
@@ -47,7 +47,7 @@ runGui() {
 	
 	oGui.Add("Link","vAhk1Version xm w220",Ahk1Html).OnEvent("Click","LinkEvents")
 	oGui.Add("Link","vAhk2Version x+0 w220",Ahk2Html).OnEvent("Click","LinkEvents")
-	oGui.Add("Edit","vActiveVersion xm y+8 w440 -E0x200 ReadOnly","Installed:")
+	oGui.Add("Edit","vActiveVersionDisp xm y+8 w440 -E0x200 ReadOnly","Installed:")
 	
 	LV := oGui.Add("ListView","xm y+0 r5 w440 vExeList","Description|Version|File Name|Full Path")
 	LV.OnEvent("DoubleClick","GuiEvents"), LV.OnEvent("Click","ListClick")
@@ -119,8 +119,18 @@ runGui() {
 }
 
 SetActiveVersionGui() {
-	ActiveVersion := (Settings.Has("ActiveVersion")) ? Settings["ActiveVersion"] : ""
-	oCtl := oGui["ActiveVersion"], oCtl.Text := "Installed:    " ActiveVersion, oCtl := ""
+	InstProd := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","InstallProduct")
+	ver := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","Version")
+	
+	regVer := InstProd " " ver
+	ActiveVersion := (Settings.Has("ActiveVersionDisp")) ? Settings["ActiveVersionDisp"] : ""
+	
+	oCtl := oGui["ActiveVersionDisp"]
+	If (regVer != ActiveVersion)
+		oCtl.Text := "Registry Mismatch!" ; this usually happens during a fresh install of Windows
+	Else
+		oCtl.Text := "Installed:    " ActiveVersion
+	oCtl := ""
 }
 
 PopulateSettings() {
@@ -328,10 +338,10 @@ GuiEvents(oCtl,Info) {
 		majorVer := SubStr(ver,1,1), template := "TemplateV" majorVer ".ahk"
 		
 		ActiveVersion := desc " " ver
-		Settings["ActiveVersion"] := ActiveVersion, Settings["ActiveVersionPath"] := exeFullPath
+		Settings["ActiveVersionDisp"] := ActiveVersion, Settings["ActiveVersionPath"] := exeFullPath
 		
 		; clear active version
-		dispCtl := oGui["ActiveVersion"], dispCtl.Text := "Installed:    ", dispCtl := ""
+		dispCtl := oGui["ActiveVersionDisp"], dispCtl.Text := "Installed:    ", dispCtl := ""
 		
 		SplitPath exeFullPath, exeFile, exeDir
 		
@@ -359,7 +369,7 @@ GuiEvents(oCtl,Info) {
 		Run "reg delete HKEY_LOCAL_MACHINE\Software\AutoHotkey /f /reg:32",,"Hide"
 		SetRegView "Default"
 		
-		Sleep 500
+		Sleep 350
 		
 		; update ProgID
 		RegWrite "AutoHotkey Script v" majorVer, "REG_SZ", "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript"	; ProgID title, asthetic only?
@@ -397,10 +407,13 @@ GuiEvents(oCtl,Info) {
 		
 		; HKLM / Software / AutoHotkey install and version info
 		RegWrite exeDir, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "InstallDir"				; Default entries
-		RegWrite exeFile, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "InstallExe"
 		RegWrite "AutoHotkey", "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "StartMenuFolder"		; Default entries
 		RegWrite ver, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "Version"						; Default entries
+		
 		RegWrite majorVer, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "MajorVersion"			; just in case it's helpful
+		RegWrite exeFile, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "InstallExe"
+		RegWrite bitness, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "InstallBitness"
+		RegWrite desc, "REG_SZ", "HKEY_LOCAL_MACHINE\Software\AutoHotkey", "InstallProduct"
 		
 		; Copy selected version to AutoHotkey.exe
 		FileDelete exeDir "\AutoHotkey.exe"
