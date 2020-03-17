@@ -7,7 +7,7 @@ Check [releases](https://github.com/TheArkive/ahk-pi/releases) for binaries.
 If you need a version of Window Spy for AHK v2 go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) 
 on AHK forums.
 
-This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written for AHKv2 (hence the need to compile).  If you run this as a script, switch to AHK v1, close, and try to reopen the script, it will not work.  For best results, please comipile, or use the included precompiled EXE(s).
+This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written in AHKv2.  If you run this as a script, switch to AHK v1, close, and try to reopen the script, it will not work.  For best results, please comipile, or use the included precompiled EXE(s).
 
 Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
 
@@ -20,33 +20,33 @@ The AHK `base folder` is intended to look something like this:
 Example:
 ```
 C:\AutoHotkey    <-- place the base folder anywhere you want
-             \AHK v1.1.30.03\...
-             \AHK v1.1.31.00\...
-             \AHK v2.0-a107-03296ce9\...
-             \AHK v2.0-a108-a2fa0498\...
-             \etc...
+             \ahk_version_blah\...
+             \another_ahk_version\...
+             \etc\...
+
+Folder Name format:
+    name       version
+    AutoHotkey vX.XX.XXX
+    AutoHotkey_H vX.XX.XXX
+    AutoHtokey vX.X-zXXX-ffffff
+
+Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.
 ```
 
 NOTE: If you are using AutoHotkey_H, you will need to append the appropriate suffix to the exe file name:
 
 ```
-AutoHotkey.exe  --->  AutoHotkey_x64w_MT.exe
+AutoHotkey.exe  --->  AutoHotkey_HA32MT.exe   (ANSI)
+                      AutoHotkey_HA32.exe
+                      AutoHotkey_HU32MT.exe   (Unicode)
+                      AutoHotkey_HU32.exe
+                      AutoHotkey_HU64MT.exe   (MT = multi-threading)
+                      AutoHotkey_HU64.exe
 ```
 
-It doesn't matter what you add or how you add it, but make sure it isn't plain `AutoHotkey.exe`.  This file is deleted and the selected EXE is copied to `AutoHotkey.exe`.
+Please choose one of the specific file names above for AutoHotkey_H exe files.  The AutoHotkey.exe file is deleted and the selected EXE is copied to `AutoHotkey.exe`.  As a precaution, any version named `AutoHotkey.exe` is NOT displayed in the program.  This may change in the future for AHK_H since I'm still trying to figure out how `Ahk2Exe` works for AutoHotkey_H.
 
-There is no "installation" for this script/program.  You can download and unzip to your `base folder` that contains all your subfolders of extracted AHK `.zip` versions, or you can place it anywhere and specify your `base folder` in the settings.
-
-The following settings can be modified:
-* Selecting the base AHK folder.
-* Define AHK v1 and v2 update URLs, ie.
-  * https://www.autohotkey.com/download/1.1/
-  * https://www.autohotkey.com/download/2.0/
-* Toggle checking for updates on program start.
-* Define a custom text editor, or revert back to `notepad.exe`.
-* Modify templates for `.ahk` files for AHK v1 and v2.
-* Specify location for Ahk2Exe and use the fancy Ahk2Exe Handler.
-* Specify EXEs to use for AHK v1 and v2 if using the AHK Launcher
+There is no "installation" for this script/program.  Just download, run, and select your AHK base folder.
 
 In general, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
