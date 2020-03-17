@@ -3,11 +3,11 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
-#INCLUDE Lib\_FileXpro.ahk
+; #INCLUDE Lib\_FileXpro.ahk
 #INCLUDE Lib\TheArkive_XA_LoadSave.ahk
 
 Global oGui, Settings, AhkPisVersion
-AhkPisVersion := "v1.5"
+AhkPisVersion := "v1.6"
 
 If (FileExist("Settings.xml.blank"))
 	FileMove "Settings.xml.blank", "Settings.xml"
@@ -49,58 +49,58 @@ runGui() {
 	oGui.Add("Link","vAhk2Version x+0 w220",Ahk2Html).OnEvent("Click","LinkEvents")
 	oGui.Add("Edit","vActiveVersionDisp xm y+8 w440 -E0x200 ReadOnly","Installed:")
 	
-	LV := oGui.Add("ListView","xm y+0 r5 w440 vExeList","Description|Version|File Name|Full Path")
+	LV := oGui.Add("ListView","xm y+0 r5 w460 vExeList","Description|Version|File Name|Full Path")
 	LV.OnEvent("DoubleClick","GuiEvents"), LV.OnEvent("Click","ListClick")
 	
 	oGui.Add("Edit","vCurrentPath xm y+8 w440 -E0x200 ReadOnly","Path:    ")
 	
 	oGui.Add("Button","vToggleSettings y+0","Settings").OnEvent("Click","GuiEvents")
-	oGui.Add("Button","vHelp x+62","Help").OnEvent("Click","GuiEvents")
+	oGui.Add("Button","vHelp x+72","Help").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vWindowSpy x+0","Window Spy").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click","GuiEvents")
-	oGui.Add("Button","vActivateExe x+55 yp","Activate EXE").OnEvent("Click","GuiEvents")
+	oGui.Add("Button","vActivateExe x+65 yp","Activate EXE").OnEvent("Click","GuiEvents")
 	
-	tabs := oGui.Add("Tab","y+10 x2 w456 h255","Basics|Extras")
+	tabs := oGui.Add("Tab","y+10 x2 w476 h255","Basics|Extras")
 	
 	oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
-	oGui.Add("Edit","y+0 r1 w390 vBaseFolder ReadOnly")
+	oGui.Add("Edit","y+0 r1 w410 vBaseFolder ReadOnly")
 	oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","x+0 vClearBaseFolder","X").OnEvent("Click","GuiEvents")
 	oGui.Add("Text","xm y+4","AutoHotkey v1 URL:")
-	oGui.Add("Edit","y+0 r1 w440 vAhk1Url").OnEvent("Change","GuiEvents")
+	oGui.Add("Edit","y+0 r1 w460 vAhk1Url").OnEvent("Change","GuiEvents")
 	oGui.Add("Text","xm y+4","AutoHotkey v2 URL:")
-	oGui.Add("Edit","y+0 r1 w440 vAhk2Url").OnEvent("Change","GuiEvents")
+	oGui.Add("Edit","y+0 r1 w460 vAhk2Url").OnEvent("Change","GuiEvents")
 	
 	oGui.Add("Checkbox","vAutoUpdateCheck xm y+10","Automatically check for updates").OnEvent("Click","GuiEvents")
-	oGui.Add("Button","vCheckUpdateNow x+153 yp-4","Check Updates Now").OnEvent("Click","GuiEvents")
+	oGui.Add("Button","vCheckUpdateNow x+173 yp-4","Check Updates Now").OnEvent("Click","GuiEvents")
 	
 	oGui.Add("Text","xm y+4","Text Editor:")
-	oGui.Add("Edit","xm y+0 w390 vTextEditorPath ReadOnly")
+	oGui.Add("Edit","xm y+0 w410 vTextEditorPath ReadOnly")
 	oGui.Add("Button","x+0 vPickTextEditor","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","x+0 vDefaultTextEditor","X").OnEvent("Click","GuiEvents")
 	
-	oGui.Add("Button","vEditAhk1Template xm y+10 w220","Edit AHK v1 Template").OnEvent("Click","GuiEvents")
-	oGui.Add("Button","vEditAhk2Template x+0 w220","Edit AHK v2 Template").OnEvent("Click","GuiEvents")
+	oGui.Add("Button","vEditAhk1Template xm y+10 w230","Edit AHK v1 Template").OnEvent("Click","GuiEvents")
+	oGui.Add("Button","vEditAhk2Template x+0 w230","Edit AHK v2 Template").OnEvent("Click","GuiEvents")
 	
 	tabs.UseTab("Extras")
 	oGui.Add("Checkbox","vAhk2ExeHandler xm y+10","Use fancy Ahk2Exe handler").OnEvent("Click","GuiEvents")
-	oGui.Add("Checkbox","vAhk2ExeAutoStart x+20","Auto Start Compiler").OnEvent("Click","GuiEvents")
-	oGui.Add("Checkbox","vAhk2ExeAutoClose x+20","Auto Close Compiler").OnEvent("Click","GuiEvents")
+	oGui.Add("Checkbox","vAhk2ExeAutoStart x+30","Auto Start Compiler").OnEvent("Click","GuiEvents")
+	oGui.Add("Checkbox","vAhk2ExeAutoClose x+30","Auto Close Compiler").OnEvent("Click","GuiEvents")
 	
 	oGui.Add("Text","xm y+10","Ahk2Exe Path:    (Used with fancy Ahk2Exe handler)")
-	oGui.Add("Edit","vAhk2ExePath xm y+0 w390 ReadOnly")
+	oGui.Add("Edit","vAhk2ExePath xm y+0 w410 ReadOnly")
 	oGui.Add("Button","vPickAhk2ExePath x+0","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vClearAhk2ExePath x+0","X").OnEvent("Click","GuiEvents")
 	
 	oGui.Add("Checkbox","vAhkLauncher xm y+10","Use AHK Launcher").OnEvent("Click","GuiEvents")
 	
 	oGui.Add("Text","xm y+10","AHKv1 Path:")
-	oGui.Add("Edit","vAhkLaunchV1 xm y+0 w390 ReadOnly")
+	oGui.Add("Edit","vAhkLaunchV1 xm y+0 w410 ReadOnly")
 	oGui.Add("Button","vPickAhkLaunchV1 x+0","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vClearAhkLaunchV1 x+0","X").OnEvent("Click","GuiEvents")
 	
 	oGui.Add("Text","xm y+4","AHKv2 Path:")
-	oGui.Add("Edit","vAhkLaunchV2 xm y+0 w390 ReadOnly")
+	oGui.Add("Edit","vAhkLaunchV2 xm y+0 w410 ReadOnly")
 	oGui.Add("Button","vPickAhkLaunchV2 x+0","...").OnEvent("Click","GuiEvents")
 	oGui.Add("Button","vClearAhkLaunchV2 x+0","X").OnEvent("Click","GuiEvents")
 	
@@ -111,7 +111,9 @@ runGui() {
 	PopulateSettings()
 	ListExes()
 	; oGui.Show()
-	oGui.Show("w460 h220 x" x " y" y)
+	
+	newH := A_ScreenDPI = 96 ? 220 : 210 ; 125%
+	oGui.Show("w480 h" newH " x" x " y" y)
 	
 	result := CheckUpdate()
 	If (result And result != "NoUpdate")
@@ -218,12 +220,13 @@ ListExes() {
 	
 	Loop Files BaseFolder "\*.exe", "R"
 	{
-		If (InStr(A_LoopFileName,"AutoHotkey") And !InStr(A_LoopFileName,"setup") And A_LoopFileName != "AutoHotkey.exe") {
-			outProps := FileXpro(A_LoopFileFullPath,props*)
-			oCtl.Add("",outProps["File description"],outProps["Product version"],outProps["Name"],A_LoopFileFullPath)
+		f := A_LoopFileName
+		If (InStr(f,"AutoHotkey") And !InStr(f,"setup") And f != "AutoHotkey.exe" And f != "AutoHotkeySC.exe") {
+			AhkProps(A_LoopFileFullPath,ahkType,ahkVer,ahkFile)
+			oCtl.Add("",ahkType,ahkVer,ahkFile,A_LoopFileFullPath)
 		}
 	}
-	oCtl.ModifyCol(1,170), oCtl.ModifyCol(2,120), oCtl.ModifyCol(3,128), oCtl.ModifyCol(4,0)
+	oCtl.ModifyCol(1,180), oCtl.ModifyCol(2,120), oCtl.ModifyCol(3,138), oCtl.ModifyCol(4,0)
 	oCtl.ModifyCol(1,"Sort"), oCtl.ModifyCol(2,"Sort")
 	oCtl.Opt("+Redraw")
 	
@@ -245,6 +248,36 @@ ListExes() {
 		DisplayPathGui(oCtl,curRow)
 	
 	oCtl.Focus(), oCtl := ""
+}
+
+AhkProps(sInput,ByRef ahkType, ByRef ahkVer, ByRef ahkFile) {
+	SplitPath sInput, ahkFile, curDir
+	curDir := StrReplace(curDir,"\Win32a"), curDir := StrReplace(curDir,"\Win32a_MT"), curDir := StrReplace(curDir,"\Win32w")
+	curDir := StrReplace(curDir,"\Win32w_MT"), curDir := StrReplace(curDir,"\x64w"), curDir := StrReplace(curDir,"\x64w_MT")
+	a := StrSplit(curDir,"\"), lastTok := a.Length, lastFolder := a[lastTok], a := ""
+	verArray := StrSplit(lastFolder," "), ahkVer := verArray.Has(2) ? verArray[2] : "", verArray := ""
+	
+	If (!InStr(ahkFile,"AutoHotkey_H")) {
+		If (InStr(ahkFile,"A32.exe"))
+			ahkType := "AutoHotkey ANSI 32-bit"
+		Else If (InStr(ahkFile,"U32.exe"))
+			ahkType := "AutoHotkey Unicode 32-bit"
+		Else If (InStr(ahkFile,"U64.exe"))
+			ahkType := "AutoHotkey Unicode 64-bit"
+	} Else {
+		If (InStr(ahkFile,"HA32MT.exe"))
+			ahkType := "AutoHotkey_H ANSI 32-bit MT"
+		Else If (InStr(ahkFile,"HA32.exe"))
+			ahkType := "AutoHotkey_H ANSI 32-bit"
+		Else If (InStr(ahkFile,"HU32MT.exe"))
+			ahkType := "AutoHotkey_H Unicode 32-bit MT"
+		Else If (InStr(ahkFile,"HU32.exe"))
+			ahkType := "AutoHotkey_H Unicode 32-bit"
+		Else if (InStr(ahkFile,"HU64MT.exe"))
+			ahkType := "AutoHotkey_H Unicode 64-bit MT"
+		Else If (InStr(ahkFile,"HU64.exe"))
+			ahkType := "AutoHotkey_H Unicode 64-bit"
+	}
 }
 
 DisplayPathGui(oCtl,curRow) {
@@ -314,8 +347,9 @@ CheckUpdate(override:=0) {
 
 GuiEvents(oCtl,Info) {
 	If (oCtl.Name = "ToggleSettings") {
+		; newH := A_ScreenDPI = 96 ? 480 : 470 ; * (A_ScreenDPI / 96)
 		newH := 480
-		p := oGui.Pos, scrW := SysGet(78), scrH := SysGet(79)
+		p := oGui.Pos, scrW := SysGet(78), scrH := SysGet(79) 
 		
 		If ((p.y + newH) > scrH)
 			diff := (p.y + newH) - scrH + SysGet(4) + (SysGet(8) * 2) + (SysGet(33) * 2) ; (SysGet(6) * 2)
@@ -323,13 +357,15 @@ GuiEvents(oCtl,Info) {
 			diff := 0
 		
 		toggle := Settings["toggle"]
+		
 		If (toggle) {
 			newY := Settings["curPosY"]
-			oGui.Show("w460 h220 y" newY), Settings["toggle"] := 0
+			newH := A_ScreenDPI = 96 ? 220 : 210 ; * (A_ScreenDPI / 96) ;      orig 220 @ 100% / 210 @ 125% ???
+			oGui.Show("w480 h" newH " y" newY), Settings["toggle"] := 0
 		} Else {
 			newY := p.y - diff
 			Settings["curPosX"] := p.x, Settings["curPosY"] := p.y
-			oGui.Show("w460 h" newH " y" newY), Settings["toggle"] := 1
+			oGui.Show("w480 h" newH " y" newY), Settings["toggle"] := 1
 		}
 	} Else If (oCtl.Name = "ActivateExe" or oCtl.Name = "ExeList") { ; <---------------------------------- activate exe
 		LV := oGui["ExeList"]
