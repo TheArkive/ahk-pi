@@ -1,5 +1,7 @@
 # AHK Portable Installer
 
+* FIXED: can't set base folder when running on system with locale NOT set to `English`
+
 [Posted on AutoHotkey.com Forums](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=73056)
 
 Check [releases](https://github.com/TheArkive/ahk-pi/releases) for binaries.
