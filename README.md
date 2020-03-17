@@ -32,7 +32,8 @@ Folder Name format:
     AutoHotkey_H vX.XX.XXX
     AutoHtokey vX.X-zXXX-ffffff
 
-Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that all VERSION info comes from folder name.  The type (ANSI / UNICODE) comes from the exe file.
+Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.
+Note that all VERSION info comes from folder name.  The type (ANSI / UNICODE) comes from the exe file.
 ```
 
 NOTE: If you are using AutoHotkey_H, you will need to append the appropriate suffix to the exe file name:
