@@ -27,10 +27,11 @@ C:\AutoHotkey    <-- place the base folder anywhere you want
              \etc\...
 
 Folder Name format:
-    name       version
-    AutoHotkey vX.XX.XXX
-    AutoHotkey_H vX.XX.XXX
-    AutoHtokey vX.X-zXXX-ffffff
+    [name_no_spaces] [version_no_spaces]
+
+Examples:
+    AutoHotkey v1.1.32.00
+    AutoHotkey v2.0-a108-a2fa0498
 
 Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.
 Note that all VERSION info comes from folder name.  The type (ANSI / UNICODE) and bitness
