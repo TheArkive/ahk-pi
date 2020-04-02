@@ -132,11 +132,11 @@ This is a PORTABLE installer, so this script:
 * WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
 * WILL NOT automatically download new versions.
 
-The user may be prompted to specify a program to associate before everything works nicely.  This shouldn't happen.  I haven't has this problem yet.  Let me know if you do.
+If you install/activate AutoHotkey, and then move your AHK folder, then you may be prompted to specify a program to associate before everything works nicely.  This shouldn't happen.  Just click the uninstall button, and then reinstall/activate your desired version of AutoHotkey.
 
 Some of these features may change or be added in the future.
 
-One more thing this program will not do is circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
+This program will NOT circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
 
 I may take some hints from the `Installer.ahk` and attempt to work around this, but this program does enough in the registry (for my preference).
 
