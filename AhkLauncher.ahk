@@ -2,17 +2,18 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
-; #INCLUDE Lib\_FileXpro.ahk
-#INCLUDE Lib\TheArkive_XA_LoadSave.ahk
+; #INCLUDE Lib\_XA_LoadSave.ahk
+#INCLUDE Lib\_JXON.ahk
 
 Global Settings
 
-If (!FileExist("Settings.xml")) {
-	MsgBox "Can't read Settings.xml`r`nHalting..."
+If (!FileExist("Settings.json")) {
+	MsgBox "Can't read Settings.json`r`nHalting..."
 	ExitApp
 }
 
-SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML)
+; SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML)
+SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(SettingsJSON)
 
 If (!A_Args.Length) {
 	MsgBox "No parameters specified."

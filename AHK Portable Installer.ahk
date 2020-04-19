@@ -3,16 +3,19 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
-; #INCLUDE Lib\_FileXpro.ahk
-#INCLUDE Lib\TheArkive_XA_LoadSave.ahk
+; #INCLUDE Lib\_XA_LoadSave.ahk
+#INCLUDE Lib\_JXON.ahk
 
 Global oGui, Settings, AhkPisVersion
-AhkPisVersion := "v1.6"
+AhkPisVersion := "v1.7"
 
-If (FileExist("Settings.xml.blank"))
-	FileMove "Settings.xml.blank", "Settings.xml"
+; If (FileExist("Settings.xml.blank") And !FileExist("Settings.xml"))
+	; FileMove "Settings.xml.blank", "Settings.xml"
+If (FileExist("Settings.json.blank") And !FileExist("Settings.json"))
+	FileMove "Settings.json.blank", "Settings.json"
 
-SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML), Settings["toggle"] := 0 ; load settings
+; SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML), Settings["toggle"] := 0 ; load settings
+SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(SettingsJSON), Settings["toggle"] := 0 ; load settings
 
 OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
@@ -129,7 +132,7 @@ SetActiveVersionGui() {
 	
 	oCtl := oGui["ActiveVersionDisp"]
 	If (regVer != ActiveVersion)
-		oCtl.Text := "Registry Mismatch!" ; this usually happens during a fresh install of Windows
+		oCtl.Text := "AutoHotkey not installed!" ; this usually happens during a fresh install of Windows
 	Else
 		oCtl.Text := "Installed:    " ActiveVersion
 	oCtl := ""
@@ -213,7 +216,7 @@ PopulateSettings() {
 
 ListExes() {
 	props := ["Name","Product version","File description"]
-	oCtl := oGui["ExeList"]
+	oCtl := oGui["ExeList"] ; ListViewObject
 	oCtl.Opt("-Redraw"), oCtl.Delete()
 	
 	BaseFolder := (!Settings.Has("BaseFolder") Or Settings["BaseFolder"] = "") ? A_ScriptDir : Settings["BaseFolder"]
@@ -227,7 +230,7 @@ ListExes() {
 		}
 	}
 	oCtl.ModifyCol(1,180), oCtl.ModifyCol(2,120), oCtl.ModifyCol(3,138), oCtl.ModifyCol(4,0)
-	oCtl.ModifyCol(1,"Sort"), oCtl.ModifyCol(2,"Sort")
+	oCtl.ModifyCol(2,"Sort"), oCtl.ModifyCol(1,"Sort")
 	oCtl.Opt("+Redraw")
 	
 	ActiveVersionPath := (Settings.Has("ActiveVersionPath")) ? Settings["ActiveVersionPath"] : ""
@@ -576,9 +579,12 @@ gui_Close(o) {
 	Settings["BaseFolder"] := o["BaseFolder"].Value
 	dims := oGui.Pos
 	Settings["posX"] := dims.x, Settings["posY"] := dims.y
-	FileDelete "Settings.xml"
-	SettingsXML := XA_Save(Settings)
-	FileAppend SettingsXML, "Settings.xml"
+	; FileDelete "Settings.xml"
+	FileDelete "Settings.json"
+	; SettingsXML := XA_Save(Settings)
+	SettingsJSON := Jxon_Dump(Settings,4)
+	; FileAppend SettingsXML, "Settings.xml"
+	FileAppend SettingsJSON, "Settings.json"
 	ExitApp
 }
 

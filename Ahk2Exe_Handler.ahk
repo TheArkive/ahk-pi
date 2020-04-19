@@ -3,16 +3,18 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
-#INCLUDE Lib\TheArkive_XA_LoadSave.ahk
+; #INCLUDE Lib\_XA_LoadSave.ahk
+#INCLUDE Lib\_JXON.ahk
 
 Global Settings, inFile, oGui, fileDir, fileTitle, Ahk2ExeFullPath, Ahk2ExeBinPath, MajorVersion, dims, bf
 
-If (!FileExist("Settings.xml")) {
-	MsgBox "Can't read Settings.xml`r`nHalting..."
+If (!FileExist("Settings.json")) {
+	MsgBox "Can't read Settings.json`r`nHalting..."
 	ExitApp
 }
 
-SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML)
+; SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML)
+SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(SettingsJSON)
 
 OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
