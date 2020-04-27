@@ -1,6 +1,13 @@
 # AHK Portable Installer
 
-* FIXED: can't set base folder when running on system with locale NOT set to `English`
+## To-Do List
+
+* ~~allow user defined list of parallel versions of AutoHotkey to run used in 1st-line comment match~~
+* ~~Ahk_Launcher must follow user defined list of specified parallel AHK versions~~
+* ~~make Ahk2Exe Handler tool tips follow main script setting "Disable Tooltips"~~
+* change Ahk2Exe Handler to only use Compiler in specified AHK folder
+
+## Intro
 
 [Posted on AutoHotkey.com Forums](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=73056)
 
