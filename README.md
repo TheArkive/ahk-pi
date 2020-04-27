@@ -6,6 +6,7 @@
 * ~~Ahk_Launcher must follow user defined list of specified parallel AHK versions~~
 * ~~make Ahk2Exe Handler tool tips follow main script setting "Disable Tooltips"~~
 * change Ahk2Exe Handler to only use Compiler in specified AHK folder
+* no longer require renaming of AHK_H exe files
 
 ## Intro
 
