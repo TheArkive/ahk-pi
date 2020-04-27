@@ -109,20 +109,26 @@ Options to Auto-Start and Auto-Close the compiler are in the main GUI > Extras t
 
 ![](/images/ahk-pi8.png)
 
-## AHK Launcher
+## AHK Launcher v2
 
-Now you can run AutoHotkey v1 and v2 side-by-side.  I've designed the AhkLauncher.exe to look for the following info to determine the AHK version of the script:
+Now you can run several (practically unlimited) versions of AutoHotkey side-by-side.  I've designed the AhkLauncher.exe to look for the following info to determine the AHK version of the script:
 
-* append `_AHKv#` to the file name
-    * Example: `myScript_AHKv2.ahk`
-* add `; AHKv#` as line 1 in the script
-    * Example: `; AHK v1` - a few spacing variations are accepted
-    * Example: `;AHK v2`
-    * Example: `;AHKv1`
-    * Example: `; AHKv2`
-    * without these modifications, the fallback operation is the activated/installed AHK exe
+* support for appending AHK version to the end of the file name has been removed
+* add AHK version as first comment:
+    * ; AHK v1 32-bit
+    * ; AHK_H v2 64-bit
+* in the main window > Extras tab, you can define as many versios of AHK as desired with regex
+* default values allow for specifying the following versions as first-line comment:
+  * AHK v1 64-bit
+  * AHK v1 32-bit
+  * AHK v2 64-bit
+  * AHK v2 32-bit
+  * AHK_H v1/2 32/64-bit ... 8 versions total in default settings
+* spacing variations accounted for in the regex
+* specify the EXE you want to associate with each entry in the Extras tab and get started!
+* more specific regex match allows you to specify any major/minor/type/bitness version of AHK
 
-You can select the desired AHK exe to use for v1 and v2 in the main window settings.
+You can also specify entries to differentiate between MT versions of AHK_H and non-MT versions.  If you need help with that regex just add an issue and I'll respond.
 
 ## What this does NOT do...
 
