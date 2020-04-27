@@ -3,23 +3,58 @@
     "ActiveVersionPath": "",
     "Ahk1Url": "https://www.autohotkey.com/download/1.1/",
     "Ahk1Version": "",
-    "Ahk2ExeAutoClose": "0",
-    "Ahk2ExeAutoStart": "0",
-    "Ahk2ExeHandler": "0",
+    "Ahk2ExeAutoClose": 0,
+    "Ahk2ExeAutoStart": 0,
+    "Ahk2ExeHandler": 0,
     "Ahk2ExePath": "",
     "Ahk2Url": "https://www.autohotkey.com/download/2.0/",
     "Ahk2Version": "",
     "AhkLaunchV1": "",
     "AhkLaunchV2": "",
-    "AhkLauncher": "0",
-    "AutoUpdateCheck": "0",
+    "AhkLauncher": 0,
+    "AutoUpdateCheck": 0,
     "BaseFolder": "",
-    "DisableTooltips": "0",
+    "DisableTooltips": 0,
     "TextEditorPath": "notepad.exe",
     "UpdateCheckDate": "",
-    "curPosX": "0",
-    "curPosY": "0",
+    "curPosX": 0,
+    "curPosY": 0,
     "posX": 0,
     "posY": 0,
-    "toggle": 0
+    "regexList": {
+        "AHK v1 32-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK[ ]*v?1[ ]+32\\-bit"
+        },
+        "AHK v1 64-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK[ ]*v?1([ ]+64\\-bit)?$"
+        },
+        "AHK v2 32-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK[ ]*v?2[ ]+32\\-bit"
+        },
+        "AHK v2 64-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK[ ]*v?2([ ]+64\\-bit)?$"
+        },
+        "AHK_H v1 32-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK_H[ ]*v?1[ ]+32\\-bit$"
+        },
+        "AHK_H v1 64-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK_H[ ]*v?1([ ]+64\\-bit)?$"
+        },
+        "AHK_H v2 32-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK_H[ ]*v?2[ ]+32\\-bit$"
+        },
+        "AHK_H v2 64-bit": {
+            "exe": "select EXE",
+            "regex": "^;[ ]*AHK_H[ ]*v?2([ ]+64\\-bit)?$"
+        }
+    },
+    "toggle": 0,
+	"debug": 0
 }

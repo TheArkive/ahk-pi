@@ -15,10 +15,12 @@ If (!FileExist("Settings.json")) {
 
 ; SettingsXML := FileRead("Settings.xml"), Settings := XA_Load(SettingsXML)
 SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(SettingsJSON)
+DisableTooltips := Settings["DisableTooltips"]
+Ahk2ExeHandler := Settings["Ahk2ExeHandler"]
 
 OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
-	If (IsObject(oGui)) {
+	If (IsObject(oGui) And DisableTooltips) {
 		If (hwnd = oGui["SelOption"].Hwnd)
 			ToolTip "Select output EXE name.`r`nCustomize it in the edit box below.`r`nDouble-click to select and compile, or click OK."
 		Else If (hwnd = oGui["CustomOption"].Hwnd)
@@ -45,6 +47,9 @@ If (inFile = "") {
 
 SplitPath inFile,,fileDir,,fileTitle
 
+If (A_Is64BitOs)
+	SetRegView 64
+
 Ahk2ExeFullPath := RegRead("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","Ahk2ExePath")
 SplitPath Ahk2ExeFullPath,,Ahk2ExeDir
 
@@ -54,16 +59,16 @@ If (!bf)
 bfStr := "All|32-Bit|64-bit|"
 BitFilterStr := StrReplace(bfStr,bf "|",bf "||"), BitFilterStr := (SubStr(BitFilterStr,-2) = "||") ? BitFilterStr : Trim(BitFilterStr,"|")
 
-SetRegView 64
+; SetRegView 64
 AhkPath := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","InstallDir")
-SetRegView 32
-If (!AhkPath)
-	AhkPath := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\AutoHotkey","InstallDir")
+; SetRegView 32
+; If (!AhkPath)
+	; AhkPath := RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\AutoHotkey","InstallDir")
 If (!AhkPath){
 	MsgBox "AHK install seems to be corrupt.  Please uninstall and reinstall."
 	ExitApp
 }
-SetRegView "Default"
+
 Ahk2ExeBinPath := Ahk2ExeDir "\*.bin"
 ; MajorVersion := RegRead("HKEY_CURRENT_USER\Software\AutoHotkey","MajorVersion")
 
