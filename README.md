@@ -54,7 +54,7 @@ AutoHotkey.exe  --->  AutoHotkey_HA32MT.exe   (ANSI)
                       AutoHotkey_HA32.exe
                       AutoHotkey_HU32MT.exe   (Unicode)
                       AutoHotkey_HU32.exe
-                      AutoHotkey_HU64MT.exe   (MT = multi-threading)
+                      AutoHotkey_HU64MT.exe   (MT = DLL in compiled exe)
                       AutoHotkey_HU64.exe
 ```
 
