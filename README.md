@@ -19,8 +19,6 @@ on AHK forums.
 
 This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written in AHKv2.  If you run this as a script, switch to AHK v1, close, and try to reopen the script, it will not work.  For best results, please comipile, or use the included precompiled EXE(s).
 
-Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
-
 <img src="/images/ahk-pi2.png" width="420" align="top"/><img src="/images/ahk-pi10.png" width="420"/>
 
 ## Basic Setup
@@ -47,22 +45,13 @@ Note that all VERSION info comes from folder name.  The type (ANSI / UNICODE) an
 (64/32 bit) comes from the EXE file.
 ```
 
-NOTE: If you are using AutoHotkey_H, you will need to append the appropriate suffix to the exe file name:
+The AutoHotkey.exe file is deleted and the selected EXE is copied to `AutoHotkey.exe`.  As a precaution, any version named `AutoHotkey.exe` is NOT displayed in the program, unless the folder contains AutoHotkey_H exe files.  These are handled differently.
 
-```
-AutoHotkey.exe  --->  AutoHotkey_HA32MT.exe   (ANSI)
-                      AutoHotkey_HA32.exe
-                      AutoHotkey_HU32MT.exe   (Unicode)
-                      AutoHotkey_HU32.exe
-                      AutoHotkey_HU64MT.exe   (MT = DLL in compiled exe)
-                      AutoHotkey_HU64.exe
-```
-
-Please choose one of the specific file names above for AutoHotkey_H exe files.  The AutoHotkey.exe file is deleted and the selected EXE is copied to `AutoHotkey.exe`.  As a precaution, any version named `AutoHotkey.exe` is NOT displayed in the program.  This may change in the future for AHK_H since I'm still trying to figure out how `Ahk2Exe` works for AutoHotkey_H.
+There is no need to rename AutoHotkey_H EXE files.  Just leave the contents of the zip as they are.  Folder names such as `Win32w` and `x64w_MT` are used to tell the difference between versions of AHK and are listed accordingly.  If you modify the contents of the AutoHotkey_H folder after unzip, you may get unexpected results.
 
 There is no "installation" for this script/program.  Just download, run, and select your AHK base folder.
 
-In general, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
+In general for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
