@@ -116,8 +116,8 @@ Key Notes:
 * support for appending AHK version to the end of the file name has been removed
 * add AHK match string as you first-line comment:
     * ; AHK v1.1.32 32-bit
-        or
     * ; AHK v1 64-bit
+    * ... etc.
 * you can be as general or specific as you like with your match string
 * each match entry requires a label, match type, match string, and AHK EXE to specify
 * ther are 8 default values to allow for running the following versions side by side:
