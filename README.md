@@ -108,7 +108,7 @@ Options to Auto-Start and Auto-Close the compiler are in the main GUI > Extras t
 
 ## AHK Launcher v2
 
-<img src="/images/ahk-pi10.png" width="420"/>
+<img src="/images/ahk-pi11.png" />
 
 In the Extras tab, now you can run several (practically unlimited) versions of AutoHotkey and AutoHotkey_H side-by-side.  The first line of the script will be parsed for version info to determine what version of AutoHotkey to use for running.  The image above shows an example list of matches.  The user determines what the regex or exact string match should be, and what EXE is used to run the script.  Use the plus/minus keys to add/remove entries.  Double-click on a list item to edit it.
 
