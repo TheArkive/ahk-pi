@@ -19,6 +19,8 @@ on AHK forums.
 
 This is a portable install manager.  This script is meant to be run compiled, and is only meant to work with the `.zip` archives.  It is written in AHKv2.  If you run this as a script, switch to AHK v1, close, and try to reopen the script, it will not work.  For best results, please comipile, or use the included precompiled EXE(s).
 
+This program is now compiled as 32-bit only, and will write to the 64-bit side of the registry when on a 64-bit system.
+
 <img src="/images/ahk-pi2.png" width="420" align="top"/><img src="/images/ahk-pi10.png" width="420"/>
 
 ## Basic Setup
@@ -40,16 +42,14 @@ Examples:
     AutoHotkey v2.0-a108-a2fa0498 extra_info not_used
     AutoHotkey_H v1.2.3.4
 
-Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.
-Note that all VERSION info comes from folder name.  The type (ANSI / UNICODE) and bitness
-(64/32 bit) comes from the EXE file.
+Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.
 ```
 
-The AutoHotkey.exe file is deleted and the selected EXE is copied to `AutoHotkey.exe`.  As a precaution, any version named `AutoHotkey.exe` is NOT displayed in the program, unless the folder contains AutoHotkey_H exe files.  These are handled differently.
+For non AHK_H exe files, the AutoHotkey.exe file is deleted and the selected EXE is copied to `AutoHotkey.exe`.  As a precaution, any version named `AutoHotkey.exe` is NOT displayed in the program, unless the folder contains AutoHotkey_H exe files.  These are handled differently.
 
-There is no need to rename AutoHotkey_H EXE files.  Just leave the contents of the zip as they are.  Folder names such as `Win32w` and `x64w_MT` are used to tell the difference between versions of AHK and are listed accordingly.  If you modify the contents of the AutoHotkey_H folder after unzip, you may get unexpected results.
+There is no need to rename AutoHotkey_H EXE files.  Just leave the contents of the zip as they are.  Folder names such as `Win32w` and `x64w_MT` are used to tell the difference between versions of AHK_H and are listed accordingly.  If you modify the contents of the AutoHotkey_H folder after unzip, you may get unexpected results.
 
-There is no "installation" for this script/program.  Just download, run, and select your AHK base folder.
+There is no "installation" for this script/program.  Just download, run, and select your AHK base folder and define other options as you desire.
 
 In general for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
@@ -108,24 +108,24 @@ Options to Auto-Start and Auto-Close the compiler are in the main GUI > Extras t
 
 ## AHK Launcher v2
 
-Now you can run several (practically unlimited) versions of AutoHotkey side-by-side.  I've designed the AhkLauncher.exe to look for the following info to determine the AHK version of the script:
+<img src="/images/ahk-pi10.png" width="420"/>
 
+In the Extras tab, now you can run several (practically unlimited) versions of AutoHotkey and AutoHotkey_H side-by-side.  The first line of the script will be parsed for version info to determine what version of AutoHotkey to use for running.  The image above shows an example list of matches.  The user determines what the regex or exact string match should be, and what EXE is used to run the script.  Use the plus/minus keys to add/remove entries.  Double-click on a list item to edit it.
+
+Key Notes:
 * support for appending AHK version to the end of the file name has been removed
-* add AHK version as first comment:
-    * ; AHK v1 32-bit
-    * ; AHK_H v2 64-bit
-* in the main window > Extras tab, you can define as many versios of AHK as desired with regex
-* default values allow for specifying the following versions as first-line comment:
-  * AHK v1 64-bit
-  * AHK v1 32-bit
-  * AHK v2 64-bit
-  * AHK v2 32-bit
-  * AHK_H v1/2 32/64-bit ... 8 versions total in default settings
-* spacing variations accounted for in the regex
-* specify the EXE you want to associate with each entry in the Extras tab and get started!
-* more specific regex match allows you to specify any major/minor/type/bitness version of AHK
-
-You can also specify entries to differentiate between MT versions of AHK_H and non-MT versions.  If you need help with that regex just add an issue and I'll respond.
+* add AHK match string as you first-line comment:
+    * ; AHK v1.1.32 32-bit
+        or
+    * ; AHK v1 64-bit
+* you can be as general or specific as you like with your match string
+* each match entry requires a label, match type, match string, and AHK EXE to specify
+* ther are 8 default values to allow for running the following versions side by side:
+  * AHK v1/2 64-bit
+  * AHK v1/2 32-bit
+  * AHK_H v1/2 32/64-bit
+  * just specify the EXE to use for each one you intend to use
+* spacing variations accounted for in the default regex matches
 
 ## What this does NOT do...
 
