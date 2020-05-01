@@ -1,6 +1,7 @@
 ﻿; AHK v2
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
+#NoTrayIcon
 
 #INCLUDE Lib\_JXON.ahk
 #INCLUDE Lib\_RegexInput.ahk
@@ -29,8 +30,6 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
 			ToolTip oGui["CurrentPath"].Value
 		Else If (hwnd = oGui["Ahk2ExeHandler"].Hwnd)
 			ToolTip "This changes the " Chr(34) "Compile" Chr(34) " context menu to use the handler`r`nwhich quickly pre-populates a destination EXE, icon if exists`r`nwith script file name, and the .bin file to use."
-		Else If (hwnd = oGui["Ahk2ExePath"].Hwnd)
-			ToolTip "This is useful if you want to dump all the .bin files in one place.  Make sure`r`nyou append " Chr(34) " v#" Chr(34) " to the file names so you don't overwrite them.  This is`r`nparticularly important if you use AHK v1 and v2 .bin files together in the`r`nsame Ahk2Exe folder."
 		Else If (hwnd = oGui["AhkLauncher"].Hwnd)
 			ToolTip "Run AHK scripts of different versions side by side without needing a separate file association.`r`n`r`nAdd " Chr(34) ";AHKv#" Chr(34) " to the first line of the script." 
 		Else If (hwnd = oGui["RegexExeAdd"].Hwnd)
@@ -103,7 +102,7 @@ runGui() {
 	; oGui.Add("Button","vClearAhk2ExePath x+0","X").OnEvent("Click","GuiEvents")
 	
 	oGui.Add("Checkbox","vAhkLauncher xm y+20","Use AHK Launcher").OnEvent("Click","GuiEvents")
-	oGui.Add("Checkbox","vDisableTooltips x+30","Disable Tooltips").OnEvent("Click","GuiEvents")
+	oGui.Add("Checkbox","vDisableTooltips x+70","Disable Tooltips").OnEvent("Click","GuiEvents")
 	; oGui.Add("Checkbox","vDebugNow x+30","Debug").OnEvent("click","GuiEvents")
 	
 	LV := oGui.Add("ListView","vAhkParallelList xm y+4 w460 h143","Label|Match String")
@@ -292,6 +291,9 @@ ListExes() {
 ;    - variant = MT for "multi-threading" or blank ("")
 
 GetAhkProps(sInput) {
+	If (!FileExist(sInput))
+		return ""
+	
 	SplitPath sInput, ahkFile, curDir
 	isAhkH := false, var := "", installDir := curDir
 	

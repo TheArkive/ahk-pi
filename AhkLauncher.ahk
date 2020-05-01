@@ -62,7 +62,10 @@ If (useLauncher) { ; check for firstLine regex match
 		Else If (matchType = 1 And RegexMatch(firstLine,regex))
 			runNow := true
 		
-		If (runNow) {
+		If (!FileExist(exe)) {
+			Msgbox "Invalid EXE specified to run script.  Check your settings in the Extras tab."
+			ExitApp
+		} Else If (runNow) {
 			Run cmd, fileDir ; run on match
 			ExitApp
 		}
@@ -106,6 +109,9 @@ If (!InstExe) { ; not using launcher, or doing fallback
 ;    - variant = MT for "multi-threading" or blank ("")
 
 GetAhkProps(sInput) {
+	If (!FileExist(sInput))
+		return ""
+	
 	SplitPath sInput, ahkFile, curDir
 	isAhkH := false, var := "", installDir := curDir
 	

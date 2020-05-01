@@ -44,7 +44,7 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
 If (DebugNow) {
 	; do nothing
 } Else If (!A_Args.Length) {
-	MsgBox "No parameters specified."
+	; MsgBox "No parameters specified."
 	ExitApp
 }
 
@@ -103,10 +103,12 @@ If (!matchFound) {
 	AhkExeFullPath := ActiveVersionPath
 } Else {
 	ahkProps := GetAhkProps(exe)				; setup match version
-	AhkExeFullPath := ahkProps["exePath"]
+	If (IsObject(ahkProps))
+		AhkExeFullPath := ahkProps["exePath"]
 }
-If (!FileExist(ahkProps["exePath"]) and matchFound) { ; if EXE is invalid / not found
-	Msgbox "Invalid EXE specified for:`r`n    EXE: " ahkProps["exePath"]
+
+If (!IsObject(ahkProps) Or !FileExist(ahkProps["exePath"])) { ; if EXE is invalid / not found
+	Msgbox "Invalid EXE specified to run script.  Check your settings in the Extras tab."
 	ExitApp
 }
 
@@ -235,8 +237,6 @@ GuiEvents(oCtl,Info) {
 			MsgBox "Select a base file, and define an output EXE, or click Cancel."
 	} Else If (oCtl.Name = "CancelBtn") {
 		ExitHandler()
-	} Else If (oCtl.Name = "CustomOption") {
-		; oGui["SelOption"].Value := 0
 	} Else If (oCtl.Name = "BitFilter") {
 		Settings["BitFilter"] := oCtl.Value
 		bf := oCtl.Value
@@ -410,6 +410,9 @@ ExitHandler() {
 ;    - variant = MT for "multi-threading" or blank ("")
 
 GetAhkProps(sInput) {
+	If (!FileExist(sInput))
+		return ""
+	
 	SplitPath sInput, ahkFile, curDir
 	isAhkH := false, var := "", installDir := curDir
 	
