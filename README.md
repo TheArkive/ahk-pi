@@ -81,10 +81,9 @@ The fancy Ahk2Exe Handler and AHK Launcher are the special features of this prog
 
 ## fancy Ahk2Exe Handler
 
-The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.  The Ahk2Exe window will then open, and all info will be auto-filled, including an icon file if it exists.  The icon file must have the same file name as the script you are compiling, except for the `.ico` extension of course.
+The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.
 
-See directly below for an example renaming the bin files.  When you use the context menu and click `Compile`, a small selection window will open.
-
+After you click "Compile" from the context menu, you will see the following window:
 <img src="/images/ahk-pi7.png" />
 
 Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
