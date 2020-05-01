@@ -85,16 +85,8 @@ The fancy Ahk2Exe Handler simply gives you a small interface to choose your sele
 
 See directly below for an example renaming the bin files.  When you use the context menu and click `Compile`, a small selection window will open.
 
-<table width="100%">
-  <tr>
-    <th>Rename example</th>
-    <th>fancy AHK Handler</th>
-  </tr>
-  <tr>
-    <td width="200"><img src="/images/ahk-pi5.png" /></td>
-    <td width="200"><img src="/images/ahk-pi7.png" /></td>
-  </tr>
-</table>
+<img src="/images/ahk-pi7.png" />
+
 Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
 
 After you have made your selection, the Ahk2Exe window will open up with all selected options pre-filled.  Also, if you have an `.ico` file named the same as your `.ahk` script, then the icon selection will be auto-filled as well.
