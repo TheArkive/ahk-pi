@@ -44,7 +44,7 @@ For non AHK_H exe files, the AutoHotkey.exe file is deleted and the selected EXE
 
 There is no "installation" for this script/program.  Just download, run, and select your AHK base folder and define other options as you desire.  Make sure you define all options you intend to use first, then activate/install a version of AutoHotkey.  The only settings you can define on-the-fly are the match entries when using the AHK Launcher.
 
-In general for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).  For AutoHotkey v2 just copy the everything in the `Compiler` folder EXCEPT the `.bin` files.  For AutoHotkey_H, pick an EXE from one of the subfolders and copy it into the `Compiler` folder. 
+In general, for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).  For AutoHotkey v2 just copy the everything from the `Compiler` folder in v1 into the `Compiler` folder for v2 EXCEPT the `.bin` files.  For AutoHotkey_H, pick an EXE from one of the subfolders and copy it into the `Compiler` folder. 
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
