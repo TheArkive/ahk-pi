@@ -1,13 +1,5 @@
 # AHK Portable Installer
 
-## To-Do List
-
-* ~~allow user defined list of parallel versions of AutoHotkey to run used in 1st-line comment match~~
-* ~~Ahk_Launcher must follow user defined list of specified parallel AHK versions~~
-* ~~make Ahk2Exe Handler tool tips follow main script setting "Disable Tooltips"~~
-* change Ahk2Exe Handler to only use Compiler in specified AHK folder
-* no longer require renaming of AHK_H exe files
-
 ## Intro
 
 [Posted on AutoHotkey.com Forums](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=73056)
@@ -81,13 +73,13 @@ The fancy Ahk2Exe Handler and AHK Launcher are the special features of this prog
 
 ## fancy Ahk2Exe Handler
 
-The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.
+The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.  Once you select the base file to use it assigns a default output EXE.  You can then customize the output EXE if desired.
 
 After you click "Compile" from the context menu, you will see the following window:
 
 ![](/images/ahk-pi7.png)
 
-Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
+Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection for AutoHotkey_H.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
 
 After you have made your selection, the Ahk2Exe window will open up with all selected options pre-filled.  Also, if you have an `.ico` file named the same as your `.ahk` script, then the icon selection will be auto-filled as well.
 
@@ -99,22 +91,22 @@ Options to Auto-Start and Auto-Close the compiler are in the main GUI > Extras t
 
 <img src="/images/ahk-pi11.png" />
 
-In the Extras tab, now you can run several (practically unlimited) versions of AutoHotkey and AutoHotkey_H side-by-side.  The first line of the script will be parsed for version info to determine what version of AutoHotkey to use for running.  The image above shows an example list of matches.  The user determines what the regex or exact string match should be, and what EXE is used to run the script.  Use the plus/minus keys to add/remove entries.  Double-click on a list item to edit it.
+In the Extras tab, now you can run several (practically unlimited) versions of AutoHotkey and AutoHotkey_H side-by-side.  The first line of the script will be parsed for version info to determine what version of AutoHotkey to use for running.  The image above shows an example list of matches.  The user determines what the regex or exact string match should be, and what EXE is used to run the script when a match is found.  Use the plus/minus buttons to add/remove entries.  Double-click on a list item to edit it.
 
 Key Notes:
-* support for appending AHK version to the end of the file name has been removed
-* add AHK match string as you first-line comment:
+* Add AHK match string as you first-line comment, for example:
     * ; AHK v1.1.32 32-bit
     * ; AHK v1 64-bit
     * ... etc.
-* you can be as general or specific as you like with your match string
-* each match entry requires a label, match type, match string, and AHK EXE to specify
-* ther are 8 default values to allow for running the following versions side by side:
-  * AHK v1/2 64-bit
-  * AHK v1/2 32-bit
+* You can be as general or specific as you like with your match string.
+* Each match entry requires a label, match type, match string, and AHK EXE to specify.
+* There are 8 default values to allow for running the following versions side by side:
+  * AHK v1/2 64/32-bit
   * AHK_H v1/2 32/64-bit
-  * just specify the EXE to use for each one you intend to use
-* spacing variations accounted for in the default regex matches
+  * just specify the EXE to use for each one you intend to use.
+* Spacing variations accounted for in the default regex matches.
+
+You can change these settings on the fly without selecting another AutoHotkey EXE to reinstall / re-activate.
 
 ## What this does NOT do...
 
@@ -124,9 +116,27 @@ This is a PORTABLE installer, so this script:
 * WILL NOT create a separate `.ahk2` extension or any other extension besides `.ahk`.
 * WILL NOT automatically download new versions.
 
-If you install/activate AutoHotkey, and then move your AHK folder, then you may be prompted to specify a program to associate before everything works nicely.  This shouldn't happen.  Just click the uninstall button, and then reinstall/activate your desired version of AutoHotkey.
+## Troubleshooting
 
-Some of these features may change or be added in the future.
+1) It is NOT recommended to run this script along side a normal installation of AutoHotkey with the setup program.
+
+2) If you move your AutoHotkey folder, then you must reinstall / re-activate your chosen AutoHotkey version.
+
+3) If you activate / install AutoHotkey more than once, you may be prompted by Windows to "select a program" to open `.ahk` files.  In most cases this will be the `AhkLauncher.exe`, or some form of `AutoHotkey.exe`.
+
+
+## To-Do List
+
+* ~~allow user defined list of parallel versions of AutoHotkey to run used in 1st-line comment match~~
+* ~~Ahk_Launcher must follow user defined list of specified parallel AHK versions~~
+* ~~make Ahk2Exe Handler tool tips follow main script setting "Disable Tooltips"~~
+* ~~change Ahk2Exe Handler to only use Compiler in specified AHK folder~~
+* ~~no longer require renaming of AHK_H exe files~~
+* allow options to compile one script into multiple versions with minimal clicks
+
+## Other remarks...
+
+Some of these features may change or new ones may be added in the future.
 
 This program will NOT circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
 
