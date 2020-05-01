@@ -42,35 +42,32 @@ Examples:
     AutoHotkey v2.0-a108-a2fa0498 extra_info not_used
     AutoHotkey_H v1.2.3.4
 
-Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.
+Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that most
+of the version info comes from the folder name, so type out the version as you want it to appear in the
+program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of
+AutoHotkey_H, it comes from the subfolder the EXE is in.
 ```
 
 For non AHK_H exe files, the AutoHotkey.exe file is deleted and the selected EXE is copied to `AutoHotkey.exe`.  As a precaution, any version named `AutoHotkey.exe` is NOT displayed in the program, unless the folder contains AutoHotkey_H exe files.  These are handled differently.
 
-There is no need to rename AutoHotkey_H EXE files.  Just leave the contents of the zip as they are.  Folder names such as `Win32w` and `x64w_MT` are used to tell the difference between versions of AHK_H and are listed accordingly.  If you modify the contents of the AutoHotkey_H folder after unzip, you may get unexpected results.
+There is no "installation" for this script/program.  Just download, run, and select your AHK base folder and define other options as you desire.  Make sure you define all options you intend to use first, then activate/install a version of AutoHotkey.  The only settings you can define on-the-fly are the match entries when using the AHK Launcher.
 
-There is no "installation" for this script/program.  Just download, run, and select your AHK base folder and define other options as you desire.
-
-In general for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
+In general for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).  For AutoHotkey v2 just copy the everything in the `Compiler` folder EXCEPT the `.bin` files.  For AutoHotkey_H, pick an EXE from one of the subfolders and copy it into the `Compiler` folder. 
 
 There is no need to keep `Installer.ahk` or `Template.ahk` unless you have a need for them.
 
-When you activate an EXE (which writes reg entries for the `.ahk` extension) the template that corresponds to the major version (v1 or v2) will be automatically written to `C:\Windows\ShellNew\Template.ahk` based on the EXE you selected.
+When you activate an EXE (which writes registry entries for the `.ahk` extension) the template that corresponds to the major version (v1 or v2) will be automatically written to `C:\Windows\ShellNew\Template.ahk` based on the EXE you selected.
 
 You can get a copy of Window Spy for AHK v2 [here](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333&sid=3b87fff7974d5900bc41619869692564).
 
 ## What this does...
 
-As a portable installer, based on your selected/activated version, here's what it does:
+As a portable installer, here's what the installation (Activate EXE button) does:
 
-* Writes registry values to associate the `.ahk` extension.
+* Writes registry values to associate the `.ahk` extension when the user-selected AHK version.
 * Writes registry values to define the default `.bin` file to use with Ahk2Exe compiler.
-* Writes registry values to enable `mpress.exe` if present in `Compiler` folder (or disables it if not).
-* Writes registry entries to associate `.ahk` extension with AutoHotkey.
 
-If not using the fancy Ahk2Exe Handler (the default), the auto loading of the `.bin` files requires that each AHK folder has it's own Ahk2Exe `Compiler` folder, and that all `.bin` files retain their original names.
-
-This program also:
+Here is a summary of the basic features:
 
 * Checks for updates when prompted, or does so automatially if enabled.
 * Displays the latest versions of AHK v1 and v2 (with internet connection of course).
@@ -80,11 +77,11 @@ This program also:
 * Allows you to invoke `WindowSpy.ahk`, `help file`, and opt to Uninstall all traces of AHK in the registry.
 * Allows running AHK v1 and v2 side-by-side with minimal modification (see AHK Launcher below).
 
-Please make sure to use the 64-bit EXE if you are running 64-bit windows.  The uninstall process for 64-bit AHK won't uninstall reg key `HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey` if you use the 32-bit EXE on 64-bit Windows.
+The fancy Ahk2Exe Handler and AHK Launcher are the special features of this program.  Their functions are described below.
 
 ## fancy Ahk2Exe Handler
 
-If you don't use the fancy Ahk2Exe Handler (default) then each AHK folder should have its own `Compiler` folder with `.bin` files and `mpress.exe` if you need it (and of course `Ahk2Exe.exe`).  Otherwise you can place Ahk2Exe in a single folder and not have it copied into every AHK folder.  If you do this, and you want to combine AHK v1 and v2 `.bin` files, be sure to rename the `.bin` files to add " v1" or " v2" as needed, except for `AutoHotkeySC.bin`.  Otherwise if you only use `.bin` files from a particular version of AHK, then you don't need to rename them.
+The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.  The Ahk2Exe window will then open, and all info will be auto-filled, including an icon file if it exists.  The icon file must have the same file name as the script you are compiling, except for the `.ico` extension of course.
 
 See directly below for an example renaming the bin files.  When you use the context menu and click `Compile`, a small selection window will open.
 
