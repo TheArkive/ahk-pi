@@ -84,7 +84,8 @@ The fancy Ahk2Exe Handler and AHK Launcher are the special features of this prog
 The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.
 
 After you click "Compile" from the context menu, you will see the following window:
-<img src="/images/ahk-pi7.png" />
+
+![](/images/ahk-pi7.png)
 
 Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
 
