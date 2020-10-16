@@ -2,65 +2,84 @@
     "ActiveVersionDisp": "",
     "ActiveVersionPath": "",
     "Ahk1Url": "https://www.autohotkey.com/download/1.1/version.txt",
-    "Ahk1Version": "",
-    "Ahk2ExeAutoClose": 1,
-    "Ahk2ExeAutoStart": 1,
+    "Ahk1Version": "1.1.33.02",
+    "Ahk2ExeAutoClose": 0,
+    "Ahk2ExeAutoStart": 0,
     "Ahk2ExeHandler": 1,
     "Ahk2Url": "https://www.autohotkey.com/download/2.0/version.txt",
-    "Ahk2Version": "",
+    "Ahk2Version": "2.0-a122-f595abc2",
     "AhkLauncher": 1,
-    "AutoUpdateCheck": 0,
+    "AutoUpdateCheck": 1,
     "BaseFolder": "",
     "BitFilter": 1,
+    "CascadeMenu": 0,
     "DebugNow": 0,
-    "DisableTooltips": 0,
+    "DisableTooltips": 1,
+    "ShowCompileScript": 1,
+    "ShowEditScript": 1,
+    "ShowRunScript": 1,
     "TextEditorPath": "notepad.exe",
     "UpdateCheckDate": "",
-    "curPosX": 100,
-    "curPosY": 100,
-    "posX": 100,
-    "posY": 100,
+    "curPosX": 200,
+    "curPosY": 200,
+    "posX": 200,
+    "posY": 200,
     "regexList": {
+        "AHK Test v1": {
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ `t]*AHK[ `t]*Test[ `t]*v1",
+            "type": 1
+        },
+        "AHK Test v2": {
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ `t]*AHK[ `t]*Test[ `t]*v2",
+            "type": 1
+        },
         "AHK v1 32-bit": {
-            "exe": "Select an EXE file to use",
+            "exe": "Choose EXE to launch.",
             "regex": "^;[ ]*AHK[ ]*v?1[ ]+32\\-bit",
             "type": 1
         },
         "AHK v1 64-bit": {
-            "exe": "Select an EXE file to use",
-            "regex": "; AHK v1",
-            "type": 2
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ ]*AHK[ ]*v?1([ ]+64\\-bit)?",
+            "type": 1
+        },
+        "AHK v1 ANSI": {
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ ]*AHK[ ]*v?1[ ]+ANSI",
+            "type": 1
         },
         "AHK v2 32-bit": {
-            "exe": "Select an EXE file to use",
+            "exe": "Choose EXE to launch.",
             "regex": "^;[ ]*AHK[ ]*v?2[ ]+32\\-bit",
             "type": 1
         },
         "AHK v2 64-bit": {
-            "exe": "Select an EXE file to use",
-            "regex": "^;[ ]*AHK[ ]*v?2([ ]+64\\-bit)?$",
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ ]*AHK[ ]*v?2([ ]+64\\-bit)?",
             "type": 1
         },
         "AHK_H v1 32-bit": {
-            "exe": "Select an EXE file to use",
+            "exe": "Choose EXE to launch.",
             "regex": "^;[ ]*AHK_H[ ]*v?1[ ]+32\\-bit$",
             "type": 1
         },
         "AHK_H v1 64-bit": {
-            "exe": "Select an EXE file to use",
-            "regex": "^;[ ]*AHK_H[ ]*v?1([ ]+64\\-bit)?$",
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ ]*AHK_H[ ]*v?1([ ]+64\\-bit)?",
             "type": 1
         },
         "AHK_H v2 32-bit": {
-            "exe": "Select an EXE file to use",
+            "exe": "Choose EXE to launch.",
             "regex": "^;[ ]*AHK_H[ ]*v?2[ ]+32\\-bit$",
             "type": 1
         },
         "AHK_H v2 64-bit": {
-            "exe": "Select an EXE file to use",
-            "regex": "^;[ ]*AHK_H[ ]*v?2([ ]+64\\-bit)?$",
+            "exe": "Choose EXE to launch.",
+            "regex": "^;[ ]*AHK_H[ ]*v?2([ ]+64\\-bit)?",
             "type": 1
         }
     },
-    "toggle": 0
+    "toggle": 1
 }
