@@ -73,17 +73,9 @@ The fancy Ahk2Exe Handler and AHK Launcher are the special features of this prog
 
 ## fancy Ahk2Exe Handler
 
-The fancy Ahk2Exe Handler simply gives you a small interface to choose your selected base file (.bin, .exe, .dll) for compiling, as well as a quick means to determine the output EXE name.  Once you select the base file to use it assigns a default output EXE.  You can then customize the output EXE if desired.
+This feature has been scaled back quite a bit.  I've come across some issues with different versions of Ahk2Exe, so I've had to cater to the lowest common denominator.  In particular, Ahk2Exe for AutoHotkey_H v1 has some significantly different functionality, mostly with how command line options and directives behave compared to the latest official Ahk2Exe version.
 
-After you click "Compile" from the context menu, you will see the following window:
-
-![](/images/ahk-pi7.png)
-
-Filter 32-bit, 64-bit, or all with the drop-down menu.  The filter remembers your last selection for AutoHotkey_H.  Double-click the list to move quickly, or single-click to customize the output EXE in the edit box below.
-
-After you have made your selection, the Ahk2Exe window will open up with all selected options pre-filled.  Also, if you have an `.ico` file named the same as your `.ahk` script, then the icon selection will be auto-filled as well.
-
-Options to Auto-Start and Auto-Close the compiler are in the main GUI > Extras tab.
+Currently, if you use the Ahk2Exe Handler, it will simply open the Ahk2Exe GUI with the file name filled in (no custom icon or destionation exe path filling for the time being).  This is necessary when trying to compile AutoHotkey_H v1 `.ahk` files.  For some reason the command line options don't seem to function as expected.
 
 ![](/images/ahk-pi8.png)
 
