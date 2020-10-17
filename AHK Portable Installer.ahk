@@ -5,12 +5,12 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
 #INCLUDE inc\_JXON.ahk
 #INCLUDE inc\_RegexInput.ahk
-#INCLUDE inc\TheArkive_reg.ahk
+#INCLUDE inc\TheArkive_reg2.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.9", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.10", regexList := Map()
 
 If (A_Is64BitOS)
-    reg.regSide := 64
+    reg.view := 64
 
 If (FileExist("Settings.json.blank") And !FileExist("Settings.json"))
     FileMove "Settings.json.blank", "Settings.json"
@@ -20,9 +20,9 @@ regexList := Settings["regexList"]
 
 monitor := GetMonitorData()
 If Settings["posX"] > monitor.right Or Settings["posX"] < monitor.left
-    Settings["posX"] := 0
+    Settings["posX"] := 200
 If Settings["posY"] > monitor.bottom Or Settings["posY"] < monitor.top
-    Settings["posY"] := 0
+    Settings["posY"] := 200
 
 OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
@@ -74,7 +74,7 @@ runGui() {
     oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click","GuiEvents")
     oGui.Add("Button","vActivateExe x+65 yp","Activate EXE").OnEvent("Click","GuiEvents")
     
-    tabs := oGui.Add("Tab","y+10 x2 w476 h255",["Basics","Extras"])
+    tabs := oGui.Add("Tab","y+10 x2 w476 h275",["Basics","AHK Launcher","Other"])
     
     oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
     oGui.Add("Edit","y+0 r1 w410 vBaseFolder ReadOnly")
@@ -84,6 +84,10 @@ runGui() {
     oGui.Add("Edit","y+0 r1 w460 vAhk1Url").OnEvent("Change","GuiEvents")
     oGui.Add("Text","xm y+4","AutoHotkey v2 URL:")
     oGui.Add("Edit","y+0 r1 w460 vAhk2Url").OnEvent("Change","GuiEvents")
+    
+    oGui.Add("Checkbox","vAhk2ExeHandler xm y+10","Use Ahk2Exe handler").OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vAhkLauncher x+30","Use AHK Launcher").OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vDisableTooltips x+30","Disable Tooltips").OnEvent("Click","GuiEvents")
     
     oGui.Add("Checkbox","vAutoUpdateCheck xm y+10","Automatically check for updates").OnEvent("Click","GuiEvents")
     oGui.Add("Button","vCheckUpdateNow x+173 yp-4","Check Updates Now").OnEvent("Click","GuiEvents")
@@ -96,22 +100,9 @@ runGui() {
     oGui.Add("Button","vEditAhk1Template xm y+10 w230","Edit AHK v1 Template").OnEvent("Click","GuiEvents")
     oGui.Add("Button","vEditAhk2Template x+0 w230","Edit AHK v2 Template").OnEvent("Click","GuiEvents")
     
-    tabs.UseTab("Extras")
-    oGui.Add("Checkbox","vAhk2ExeHandler xm y+10","Use fancy Ahk2Exe handler").OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vAhkLauncher x+30","Use AHK Launcher").OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vDisableTooltips x+30","Disable Tooltips").OnEvent("Click","GuiEvents")
+    tabs.UseTab("AHK Launcher")
     
-    oGui.Add("Text","xm y+4","Context Menu:")
-    oGui.Add("Checkbox","vShowEditScript xm y+4","Show " Chr(34) "Edit Script" Chr(34)).OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vShowCompileScript x+30","Show " Chr(34) "Compile Script" Chr(34)).OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vShowRunScript x+30","Show " Chr(34) "Run Script" Chr(34)).OnEvent("Click","GuiEvents")
-    
-    ; oGui.Add("Checkbox","vCascadeMenu x+30","Cascade Menu").OnEvent("Click","GuiEvents")
-    
-    ; oGui.Add("Checkbox","vAhk2ExeAutoStart x+30","Auto Start Compiler").OnEvent("Click","GuiEvents")
-    ; oGui.Add("Checkbox","vAhk2ExeAutoClose x+30","Auto Close Compiler").OnEvent("Click","GuiEvents")
-    
-    LV := oGui.Add("ListView","vAhkParallelList xm y+4 w460 h143",["Label","Match String"])
+    LV := oGui.Add("ListView","vAhkParallelList xm y+5 w460 h218",["Label","Match String"])
     LV.OnEvent("click","GuiEvents")
     LV.OnEvent("doubleclick","regex_edit")
     LV.ModifyCol(1,160), LV.ModifyCol(2,260)
@@ -120,6 +111,18 @@ runGui() {
     oGui.Add("Edit","vRegexExe xm y+0 w410 ReadOnly")
     oGui.Add("Button","vRegexExeAdd x+0 w25","+").OnEvent("Click","GuiEvents")
     oGui.Add("Button","vRegexExeRemove x+0 w25","-").OnEvent("Click","GuiEvents")
+    
+    tabs.UseTab("Other")
+    
+    oGui.Add("Text","xm y+4","Context Menu:")
+    oGui.Add("Checkbox","vShowEditScript xm y+4","Show " Chr(34) "Edit Script" Chr(34)).OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vShowCompileScript x+30","Show " Chr(34) "Compile Script" Chr(34)).OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vShowRunScript x+30","Show " Chr(34) "Run Script" Chr(34)).OnEvent("Click","GuiEvents")
+    
+    ; oGui.Add("Checkbox","vAhk2ExeAutoStart x+30","Auto Start Compiler").OnEvent("Click","GuiEvents")
+    ; oGui.Add("Checkbox","vAhk2ExeAutoClose x+30","Auto Close Compiler").OnEvent("Click","GuiEvents")
+    
+    ; oGui.Add("Checkbox","vCascadeMenu x+30","Cascade Menu").OnEvent("Click","GuiEvents")
     
     x := Settings["posX"], y := Settings["posY"]
     PopulateSettings()
@@ -134,8 +137,8 @@ runGui() {
 
 SetActiveVersionGui() {
     InstProd := "", ver := ""
-    Try InstProd := reg.query("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","InstallProduct")
-    Try ver := reg.query("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","Version")
+    Try InstProd := reg.read("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","InstallProduct")
+    Try ver := reg.read("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","Version")
     
     regVer := InstProd " " ver
     ActiveVersion := (Settings.Has("ActiveVersionDisp")) ? Settings["ActiveVersionDisp"] : ""
@@ -412,7 +415,7 @@ GuiEvents(oCtl,Info) {
         If (toggle)
             oGui.Show("w480 h220"), Settings["toggle"] := 0
         Else
-            oGui.Show("w480 h480"), Settings["toggle"] := 1
+            oGui.Show("w480 h500"), Settings["toggle"] := 1
     } Else If (oCtl.Name = "ActivateExe" or oCtl.Name = "ExeList") { ; <---------------------------------- activate exe
         LV := oGui["ExeList"] ; ListView
         row := LV.GetNext(), exeFullPath := LV.GetText(row,4)
@@ -451,11 +454,11 @@ GuiEvents(oCtl,Info) {
         templateText := FileRead("resources\" template)
         
         ; .ahk extension and template settings
-        If !reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk","","AutoHotkeyScript")
+        If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk","","AutoHotkeyScript")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew","ItemName","AutoHotkey Script v" majorVer)
+        If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew","ItemName","AutoHotkey Script v" majorVer)
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew","FileName","Template.ahk")
+        If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew","FileName","Template.ahk")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         ; update template according to majorVer
@@ -465,13 +468,12 @@ GuiEvents(oCtl,Info) {
         FileAppend templateText, A_WinDir "\ShellNew\Template.ahk"
         
         reg.delete("HKEY_LOCAL_MACHINE\Software\AutoHotkey")
-            ; MsgBox reg.reason "`r`n`r`n" reg.cmd
         
-        ; Sleep 350 ; make it easier to see something happenend when re-installing over same version
+        Sleep 350 ; make it easier to see something happenend when re-installing over same version
         
         ; define ProgID
         root := "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript\Shell" (Settings["CascadeMenu"] ? "\AutoHotkey\Shell" : "")
-        If !reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript","","AutoHotkey Script v" majorVer) ; ProgID title, asthetic only?
+        If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript","","AutoHotkey Script v" majorVer) ; ProgID title, asthetic only?
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         ; If (cascade) {
@@ -479,63 +481,62 @@ GuiEvents(oCtl,Info) {
             ; reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript\Shell\AutoHotkey","Icon",Chr(34) exeFullPath Chr(34) ",1")
         ; }
         
-        If !reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript\DefaultIcon","",Chr(34) exeFullPath Chr(34) ",1")
+        If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AutoHotkeyScript\DefaultIcon","",Chr(34) exeFullPath Chr(34) ",1")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add(root,"","Open")
+        If reg.add(root,"","Open")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         ; Compiler Context Menu (Ahk2Exe)
         If Settings["ShowCompileScript"] {
-            If !reg.add(root "\Compile","","Compile Script")                                                ; Compile context menu entry
+            If reg.add(root "\Compile","","Compile Script")                                                ; Compile context menu entry
                 MsgBox reg.reason "`r`n`r`n" reg.cmd
             regVal := Chr(34) (!Settings["Ahk2ExeHandler"] ? Ahk2ExePath Chr(34) "/in " : A_ScriptDir "\Ahk2Exe_Handler.exe" Chr(34) " ") Chr(34) "%1" Chr(34)
-            If !reg.add(root "\Compile\Command","",regVal)
+            If reg.add(root "\Compile\Command","",regVal)
                 MsgBox reg.reason "`r`n`r`n" reg.cmd
         }
         
-        
         ; Edit Script
         If Settings["ShowEditScript"] {
-            If !reg.add(root "\Edit","","Edit Script")                                                      ; Edit context menu entry
+            If reg.add(root "\Edit","","Edit Script")                                                      ; Edit context menu entry
                 MsgBox reg.reason "`r`n`r`n" reg.cmd
-            If !reg.add(root "\Edit\Command","",Chr(34) TextEditorPath Chr(34) " " Chr(34) "%1" Chr(34))    ; Edit command
+            If reg.add(root "\Edit\Command","",Chr(34) TextEditorPath Chr(34) " " Chr(34) "%1" Chr(34))    ; Edit command
                 MsgBox reg.reason "`r`n`r`n" reg.cmd
         }
         
         ; Run Script
-        If !reg.add(root "\Open","","Run Script")
+        If reg.add(root "\Open","","Run Script")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         regVal := Chr(34) (!Settings["AhkLauncher"] ? exeFullPath : A_ScriptDir "\AhkLauncher.exe") Chr(34) " " Chr(34) "%1" Chr(34) " %*"
         
-        If !reg.add(root "\Open\Command","",regVal)                                                 ; Open verb/command
+        If reg.add(root "\Open\Command","",regVal)                                                 ; Open verb/command
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         ; Ahk2Exe entries
-        If !reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastBinFile",Ahk2ExeBin)   ; auto set .bin file
+        If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastBinFile",Ahk2ExeBin)   ; auto set .bin file
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastUseMPRESS",mpress)     ; auto set mpress usage
+        If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastUseMPRESS",mpress)     ; auto set mpress usage
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","Ahk2ExePath",Ahk2ExePath)  ; for easy reference...
+        If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","Ahk2ExePath",Ahk2ExePath)  ; for easy reference...
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","BitFilter",bitness)
+        If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","BitFilter",bitness)
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         ; HKLM / Software / AutoHotkey install and version info
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallDir",installDir)              ; Default entries
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallDir",installDir)              ; Default entries
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","StartMenuFolder","AutoHotkey")       ; Default entries
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","StartMenuFolder","AutoHotkey")       ; Default entries
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","Version",ver)                        ; Default entries
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","Version",ver)                        ; Default entries
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","MajorVersion",majorVer)            ; just in case it's helpful
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","MajorVersion",majorVer)            ; just in case it's helpful
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallExe",exeFullPath)
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallExe",exeFullPath)
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallBitness",bitness)
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallBitness",bitness)
             MsgBox reg.reason "`r`n`r`n" reg.cmd
-        If !reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallProduct",InstallProduct)
+        If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallProduct",InstallProduct)
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
         ; Copy selected version to AutoHotkey.exe
@@ -675,9 +676,9 @@ UninstallAhk() {
     
     k7 := "x", k7k := ""
     If (A_Is64BitOs) {
-        reg.regSide := 32
-        k7 := reg.delete(k7k := "HKLM\SOFTWARE\AutoHotkey") ; WOW6432Node ??
-        reg.regSide := 64
+        reg.view := 32
+        k7 := reg.delete(k7k := "HKLM\SOFTWARE\AutoHotkey")
+        reg.view := 64
     }
     
     ; MsgBox k1 ": " k1k "`r`n" k2 ": " k2k "`r`n" k3 ": " k3k "`r`n" k4 ": " k4k "`r`n" k5 ": " k5k "`r`n" k6 ": " k6k "`r`n" k7 ": " k7k "`r`n"
