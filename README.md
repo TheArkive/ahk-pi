@@ -43,12 +43,9 @@ Examples:
     AutoHotkey v1.1.32.00
     AutoHotkey v2.0-a108-a2fa0498 extra_info not_used
     AutoHotkey_H v1.2.3.4
-
-Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that most
-of the version info comes from the folder name, so type out the version as you want it to appear in the
-program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of
-AutoHotkey_H, it comes from the subfolder the EXE is in.
 ```
+
+Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.
 
 In general, for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
