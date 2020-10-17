@@ -139,11 +139,7 @@ This is a PORTABLE installer, so this script:
 
 ## Other remarks...
 
-Some of these features may change or new ones may be added in the future.
-
 This program will NOT circumvent User Account Control settings.  If you leave UAC enabled, then you will likely be prompted when this program tries to write to the registry.  I leave it to the user to decide how to manage their UAC settings.
-
-I may take some hints from the `Installer.ahk` and attempt to work around this, but this program does enough in the registry (for my preference).
 
 ---
 
@@ -151,3 +147,4 @@ Any feedback would be appreciated.  Hopefully this tool will help people, and ju
 
 If you need a version of Window Spy for AHK v2 go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) 
 on AHK forums.
+
