@@ -45,7 +45,7 @@ I'll create a detailed setup tutorial for this script soon.  For now please see 
 
 ## Basic Setup
 
-First things first, grab the latest copy of AHK v2 alpha, copy the desired version of `AutoHotkey.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Run this EXE file to launch the script.  Make sure to finish reading this section to understand how to setup the AutoHotkey folder with multiple versions of AutoHotkey.
+If you are running this script uncompiled, grab the latest copy of AHK v2 alpha, copy the desired version of `AutoHotkey.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Run this EXE file to launch the script.  Make sure to finish reading this section to understand how to setup the AutoHotkey folder with multiple versions of AutoHotkey.
 
 Next, the AHK `base folder` is intended to look something like this:
 
