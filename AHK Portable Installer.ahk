@@ -7,7 +7,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\_RegexInput.ahk
 #INCLUDE inc\TheArkive_reg2.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.10", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.11", regexList := Map()
 
 If (A_Is64BitOS)
     reg.view := 64
