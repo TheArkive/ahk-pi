@@ -490,7 +490,13 @@ GuiEvents(oCtl,Info) {
         If Settings["ShowCompileScript"] {
             If reg.add(root "\Compile","","Compile Script")                                                ; Compile context menu entry
                 MsgBox reg.reason "`r`n`r`n" reg.cmd
-            regVal := Chr(34) (!Settings["Ahk2ExeHandler"] ? Ahk2ExePath Chr(34) "/in " : A_ScriptDir "\Ahk2Exe_Handler.exe" Chr(34) " ") Chr(34) "%1" Chr(34)
+            
+            If (A_IsCompiled)
+                ahk_handler := A_ScriptDir "\Ahk2Exe_Handler.exe" Chr(34) " "
+            Else
+                ahk_handler := A_AhkPath Chr(34) " " Chr(34) A_ScriptDir "\Ahk2Exe_Handler.ahk" Chr(34) " "
+            
+            regVal := Chr(34) (!Settings["Ahk2ExeHandler"] ? Ahk2ExePath Chr(34) "/in " : ahk_handler) Chr(34) "%1" Chr(34)
             If reg.add(root "\Compile\Command","",regVal)
                 MsgBox reg.reason "`r`n`r`n" reg.cmd
         }
@@ -507,7 +513,12 @@ GuiEvents(oCtl,Info) {
         If reg.add(root "\Open","","Run Script")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
         
-        regVal := Chr(34) (!Settings["AhkLauncher"] ? exeFullPath : A_ScriptDir "\AhkLauncher.exe") Chr(34) " " Chr(34) "%1" Chr(34) " %*"
+        If (A_IsCompiled)
+            ahk_launcher := A_ScriptDir "\AhkLauncher.exe"
+        Else
+            ahk_launcher := A_AhkPath Chr(34) " " Chr(34) A_ScriptDir "\AhkLauncher.ahk"
+        
+        regVal := Chr(34) (!Settings["AhkLauncher"] ? exeFullPath : ahk_launcher) Chr(34) " " Chr(34) "%1" Chr(34) " %*"
         
         If reg.add(root "\Open\Command","",regVal)                                                 ; Open verb/command
             MsgBox reg.reason "`r`n`r`n" reg.cmd

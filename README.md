@@ -10,7 +10,25 @@ Check [releases](https://github.com/TheArkive/ahk-pi/releases) for binaries.
 
 If you need a version of `Window Spy for AHK v2` go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) on AHK forums.
 
-This is a portable install manager.  This script is meant to work with the `.zip` archives of AutoHotkey, NOT the setup EXE versions.  It is written in AHK v2.  I won't support this program as a script.  It is meant to be run compiled.
+This is a portable install manager.  This script is meant to work with the portable `.zip` archives of AutoHotkey, NOT the setup `.exe` versions.  It is written in AHK v2.
+
+I am now going to support this script uncompiled, since McAffee has decided that some of the key exe files are supposedly viruses.  Running this as a script should mitigate this issue, but this introduces one key change to how this is meant to run:
+
+<b><font color="red">
+If you run this as a script (not compiled), you MUST select ONLY one of the AHK v2 versions (currently only alphas - and do NOT pick AHK_H v2) to install as your primary base install for AutoHotkey.
+
+DO NOT select any other version of AHK other than AHK v2 (non-AHK_H) as your base install.  If you restart the script after selecting an AHK v1 base version, this script WILL NOT WORK.  I have not yet tested this script with AHK_H v2.
+
+If you want to compile this script, you must compile 3 files:
+
+* AHK Portable Installer.ahk  <-- main script
+* Ahk2Exe_Handler.ahk         <-- support element
+* AhkLauncher.ahk             <-- support element
+
+If you run this script compiled, then you can choose any AHK version as your base version, and you can change the base installed version at will.
+</font></b>
+
+I'll create a detailed setup tutorial for this script soon.  For now please see "Basic Setup" below.  I have made a few updates to try and clarify the key options that govern how this script runs and how it allows you to run all version of AHK with minimal effort.
 
 ## Features
 * Associate the .ahk extension with any version of AHK on double-click.
@@ -45,31 +63,27 @@ Examples:
     AutoHotkey_H v1.2.3.4
 ```
 
-Separate name and version with a space.  There should be NO spaces in the NAME or VERSION.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.
+Separate name and version with a space.  There should be NO spaces in the NAME or VERSION in the folder name.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.  Don't modify the original structure of the `.zip` archives for any of the versions of AHK you intend to use.
 
 In general, for best results, each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files or `mpress.exe` if you want to use it).
 
-When you click `Activate EXE` this writes registry entries for the `.ahk` extension, context menu entries, and the template that corresponds to the major version (v1 or v2) of AutoHotkey.  The associated template will be automatically written to `C:\Windows\ShellNew\Template.ahk`.
+When you click `Activate EXE` this writes registry entries for the `.ahk` extension, context menu entries, and the template that corresponds to the major version (v1 or v2) of AutoHotkey.  The associated template will be automatically written to `C:\Windows\ShellNew\Template.ahk`.  The AHK_Launcher.exe (or .ahk) is used to dynamically launch the appropriate version of AHK based on your config settings in the <font color="red">AHK Launcher</font> tab.
 
-For more info on how to setup multiple compilers with AHK Portable Installer, read more below in the Ahk2Exe section.
+For more info on how to setup multiple compilers with AHK Portable Installer, read more below in the <font color="red">Setting Up Ahk2Exe</font> section.
 
 ## Ahk2Exe Handler
 
-This feature requires the `AHK Launcher` to be enabled.  If the `Ahk2Exe Handler` is enabled, when you click "Compile Script" from the context menu, it reads your script's configured setting for what version of AutoHotkey to run, and then opens the corresponding compiler.
+This feature is currently under construction.  Currently it will only open the Ahk2Exe window with the script name and icon pre filled.
 
-Currently, due to some significantly different behaviors of some versions of `Ahk2Exe`, this feature just opens the `Ahk2Exe` program associated with with script you clicked on, and auto-fills the script to be compiled.  More changes to come to improve automation!
+## AHK Launcher Tab
 
-You don't have to use this feature.  You can implement the default action of the "Compile Script" by unchecking the "Ahk2Exe Handler" in the "Extras" tab.  Doing this will only launch the compiler linked to the active version of AutoHotkey.
+<img src="images/ahk-pi-ahk2exe.png" />
 
-## AHK Launcher v2
+In the `AHK Launcher` tab, you can configure several (practically unlimited) versions of AutoHotkey and AutoHotkey_H to run side-by-side.  This works by parsing the first line of the script for a comment containing a match-string that specifies the version of AutoHotkey to use to run the script.  The user determines what the match-string is, decides to match via exact-match or regex, and decides what EXE to run for each specified match in this tab.  Once your settings are set, you won't have to change them again, unless you add/change a version of AHK for use.
 
-<img src="/images/ahk-pi11.png" />
+When running a script, if a first line match is not found, the fallback operation is to launch the installed/activated version of AutoHotkey.
 
-In the `AHK Launcher` tab, you can configure several (practically unlimited) versions of AutoHotkey and AutoHotkey_H to run side-by-side.  The first line of the script will be parsed for a comment containing a match-string that specifies the version of AutoHotkey to use to run the script.  The user determines what the match-string is, decides to match via exact-match or regex, and decides what EXE to run for each specified match in this tab.
-
-When running a script, if a match is not found, the fallback operation is to launch the installed/activated version of AutoHotkey.
-
-You can change these settings on-the-fly without actually clicking `Activate EXE`.  Just close the GUI after you are done making changes in order for the settings to take effect.
+Changing these settings can be done on-the-fly.  Just close the GUI after you are done making changes in the <font color="red">AHK Launcher Tab</font> in order for the changes to take effect.
 
 Use the plus/minus buttons to add/remove entries.  Double-click on a list item to edit it.
 
@@ -78,11 +92,9 @@ Key Notes:
   * AHK v1/2 64/32-bit/ANSI
   * AHK_H v1/2 32/64-bit
   * just specify the EXE to use for each one you intend to use.
-* Spacing variations and excluding the "v" for "v1" or "v2" is supported with default regex.
+* Spacing variations and optionally excluding the "v" for "v1" or "v2" is supported with default regex.
 
-You can change these settings on the fly without selecting another AutoHotkey EXE to reinstall / re-activate.
-
-The default match-strings for AHK versions are regex.  Examples that are valid for default values are:
+The default match-strings for AHK versions are regex.  Valid match strings to use as your first-line comment in your scripts are listed directly below.  Any space in the match can actually be multiple spaces if desired, and the "v" (as in "v1" or "v2") is optional.
 
 ```
 ; AHK v1            <-- for 64-bit, optionally include "64-bit"
@@ -100,17 +112,17 @@ The default match-strings for AHK versions are regex.  Examples that are valid f
 
 Remember, each version of AutoHotkey you configure to use with AHK Portable Installer should have its own compiler folder with `Ahk2Exe.exe` in it.
 
-There isn't much to setting up the compiler for normal versions of AutoHotkey.  All versions of AutoHotkey v1 come with a compiler and `.bin` files, and `mpress.exe`.  These versions of `Ahk2Exe` also work for AutoHotkey v2.  Just copy `Ahk2Exe.exe` and `mpress.exe` in the AHK v1 compiler folder to the AHK v2 compiler folder.  Note, it is suggested to not copy over the `.bin` files.
+There isn't much to setting up the compiler for normal versions of AutoHotkey.  All versions of AutoHotkey v1 come with a compiler and `.bin` files, and `mpress.exe`.  These versions of `Ahk2Exe` also work for AutoHotkey v2.  Just copy `Ahk2Exe.exe` and `mpress.exe` in the AHK v1 compiler folder to the AHK v2 compiler folder.  Note, it is suggested to not copy over the `.bin` files from AHK v1 to AHK v2 folders.  Copy `Ahk2Exe.exe` only for best/easiest results.
 
 AutoHotkey_H is a different story.  Setting up the compiler for AHK_H is more difficult but not impossible.  Simply copy the version of `AutoHotkey.exe` you want to use to the compiler folder and rename it to `Ahk2Exe.exe`.  If you have a 64-bit OS, then you should usually choose a 64-bit version of `AutoHotkey.exe`.  You will still be able to select to compile 32-bit versions of your script if desired.
 
-After you copy over `AutoHotkey.exe` to the compiler folder, it's necessary to compile `Ahk2Exe` in order to use it with AHK Portable Installer.
+After you copy over `AutoHotkey.exe` to the compiler folder (and renamed it to `Ahk2Exe.exe`), it's necessary to compile `Ahk2Exe` in order to use it with AHK Portable Installer.
 
 MAKE SURE TO CHOOSE A DIFFERENT DESTINATION EXE, NOT AHK2EXE.EXE !!!
 
-After it is compiled, you can delete the current `Ahk2Exe.exe` (that you copied over and renamed), and then rename your newly-compiled version to `Ahk2Exe.exe`.
+After it is compiled, you can delete the current `Ahk2Exe.exe` (the `AutoHotkey.exe` binary that you copied over and renamed), and then rename your newly-compiled version to `Ahk2Exe.exe`.
 
-Currently the latest version of AutoHotkey_H v1 compiler should compile itself fine.  For AutoHotkey_H v2, the latest version that is fully functional is version a108.  Use this version until user HotKeyIt is able to fix up a new stable release.  The latest AHK_H is a110 and has some critical issues.
+Currently the latest version of AutoHotkey_H v1 compiler should compile itself fine.  For AutoHotkey_H v2, the latest version I have tested that is fully functional is version a108.  AHK_H v2 has been updated recently (2020-12-31), and I will be integrating/testing it soon.
 
 ## What AHK Portable Installer does NOT do...
 
@@ -122,12 +134,9 @@ This is a PORTABLE installer, so this script:
 
 ## Troubleshooting
 
-1) It is NOT recommended to run this script along side a normal installation of AutoHotkey with the setup program.
+1) It is NOT recommended to run this script along side a normal installation of AutoHotkey with the setup program, it is however theoretically possible.  But this script will override the proper install with its own settings.
 
-2) If you move your AutoHotkey folder, then you must reinstall / re-activate your chosen AutoHotkey version.
-
-3) If you activate / install AutoHotkey more than once, you may be prompted by Windows to "select a program" to open `.ahk` files.  In most cases this will be the `AhkLauncher.exe`, or some form of `AutoHotkey.exe`.
-
+2) If you move your AutoHotkey folder, then you must reinstall / re-activate your chosen AutoHotkey version.  If you don't re-activate / re-install then you will likely be prompted to "select an application" when running scripts.
 
 ## To-Do List
 
@@ -144,4 +153,3 @@ Any feedback would be appreciated.  Hopefully this tool will help people, and ju
 
 If you need a version of Window Spy for AHK v2 go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) 
 on AHK forums.
-
