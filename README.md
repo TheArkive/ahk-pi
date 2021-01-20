@@ -12,12 +12,13 @@ If you need a version of `Window Spy for AHK v2` go to [this thread](https://www
 
 This is a portable install manager.  This script is meant to work with the portable `.zip` archives of AutoHotkey, NOT the setup `.exe` versions.  It is written in AHK v2.
 
-I am now going to support this script uncompiled, since McAffee has decided that some of the key exe files are supposedly viruses.  Running this as a script should mitigate this issue, but this introduces one key change to how this is meant to run:
+I am now going to support this script uncompiled, since McAffee has decided that some of the key exe files are supposedly viruses (a false positive of course).  Running this as a script should mitigate this issue, but this introduces one key change to how this is meant to run:
 
 <b><font color="red">
-If you run this as a script (not compiled), you MUST select ONLY one of the AHK v2 versions (currently only alphas - and do NOT pick AHK_H v2) to install as your primary base install for AutoHotkey.
 
-DO NOT select any other version of AHK other than AHK v2 (non-AHK_H) as your base install.  If you restart the script after selecting an AHK v1 base version, this script WILL NOT WORK.  I have not yet tested this script with AHK_H v2.
+====================================================================
+
+If you run this as a script (not compiled), simply copy the latest AHK v2 binary to the script directory and rename it to `AHK Portable Installer.exe`.  Then always run the script with this EXE.  You can still set any AHK version as the base install for the system with the uncompiled script.
 
 If you want to compile this script, you must compile 3 files:
 
@@ -25,7 +26,9 @@ If you want to compile this script, you must compile 3 files:
 * Ahk2Exe_Handler.ahk         <-- support element
 * AhkLauncher.ahk             <-- support element
 
-If you run this script compiled, then you can choose any AHK version as your base version, and you can change the base installed version at will.
+Note: It is suggested to compile all files as 32-bit.
+ 
+====================================================================
 </font></b>
 
 I'll create a detailed setup tutorial for this script soon.  For now please see "Basic Setup" below.  I have made a few updates to try and clarify the key options that govern how this script runs and how it allows you to run all version of AHK with minimal effort.
