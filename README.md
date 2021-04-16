@@ -1,6 +1,8 @@
-# AHK Portable Installer (well... semi-portable)
+# AHK Portable Installer (now completely portable)
 
 <img src="images/ahk-pi2.png" width="420" align="top"/>
+
+For details on how to use Fully Portable Mode, skip to that section below.
 
 ## Intro
 
@@ -17,6 +19,7 @@ This is a (semi) portable install manager.  This script is meant to work with th
 This script is now supported uncompiled, since McAffee has decided that some of the key exe files are supposedly viruses (a false positive of course).  Running this as a script should mitigate this issue.  See `Basic Setup` for details.
 
 ## Features
+* Now featuring Fully Portable Mode.  See the `Fully Portable Mode` section below.
 * Associate the .ahk extension with any version of AHK on double-click.
 * Selectively choose which context-menu items appear in the context menu.
 * Associate any text editor with "Edit Script" in context menu easily.
@@ -102,6 +105,23 @@ Remember, each version of AutoHotkey you configure to use with AHK Portable Inst
 There isn't much to setting up the compiler for normal versions of AutoHotkey.  All versions of AutoHotkey v1 come with a compiler and `.bin` files, and `mpress.exe`.  These versions of `Ahk2Exe` also work for AutoHotkey v2.  Just copy `Ahk2Exe.exe` and `mpress.exe` from the AHK v1 compiler folder to the AHK v2 compiler folder.  Note, DO NOT copy over the `.bin` files from AHK v1 to AHK v2 folders.
 
 The latest versions of AutoHotkey_H v1 and v2, as of the updating of this document (2014/04/16), both have an updated compiler which already contains `Ahk2Exe.exe`.
+
+## Fully Portable Mode
+
+To enable Fully Portable Mode, check the checkbox in the Options tab.  No admin rights are required in this mode.
+
+When Fully Portable Mode is enabled, you can middle-click to run your selected AHK scripts on the desktop and in `explorer.exe` file browser windows.  You can select multiple files if you wish, then middle-click to run them all.  AHK Portable Installer must be running in the background for Fully Portable Mode to remain active.
+
+If you want AHK Portable Installer to run on startup, then check the "Run on system startup" checkbox in the Options tab.
+
+Enabling this mode has the following effects:
+
+* The main window list is directly used for switching AHK versions.  Simply double-click an item to make that version "active" for running future scripts.
+* The `Use Ahk2Exe Handler` and `Use AHK Launcher` options in the Basics tab have no effect.
+* The `AHK Launcher` tab has no effect.
+* The first-line version comment in scripts (used by the AHK Launcher to determine which version of AHK to run) is not necessary, since AHK Launcher is not used.
+* The options to show context menu items have no effect.
+
 
 ## What AHK Portable Installer does NOT do...
 
