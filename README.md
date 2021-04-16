@@ -21,7 +21,7 @@ This script is now supported uncompiled, since McAffee has decided that some of 
 ## Features
 * Now featuring Fully Portable Mode.  See the `Fully Portable Mode` section below.\
 Middle-click on selected script files to run them (you can select multiple).\
-Shift + Middle-click to open in specified editor.
+Shift + Middle-click to open in specified editor.\
 Many of the below features don't apply in Fully Portable Mode.  Read the Fully Portable Mode section for details.
 * Associate the .ahk extension with any version of AHK on double-click.
 * Selectively choose which context-menu items appear in the context menu.
