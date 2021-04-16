@@ -18,7 +18,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\TheArkive_reg2.ahk
 #INCLUDE inc\GetAhkProps.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.12", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.13", regexList := Map()
 
 OnExit(on_exit)
 
