@@ -19,7 +19,9 @@ This is a (semi) portable install manager.  This script is meant to work with th
 This script is now supported uncompiled, since McAffee has decided that some of the key exe files are supposedly viruses (a false positive of course).  Running this as a script should mitigate this issue.  See `Basic Setup` for details.
 
 ## Features
-* Now featuring Fully Portable Mode.  See the `Fully Portable Mode` section below.
+* Now featuring Fully Portable Mode.  See the `Fully Portable Mode` section below.\
+Middle-click on selected script files to run them (you can select multiple).\
+Shift + Middle-click to open in specified editor.
 * Associate the .ahk extension with any version of AHK on double-click.
 * Selectively choose which context-menu items appear in the context menu.
 * Associate any text editor with "Edit Script" in context menu easily.
@@ -112,16 +114,18 @@ To enable Fully Portable Mode, check the checkbox in the Options tab.  No admin 
 
 When Fully Portable Mode is enabled, you can middle-click to run your selected AHK scripts on the desktop and in `explorer.exe` file browser windows.  You can select multiple files if you wish, then middle-click to run them all.  AHK Portable Installer must be running in the background for Fully Portable Mode to remain active.
 
+You can open a selected script (from the desktop or `explorer.exe` file browser window) in your specified editor using SHIFT + Middle-click.  The Middle-click and Shift + Middle click hotkeys are now always active when AHK Portable Installer is running.
+
 If you want AHK Portable Installer to run on startup, then check the "Run on system startup" checkbox in the Options tab.
 
 Enabling this mode has the following effects:
 
 * The main window list is directly used for switching AHK versions.  Simply double-click an item to make that version "active" for running future scripts.
 * The `Use Ahk2Exe Handler` and `Use AHK Launcher` options in the Basics tab have no effect.
+* Specifying a text editor in the Basics tab doesn't modify the registry (and no other registry modifications are made).
 * The `AHK Launcher` tab has no effect.
 * The first-line version comment in scripts (used by the AHK Launcher to determine which version of AHK to run) is not necessary, since AHK Launcher is not used.
 * The options to show context menu items have no effect.
-
 
 ## What AHK Portable Installer does NOT do...
 

@@ -17,12 +17,15 @@ If (A_Is64BitOS)
 If (FileExist("Settings.json.blank") And !FileExist("Settings.json"))
     FileMove "Settings.json.blank", "Settings.json"
 
-SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(&SettingsJSON), Settings["toggle"] := 0 ; load settings
+SettingsJSON := FileRead("Settings.json")
+Settings := Jxon_Load(&SettingsJSON)
+Settings["toggle"] := 0 ; load settings
 regexList := Settings["regexList"]
 
 If Settings["PickIcon"] = "Default" {
     ahkProps := GetAhkProps(Settings["ActiveVersionPath"])
-    TraySetIcon(ahkProps["exePath"],0)
+    if ahkProps
+        TraySetIcon(ahkProps["exePath"],0)
 } Else TraySetIcon("AHK_pi_" Settings["PickIcon"] ".ico")
 
 If A_IsCompiled {
@@ -878,4 +881,12 @@ MButton::{
                 Run exeFile " " Chr(34) a[A_Index] Chr(34)
         }
     }
+}
+
++MButton::{
+    Global Settings
+    editor := Settings["TextEditorPath"]
+    
+    sel := Explorer_GetSelection()
+    Run Chr(34) editor Chr(34) " " Chr(34) sel Chr(34)
 }
