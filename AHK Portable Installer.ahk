@@ -1,4 +1,15 @@
 ﻿; AHK v2
+; =======================================================================================
+; thanks to boiler
+;       https://www.autohotkey.com/boards/viewtopic.php?f=6&t=76602&p=332166&hilit=boiler+RAAV#p332166
+; thanks to Rapte_Of_Suzaku
+;       https://autohotkey.com/board/topic/60985-get-paths-of-selected-items-in-an-explorer-window/
+; thanks to TeaDrinker
+;       https://www.autohotkey.com/boards/viewtopic.php?p=255169#p255169
+; =======================================================================================
+; The above users' contributions were crutial to AHK Portable Installer now being fully portable.
+; =======================================================================================
+
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
@@ -826,12 +837,12 @@ GetMonitorData(x:="", y:="") {
 ; ====================================================================================
 ; Explorer_GetSelection()
 ; ====================================================================================
+; thanks to boiler
+;       https://www.autohotkey.com/boards/viewtopic.php?f=6&t=76602&p=332166&hilit=boiler+RAAV#p332166
 ; thanks to Rapte_Of_Suzaku
 ;       https://autohotkey.com/board/topic/60985-get-paths-of-selected-items-in-an-explorer-window/
 ; thanks to TeaDrinker
 ;       https://www.autohotkey.com/boards/viewtopic.php?p=255169#p255169
-; thanks to boiler
-;       https://www.autohotkey.com/boards/viewtopic.php?f=6&t=76602&p=332166&hilit=boiler+RAAV#p332166
 ; ====================================================================================
 Explorer_GetSelection(usePath:=false) { ; thanks to boiler, from his RAAV script, slightly modified
 	winClass := WinGetClass("ahk_id " . hWnd := WinExist("A"))
