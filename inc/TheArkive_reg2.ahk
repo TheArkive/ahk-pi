@@ -356,7 +356,7 @@ class reg {
         If (this.access_test(key)) ; test for access denied
             return this.LastError
         
-        SplitPath key, endKey, pathKey
+        SplitPath key, &endKey, &pathKey
         file := (file="") ? endKey ".reg" : file   ; default file name is key name
         file := (SubStr(file,-4) != ".reg") ? file ".reg" : file
         v := this.validateFileName(file)    ; validate provided file/path
@@ -422,7 +422,7 @@ class reg {
     Static validateFileName(inPath) {
         If !inPath
             return false
-        SplitPath inPath, outFile, outDir
+        SplitPath inPath, &outFile, &outDir
         result := (outDir ? FileExist(outDir) : true), invalidChars := "><:/\|?*" Chr(34)
         Loop Parse invalidChars
             result := !result ? false : !InStr(outFile, A_LoopField)

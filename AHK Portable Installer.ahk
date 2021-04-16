@@ -6,8 +6,9 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\_JXON.ahk
 #INCLUDE inc\_RegexInput.ahk
 #INCLUDE inc\TheArkive_reg2.ahk
+#INCLUDE inc\GetAhkProps.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.11", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.12", regexList := Map()
 
 If (A_Is64BitOS)
     reg.view := 64
@@ -15,7 +16,7 @@ If (A_Is64BitOS)
 If (FileExist("Settings.json.blank") And !FileExist("Settings.json"))
     FileMove "Settings.json.blank", "Settings.json"
 
-SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(SettingsJSON), Settings["toggle"] := 0 ; load settings
+SettingsJSON := FileRead("Settings.json"), Settings := Jxon_Load(&SettingsJSON), Settings["toggle"] := 0 ; load settings
 regexList := Settings["regexList"]
 
 monitor := GetMonitorData()
@@ -24,8 +25,9 @@ If Settings["posX"] > monitor.right Or Settings["posX"] < monitor.left
 If Settings["posY"] > monitor.bottom Or Settings["posY"] < monitor.top
     Settings["posY"] := 200
 
-OnMessage(0x0200,"WM_MOUSEMOVE") ; WM_MOUSEMOVE
+OnMessage(0x0200,WM_MOUSEMOVE) ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
+    Global Settings, oGui
     If (!Settings["DisableTooltips"]) {
         If (hwnd = oGui["ActivateExe"].Hwnd)
             ToolTip "Modify settings as desired first, including templates.`r`nThen click this button."
@@ -51,73 +53,74 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
 runGui()
 
 runGui() {
-    oGui := Gui.New("-DPIScale","AHK Portable Installer " AhkPisVersion)
-    oGui.OnEvent("Close","gui_Close")
+    Global oGui, AhkPisVersion, Settings
+    oGui := Gui("-DPIScale","AHK Portable Installer " AhkPisVersion)
+    oGui.OnEvent("Close",gui_Close)
     
     Ahk1Version := (Settings.Has("Ahk1Version")) ? Settings["Ahk1Version"] : ""
     Ahk2Version := (Settings.Has("Ahk2Version")) ? Settings["Ahk2Version"] : ""
     Ahk1Html := "<a href=" Chr(34) StrReplace(Settings["Ahk1Url"],"version.txt","") Chr(34) ">AHKv1:</a>    " Ahk1Version
     Ahk2Html := "<a href=" Chr(34) StrReplace(Settings["Ahk2Url"],"version.txt","") Chr(34) ">AHKv2:</a>    " Ahk2Version
     
-    oGui.Add("Link","vAhk1Version xm w220",Ahk1Html).OnEvent("Click","LinkEvents")
-    oGui.Add("Link","vAhk2Version x+0 w220",Ahk2Html).OnEvent("Click","LinkEvents")
+    oGui.Add("Link","vAhk1Version xm w220",Ahk1Html).OnEvent("Click",LinkEvents)
+    oGui.Add("Link","vAhk2Version x+0 w220",Ahk2Html).OnEvent("Click",LinkEvents)
     oGui.Add("Edit","vActiveVersionDisp xm y+8 w440 -E0x200 ReadOnly","Installed:")
     
     LV := oGui.Add("ListView","xm y+0 r5 w460 vExeList",["Description","Version","File Name","Full Path"])
-    LV.OnEvent("DoubleClick","GuiEvents"), LV.OnEvent("Click","ListClick")
+    LV.OnEvent("DoubleClick",GuiEvents), LV.OnEvent("Click",ListClick)
     
     oGui.Add("Edit","vCurrentPath xm y+8 w440 -E0x200 ReadOnly","Path:    ")
     
-    oGui.Add("Button","vToggleSettings y+0","Settings").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vHelp x+72","Help").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vWindowSpy x+0","Window Spy").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vActivateExe x+65 yp","Activate EXE").OnEvent("Click","GuiEvents")
+    oGui.Add("Button","vToggleSettings y+0","Settings").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vHelp x+72","Help").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vWindowSpy x+0","Window Spy").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vActivateExe x+65 yp","Activate EXE").OnEvent("Click",GuiEvents)
     
     tabs := oGui.Add("Tab","y+10 x2 w476 h275",["Basics","AHK Launcher","Other"])
     
     oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
     oGui.Add("Edit","y+0 r1 w410 vBaseFolder ReadOnly")
-    oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","x+0 vClearBaseFolder","X").OnEvent("Click","GuiEvents")
+    oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","x+0 vClearBaseFolder","X").OnEvent("Click",GuiEvents)
     oGui.Add("Text","xm y+4","AutoHotkey v1 URL:")
-    oGui.Add("Edit","y+0 r1 w460 vAhk1Url").OnEvent("Change","GuiEvents")
+    oGui.Add("Edit","y+0 r1 w460 vAhk1Url").OnEvent("Change",GuiEvents)
     oGui.Add("Text","xm y+4","AutoHotkey v2 URL:")
-    oGui.Add("Edit","y+0 r1 w460 vAhk2Url").OnEvent("Change","GuiEvents")
+    oGui.Add("Edit","y+0 r1 w460 vAhk2Url").OnEvent("Change",GuiEvents)
     
-    oGui.Add("Checkbox","vAhk2ExeHandler xm y+10","Use Ahk2Exe handler").OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vAhkLauncher x+30","Use AHK Launcher").OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vDisableTooltips x+30","Disable Tooltips").OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vAhk2ExeHandler xm y+10","Use Ahk2Exe handler").OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vAhkLauncher x+30","Use AHK Launcher").OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vDisableTooltips x+30","Disable Tooltips").OnEvent("Click",GuiEvents)
     
-    oGui.Add("Checkbox","vAutoUpdateCheck xm y+10","Automatically check for updates").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vCheckUpdateNow x+173 yp-4","Check Updates Now").OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vAutoUpdateCheck xm y+10","Automatically check for updates").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vCheckUpdateNow x+173 yp-4","Check Updates Now").OnEvent("Click",GuiEvents)
     
     oGui.Add("Text","xm y+4","Text Editor:")
     oGui.Add("Edit","xm y+0 w410 vTextEditorPath ReadOnly")
-    oGui.Add("Button","x+0 vPickTextEditor","...").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","x+0 vDefaultTextEditor","X").OnEvent("Click","GuiEvents")
+    oGui.Add("Button","x+0 vPickTextEditor","...").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","x+0 vDefaultTextEditor","X").OnEvent("Click",GuiEvents)
     
-    oGui.Add("Button","vEditAhk1Template xm y+10 w230","Edit AHK v1 Template").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vEditAhk2Template x+0 w230","Edit AHK v2 Template").OnEvent("Click","GuiEvents")
+    oGui.Add("Button","vEditAhk1Template xm y+10 w230","Edit AHK v1 Template").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vEditAhk2Template x+0 w230","Edit AHK v2 Template").OnEvent("Click",GuiEvents)
     
     tabs.UseTab("AHK Launcher")
     
     LV := oGui.Add("ListView","vAhkParallelList xm y+5 w460 h218",["Label","Match String"])
-    LV.OnEvent("click","GuiEvents")
-    LV.OnEvent("doubleclick","regex_edit")
+    LV.OnEvent("click",GuiEvents)
+    LV.OnEvent("doubleclick",regex_edit)
     LV.ModifyCol(1,160), LV.ModifyCol(2,260)
     LV.SetFont("s8","Courier New")
     
     oGui.Add("Edit","vRegexExe xm y+0 w410 ReadOnly")
-    oGui.Add("Button","vRegexExeAdd x+0 w25","+").OnEvent("Click","GuiEvents")
-    oGui.Add("Button","vRegexExeRemove x+0 w25","-").OnEvent("Click","GuiEvents")
+    oGui.Add("Button","vRegexExeAdd x+0 w25","+").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vRegexExeRemove x+0 w25","-").OnEvent("Click",GuiEvents)
     
     tabs.UseTab("Other")
     
     oGui.Add("Text","xm y+4","Context Menu:")
-    oGui.Add("Checkbox","vShowEditScript xm y+4","Show " Chr(34) "Edit Script" Chr(34)).OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vShowCompileScript x+30","Show " Chr(34) "Compile Script" Chr(34)).OnEvent("Click","GuiEvents")
-    oGui.Add("Checkbox","vShowRunScript x+30","Show " Chr(34) "Run Script" Chr(34)).OnEvent("Click","GuiEvents")
+    oGui.Add("Checkbox","vShowEditScript xm y+4","Show " Chr(34) "Edit Script" Chr(34)).OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vShowCompileScript x+30","Show " Chr(34) "Compile Script" Chr(34)).OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vShowRunScript x+30","Show " Chr(34) "Run Script" Chr(34)).OnEvent("Click",GuiEvents)
     
     ; oGui.Add("Checkbox","vAhk2ExeAutoStart x+30","Auto Start Compiler").OnEvent("Click","GuiEvents")
     ; oGui.Add("Checkbox","vAhk2ExeAutoClose x+30","Auto Close Compiler").OnEvent("Click","GuiEvents")
@@ -136,6 +139,7 @@ runGui() {
 }
 
 SetActiveVersionGui() {
+    Global Settings, oGui
     InstProd := "", ver := ""
     Try InstProd := reg.read("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","InstallProduct")
     Try ver := reg.read("HKEY_LOCAL_MACHINE\SOFTWARE\AutoHotkey","Version")
@@ -154,6 +158,7 @@ SetActiveVersionGui() {
 }
 
 PopulateSettings() {
+    Global Settings, oGui
     SetActiveVersionGui()
     
     If (!Settings.Has("BaseFolder"))
@@ -222,6 +227,7 @@ PopulateSettings() {
 }
 
 ListExes() {
+    Global Settings, oGui
     props := ["Name","Product version","File description"]
     oCtl := oGui["ExeList"] ; ListView
     oCtl.Opt("-Redraw"), oCtl.Delete()
@@ -267,75 +273,8 @@ ListExes() {
     oCtl.Focus(), oCtl := ""
 }
 
-; =================================================================
-; ahkProps := GetAhkProps(sInput)
-;    Returns ahk properties in a Map().
-;    > sInput assumes the following path format:
-;    - X:\path\base_path\AhkName AhkVersion\[AHK_H subfolder\]AutoHotkey[type].exe
-;    - [type] = A32 / U32 / U64 / HA32 / HA32_MT / HU32 / HU32_MT / HU64 / HU64_MT
-;
-;    props: ahkProduct, ahkVersion, installDir, ahkType, bitness, exeFile, exePath, exeDir, variant
-;
-;    ahkprop key values:
-;    - ahkProduct = AHK / AutoHotkey / AHK_H / AutoHotkey_H ... however it is typed
-;    - ahkVersion = 1.32.00.....   as typed, but leading "v" will be stripped
-;    - ahkType = Unicode / ANSI
-;    - bitness = 32-bit / 64-bit
-;    - installDir = base folder where Ahk2Exe and help file resides
-;    - exeFile = full name of exe file
-;    - exePath = full path to and including the exe file
-;    - exeDir = dir exe is located in
-;    - variant = MT for "multi-threading" or blank ("")
-
-GetAhkProps(sInput) {
-    If (!FileExist(sInput))
-        return ""
-    
-    SplitPath sInput, ahkFile, curDir
-    isAhkH := false, var := "", installDir := curDir
-    bitness := "", ahkType := ""
-    
-    If (InStr(sInput,"\Win32a_MT\"))
-        installDir := StrReplace(installDir,"\Win32a_MT"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit", var := "MT"
-    Else If (InStr(sInput,"\Win32a\"))
-        installDir := StrReplace(installDir,"\Win32a"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit"
-    Else If (InStr(sInput,"\Win32w_MT\"))
-        installDir := StrReplace(installDir,"\Win32w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit", var := "MT"
-    Else If (InStr(sInput,"\Win32w\"))
-        installDir := StrReplace(installDir,"\Win32w"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit"
-    Else If (InStr(sInput,"\x64w_MT\"))
-        installDir := StrReplace(installDir,"\x64w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit", var := "MT"
-    Else If (InStr(sInput,"\x64w\"))
-        installDir := StrReplace(installDir,"\x64w"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit"
-    
-    lastSlash := InStr(installDir,"\",false,-1)
-    ahkPropStr := SubStr(installDir,lastSlash+1)
-    propArr := StrSplit(ahkPropStr," ")
-    ahkProduct := propArr[1]
-    ahkVersion := propArr.Has(2) ? propArr[2] : ""
-    ahkVersion := (SubStr(ahkVersion,1,1) = "v") ? SubStr(ahkVersion,2) : ahkVersion
-    
-    If (!isAhkH) {
-        If (InStr(ahkFile,"A32.exe"))
-            ahkType := "ANSI", bitness := "32-bit"
-        Else If (InStr(ahkFile,"U32.exe"))
-            ahkType := "Unicode", bitness := "32-bit"
-        Else If (InStr(ahkFile,"U64.exe"))
-            ahkType := "Unicode", bitness := "64-bit"
-    }
-    
-    ahkProps := Map()
-    ahkProps["exePath"] := sInput, ahkProps["installDir"] := installDir, ahkProps["ahkProduct"] := ahkProduct
-    ahkProps["ahkVersion"] := ahkVersion, ahkProps["ahkType"] := ahkType, ahkProps["bitness"] := bitness
-    ahkProps["variant"] := var, ahkProps["exeFile"] := ahkFile, ahkProps["exeDir"] := curDir, ahkProps["isAhkH"] := isAhkH
-    
-    If (ahkType = "" Or bitness = "")
-        return ""
-    Else
-        return ahkProps
-}
-
 DisplayPathGui(oCtl,curRow) {
+    Global Settings, oGui
     curPath := oCtl.GetText(curRow,4)
     oGui["CurrentPath"].Text := "Path:    " curPath
 }
@@ -350,6 +289,7 @@ ListClick(oCtl,Info) {
 }
 
 CheckUpdate(override:=0) {
+    Global Settings, oGui
     If (!override) {
         If (!Settings.Has("AutoUpdateCheck") Or Settings["AutoUpdateCheck"] = 0)
             return "NoUpdate"
@@ -360,23 +300,23 @@ CheckUpdate(override:=0) {
     errMsg := "", NewAhk1Version := "", NewAhk2Version := ""
     Try {
         ; Download Settings["Ahk1Url"], "version1.txt"
-        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr := ComObject("WinHttp.WinHttpRequest.5.1")
         whr.Open("GET", Settings["Ahk1Url"])
         whr.Send()
         whr.WaitForResponse()
         NewAhk1Version := whr.ResponseText
-    } Catch e {
+    } Catch {
         errMsg := "Could not reach AHKv1 page."
     }
     
     Try {
         ; Download Settings["Ahk2Url"], "version2.txt"
-        whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+        whr := ComObject("WinHttp.WinHttpRequest.5.1")
         whr.Open("GET", Settings["Ahk2Url"])
         whr.Send()
         whr.WaitForResponse()
         NewAhk2Version := whr.ResponseText
-    } Catch e {
+    } Catch {
         errMsg .= errMsg ? "`n`n" : "", errMsg .= "Could not reach AHKv2 page."
     }
     
@@ -409,6 +349,7 @@ CheckUpdate(override:=0) {
 }
 
 GuiEvents(oCtl,Info) {
+    Global regexList, Settings, oGui
     If (oCtl.Name = "ToggleSettings") {
         toggle := Settings["toggle"]
         
@@ -616,7 +557,7 @@ GuiEvents(oCtl,Info) {
         Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) "resources\TemplateV2.ahk"
     } Else If (oCtl.Name = "WindowSpy") {
         If (Settings.Has("ActiveVersionPath") And FileExist(Settings["ActiveVersionPath"])) {
-            SplitPath Settings["ActiveVersionPath"], exeFile, exeDir
+            SplitPath Settings["ActiveVersionPath"], &exeFile, &exeDir
             winSpy := exeDir "\WindowSpy.ahk"
             If (FileExist(winSpy))
                 Run Chr(34) exeDir "\WindowSpy.ahk" Chr(34)
@@ -677,6 +618,7 @@ GuiEvents(oCtl,Info) {
 }
 
 UninstallAhk() {
+    Global Settings, oGui
     k1 := reg.delete(k1k := "HKLM\SOFTWARE\AutoHotkey")
     k2 := reg.delete(k2k := "HKLM\SOFTWARE\Classes\.ahk")
     k3 := reg.delete(k3k := "HKLM\SOFTWARE\Classes\AutoHotkeyScript")
@@ -699,8 +641,9 @@ UninstallAhk() {
 }
 
 gui_Close(o) {
+    Global Settings, oGui
     Settings["BaseFolder"] := o["BaseFolder"].Value
-    oGui.GetPos(x,y,w,h), dims := {x:x, y:y, w:w, h:h}
+    oGui.GetPos(&x,&y,&w,&h), dims := {x:x, y:y, w:w, h:h}
     Settings["posX"] := dims.x, Settings["posY"] := dims.y
     Settings["regexList"] := regexList
     
@@ -720,12 +663,12 @@ gui_Close(o) {
 GetMonitorData(x:="", y:="") {
 	CoordMode "Mouse", "Screen" ; CoordMode Mouse, Screen ; AHK v1
 	If (x = "" Or y = "")
-		MouseGetPos x, y
+		MouseGetPos &x, &y
 	actMon := 0
 	
 	monCount := MonitorGetCount() ; SysGet, monCount, MonitorCount ; AHK v1
 	Loop monCount { ; Loop % monCount { ; AHK v1
-		MonitorGet(A_Index,mLeft,mTop,mRight,mBottom) ; SysGet, m, Monitor, A_Index ; AHK v1
+		MonitorGet(A_Index,&mLeft,&mTop,&mRight,&mBottom) ; SysGet, m, Monitor, A_Index ; AHK v1
 		
 		If (mLeft = "" And mTop = "" And mRight = "" And mBottom = "")
 			Continue

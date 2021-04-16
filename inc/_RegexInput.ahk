@@ -1,10 +1,10 @@
-Global OpenLabel, regexGui
-OpenLabel := "", regexGui := ""
+Global OpenLabel := "", regexGui := ""
 
 guiAddRegex(label:="") {
-	regexGui := Gui.New("-DPIScale +Owner" oGui.hwnd,"Add Parallel Entry")
-	regexGui.OnEvent("close","regex_close")
-	regexGui.OnEvent("escape","regex_close")
+    Global regexGui, OpenLabel
+	regexGui := Gui("-DPIScale +Owner" oGui.hwnd,"Add Parallel Entry")
+	regexGui.OnEvent("close",regex_close)
+	regexGui.OnEvent("escape",regex_close)
 	
 	regexGui.Add("Text","y8 w70 Right","Label:")
 	ctl := regexGui.Add("Edit","vRegexLabel x+2 yp-4 w150")
@@ -27,10 +27,10 @@ guiAddRegex(label:="") {
 	If (label)
 		ctl.Value := regexList[label]["exe"]
 	
-	regexGui.Add("Button","vSelectExe x+0","...").OnEvent("click","regex_events")
+	regexGui.Add("Button","vSelectExe x+0","...").OnEvent("click",regex_events)
 	
-	regexGui.Add("Button","vRegexSave y+20 x+-100 w50","Save").OnEvent("click","regex_events")
-	regexGui.Add("Button","vRegexCancel x+0 w50","Cancel").OnEvent("click","regex_events")
+	regexGui.Add("Button","vRegexSave y+20 x+-100 w50","Save").OnEvent("click",regex_events)
+	regexGui.Add("Button","vRegexCancel x+0 w50","Cancel").OnEvent("click",regex_events)
 	
 	regexGui.Show()
 	If (label)
@@ -40,6 +40,7 @@ guiAddRegex(label:="") {
 }
 
 regex_close(o) {
+    Global regexGui, OpenLabel
 	oGui.Opt("-Disabled"), OpenLabel := ""
 	o.Destroy(), regexGui := ""
 }
@@ -50,6 +51,7 @@ regex_edit(ctl,info) {
 }
 
 regex_events(ctl,info) {
+    Global Settings, regexGui, OpenLabel, regexList
 	g := ctl.gui
 	If (ctl.Name = "RegexSave") {
 		curLabel := g["RegexLabel"].Value
@@ -64,7 +66,9 @@ regex_events(ctl,info) {
 			newObj := Map("regex",curRegex,"exe",curExe,"type",MatchType)
 			regexList[curLabel] := newObj, newObj := ""
 			
-			regexRelist()
+			; regexRelist()
+            LstV := oGui["AhkParallelList"]
+            LstV.Modify(LstV.GetNext(), "Col2", curRegex)
 			
 			oGui.Opt("-Disabled")
 			g.Destroy(), regexGui := ""
@@ -89,10 +93,19 @@ regex_events(ctl,info) {
 }
 
 regexRelist() {
+    Global regexList
 	LstV := oGui["AhkParallelList"]
-	LstV.Delete()
+	; ======================================
+    ; old
+    ; ======================================
+    LstV.Delete()
 	
 	For label, obj in regexList
 		regex := obj["regex"], LstV.Add("",label,regex)
 	obj := ""
+    ; ======================================
+    ; new
+    ; ======================================
+    
+    
 }
