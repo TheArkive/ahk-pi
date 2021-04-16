@@ -65,6 +65,10 @@ When you click `Activate EXE`, or double-click on a version in the list, this wr
 
 For more info on how to setup multiple compilers with AHK Portable Installer, read more below in the <font color="red">Setting Up Ahk2Exe</font> section.
 
+If you are using Fully Portable Mode, then read more about this mode below.  You can skip Ahk2Exe handler and AHK Launcher Tab sections, as these do not apply in Fully Portable Mode.
+
+Note that SHIFT + MButton and MButton hotkeys now apply when using `explorer.exe` file browser windows.  If you are not using Fully Portable Mode this should have no significant effect, since there is no need to keep this script running unless you are changing settings, or implementing a new version of AHK into your system.  Also these hotkeys don't natively do anything on `explorer.exe` file browser windows.
+
 ## Ahk2Exe Handler
 
 Advanced features in this module are currently under construction.  Currently it will only open the Ahk2Exe window with the script name and icon pre filled.
