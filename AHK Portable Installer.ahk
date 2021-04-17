@@ -527,7 +527,8 @@ ActivateEXE() {
     LV := oGui["ExeList"] ; ListView
     row := LV.GetNext(), exeFullPath := LV.GetText(row,4)
     
-    UninstallAhk() ; ... shouldn't need this
+    If !Settings["PortableMode"]
+        UninstallAhk() ; ... shouldn't need this
     
     ; props: ahkProduct, ahkVersion, installDir, ahkType, bitness, exeFile, exePath, exeDir, variant
     ahkProps := GetAhkProps(exeFullPath)
