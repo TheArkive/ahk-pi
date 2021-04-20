@@ -1,7 +1,7 @@
 Global OpenLabel := "", regexGui := ""
 
 guiAddRegex(label:="") {
-    Global regexGui, OpenLabel
+    Global regexGui, OpenLabel, Settings
 	regexGui := Gui("-DPIScale +Owner" oGui.hwnd,"Add Parallel Entry")
 	regexGui.OnEvent("close",regex_close)
 	regexGui.OnEvent("escape",regex_close)
@@ -31,6 +31,9 @@ guiAddRegex(label:="") {
 	
 	regexGui.Add("Button","vRegexSave y+20 x+-100 w50","Save").OnEvent("click",regex_events)
 	regexGui.Add("Button","vRegexCancel x+0 w50","Cancel").OnEvent("click",regex_events)
+    
+    If !Settings["PortableMode"]
+        ctl := regexGui.Add("Text","xm yp+4","Don't forget to close the program for changes to take effect!")
 	
 	regexGui.Show()
 	If (label)
