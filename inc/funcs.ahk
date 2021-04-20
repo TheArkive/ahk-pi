@@ -19,50 +19,50 @@
 ;    - variant = MT for "multi-threading" or blank ("")
 
 GetAhkProps(sInput) {
-	If (!FileExist(sInput))
-		return ""
-	
-	SplitPath sInput, &ahkFile, &curDir
-	isAhkH := false, var := "", installDir := curDir, ahkType := "", bitness := "", var := ""
-	
-	If (InStr(sInput,"\Win32a_MT\"))
-		installDir := StrReplace(installDir,"\Win32a_MT"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit", var := "MT"
-	Else If (InStr(sInput,"\Win32a\"))
-		installDir := StrReplace(installDir,"\Win32a"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit"
-	Else If (InStr(sInput,"\Win32w_MT\"))
-		installDir := StrReplace(installDir,"\Win32w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit", var := "MT"
-	Else If (InStr(sInput,"\Win32w\"))
-		installDir := StrReplace(installDir,"\Win32w"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit"
-	Else If (InStr(sInput,"\x64w_MT\"))
-		installDir := StrReplace(installDir,"\x64w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit", var := "MT"
-	Else If (InStr(sInput,"\x64w\"))
-		installDir := StrReplace(installDir,"\x64w"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit"
-	
-	lastSlash := InStr(installDir,"\",false,-1)
-	ahkPropStr := SubStr(installDir,lastSlash+1)
-	propArr := StrSplit(ahkPropStr," ")
-	ahkProduct := propArr[1]
-	ahkVersion := propArr.Has(2) ? propArr[2] : ""
-	ahkVersion := (SubStr(ahkVersion,1,1) = "v") ? SubStr(ahkVersion,2) : ahkVersion
-	
-	If (!isAhkH) {
-		If (InStr(ahkFile,"A32.exe"))
-			ahkType := "ANSI", bitness := "32-bit"
-		Else If (InStr(ahkFile,"U32.exe"))
-			ahkType := "Unicode", bitness := "32-bit"
-		Else If (InStr(ahkFile,"U64.exe"))
-			ahkType := "Unicode", bitness := "64-bit"
-	}
-	
-	ahkProps := Map()
-	ahkProps["exePath"] := sInput, ahkProps["installDir"] := installDir, ahkProps["ahkProduct"] := ahkProduct
-	ahkProps["ahkVersion"] := ahkVersion, ahkProps["ahkType"] := ahkType, ahkProps["bitness"] := bitness
-	ahkProps["variant"] := var, ahkProps["exeFile"] := ahkFile, ahkProps["exeDir"] := curDir, ahkProps["isAhkH"] := isAhkH
-	
-	If (ahkType = "" Or bitness = "")
-		return ""
-	Else
-		return ahkProps
+    If (!FileExist(sInput))
+        return ""
+    
+    SplitPath sInput, &ahkFile, &curDir
+    isAhkH := false, var := "", installDir := curDir, ahkType := "", bitness := "", var := ""
+    
+    If (InStr(sInput,"\Win32a_MT\"))
+        installDir := StrReplace(installDir,"\Win32a_MT"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit", var := "MT"
+    Else If (InStr(sInput,"\Win32a\"))
+        installDir := StrReplace(installDir,"\Win32a"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit"
+    Else If (InStr(sInput,"\Win32w_MT\"))
+        installDir := StrReplace(installDir,"\Win32w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit", var := "MT"
+    Else If (InStr(sInput,"\Win32w\"))
+        installDir := StrReplace(installDir,"\Win32w"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit"
+    Else If (InStr(sInput,"\x64w_MT\"))
+        installDir := StrReplace(installDir,"\x64w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit", var := "MT"
+    Else If (InStr(sInput,"\x64w\"))
+        installDir := StrReplace(installDir,"\x64w"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit"
+    
+    lastSlash := InStr(installDir,"\",false,-1)
+    ahkPropStr := SubStr(installDir,lastSlash+1)
+    propArr := StrSplit(ahkPropStr," ")
+    ahkProduct := propArr[1]
+    ahkVersion := propArr.Has(2) ? propArr[2] : ""
+    ahkVersion := (SubStr(ahkVersion,1,1) = "v") ? SubStr(ahkVersion,2) : ahkVersion
+    
+    If (!isAhkH) {
+        If (InStr(ahkFile,"A32.exe"))
+            ahkType := "ANSI", bitness := "32-bit"
+        Else If (InStr(ahkFile,"U32.exe"))
+            ahkType := "Unicode", bitness := "32-bit"
+        Else If (InStr(ahkFile,"U64.exe"))
+            ahkType := "Unicode", bitness := "64-bit"
+    }
+    
+    ahkProps := Map()
+    ahkProps["exePath"] := sInput, ahkProps["installDir"] := installDir, ahkProps["ahkProduct"] := ahkProduct
+    ahkProps["ahkVersion"] := ahkVersion, ahkProps["ahkType"] := ahkType, ahkProps["bitness"] := bitness
+    ahkProps["variant"] := var, ahkProps["exeFile"] := ahkFile, ahkProps["exeDir"] := curDir, ahkProps["isAhkH"] := isAhkH
+    
+    If (ahkType = "" Or bitness = "")
+        return ""
+    Else
+        return ahkProps
 }
 
 ; ===========================================================================
