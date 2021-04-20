@@ -12,6 +12,12 @@
 ; Also thanks to hoppfrosch for initial testing which helped get the basics working.
 ; =======================================================================================
 
+#SingleInstance Off ; Allow multiple instances, for when running in non-portable mode.
+                    ; This installer script is "consulted" when launching a script or when
+                    ; launching the compiler.  So for a split second, there needs to be 2
+                    ; instances of the script while this "consulting" takes place.  Once
+                    ; the end result is finally launched, this 2nd instance closes.
+
 SendMode "Input"  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 
@@ -20,7 +26,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\TheArkive_reg2.ahk
 #INCLUDE inc\funcs.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.14", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.16", regexList := Map(), mode := "gui"
 
 OnExit(on_exit)
 
@@ -40,10 +46,13 @@ If Settings["HideTrayIcon"]
 
 ; ====================================================================================
 ; ====================================================================================
-; Processing Parameters for Compile and Launch
+; Processing Parameters for launching scripts and the Compiler.
+; - Creates a 2nd instance in non-portable mode for a split second.
 ; ====================================================================================
 
 If A_Args.Length {
+    mode := "cli"
+    
     If (A_Args[1] != "Launch" And A_Args[1] != "Compile")
         throw Error("Invalid first parameter.",,"Param one must be LAUNCH or COMPILE.")
     
@@ -68,7 +77,7 @@ If A_Args.Length {
         Run Chr(34) exe Chr(34) " /in " Chr(34) in_file Chr(34) " /gui"
     }
     
-    ExitApp
+    ExitApp ; Close this instance after deciding which AHK.exe / compiler to run.
 }
 
 ; ====================================================================================
@@ -685,8 +694,6 @@ gui_Close(o) {
     
     oGui.GetPos(&x,&y,&w,&h), dims := {x:x, y:y, w:w, h:h}
     Settings["posX"] := dims.x, Settings["posY"] := dims.y
-    Settings["BaseFolder"] := oGui["BaseFolder"].Value
-    Settings["regexList"] := regexList
     
     If Settings["CloseToTray"] {
         oGui.Destroy()
@@ -697,13 +704,14 @@ gui_Close(o) {
     ExitApp
 }
 
-on_exit(ExitReason, ExitCode) {
-    Global Settings
+on_exit(*) {
+    Global Settings, mode
     
-    Try FileDelete "Settings.json"
-    SettingsJSON := Jxon_Dump(Settings,4)
-    
-    FileAppend SettingsJSON, "Settings.json"
+    If (mode = "gui") { ; don't re-save ever time script is launched by the registry
+        Try FileDelete "Settings.json"
+        SettingsJSON := Jxon_Dump(Settings,4)
+        FileAppend SettingsJSON, "Settings.json"
+    }
 }
 
 SetActiveVersionGui() {

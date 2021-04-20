@@ -66,7 +66,8 @@ regex_events(ctl,info) {
 			newObj := Map("regex",curRegex,"exe",curExe,"type",MatchType)
 			regexList[curLabel] := newObj, newObj := ""
 			
-			; regexRelist()
+            Settings["regexList"] := regexList
+			
             LstV := oGui["AhkParallelList"]
             LstV.Modify(LstV.GetNext(), "Col2", curRegex)
 			
