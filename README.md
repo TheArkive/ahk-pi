@@ -1,6 +1,6 @@
 # AHK Portable Installer (now completely portable)
 
-<img src="images/ahk-pi2.png" width="420" align="top"/>
+<img src="images/ahk-pi-main.png" width="420" align="top"/>
 
 For details on how to use Fully Portable Mode, skip to that section below.
 
@@ -26,22 +26,26 @@ The latest versions of AutoHotkey_H v1 and v2 have an updated `Ahk2Exe.exe` incl
 
 This script is now supported uncompiled, since McAffee has decided that some of the key (previously compiled) exe files are supposedly viruses (a false positive of course).  Running this as a script should mitigate this issue.
 
+The following hotkeys are active while the script is running.
+
+|Hotkey         |Description                                           |
+| -------------:| ---------------------------------------------------- |
+|MButton        |Runs selected script files (you can select multiple). |
+|Shift + MButton|Open script file in specified text editor.            |
+|Ctrl + MButton |Open the compiler with the selected script pre-filled.|
+
 ## Features
-* Fully Portable Mode.  See the `Fully Portable Mode` section below.\
-MButton: Run selected script files to run them (you can select multiple).\
-Shift + MButton: Open in specified text editor.\
-Ctrl + MButton: Open the compiler with the selected script pre-filled.\
-A few of the below features don't apply in Fully Portable Mode.  Read the Fully Portable Mode section for details.
-* Associate the .ahk extension with any version of AHK on double-click.  (not in portable mode)
+* Fully Portable Mode.  See the `Fully Portable Mode` section below.
+* Associate the `.ahk` extension with any version of AHK on double-click.  (not in portable mode)
 * Selectively choose which context-menu items appear in the context menu.  (not in portable mode)
 * Associate any text editor with "Edit Script" in context menu easily.  (use SHIFT + MButton in portable mode)
 * Define as many versions of AHK as you want to run in parallel.
 * Checks for updates when prompted, or does so automatically if enabled.
-* Displays the latest versions of AHK v1 and v2 (with internet connection of course).
+* Displays the latest versions of AHK v1 and v2 (with internet connection only).
 * Displays currently active version of AHK.
 * Provides links to AHK v1 and v2 download pages / version archives.
-* Allows you to invoke `WindowSpy.ahk`, `help file`, and the `Ahk2Exe` compiler for the selected `base version`.
-* Easy access to edit templates for new AutoHotkey.ahk files from GUI.  (only applies to non-portable mode)
+* Easily invoke `WindowSpy.ahk`, `help file`, and the `Ahk2Exe` compiler for the selected `base version`.
+* Edit templates for new AutoHotkey.ahk files from GUI.  (only applies to non-portable mode)
 
 ## Basic Setup
 
@@ -68,11 +72,11 @@ Examples:
     AutoHotkey_H v1.2.3.4
 ```
 
-Separate name and version with a space.  There should be NO spaces in the `Name` or `Version` portions of the folder name.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file name, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.  Don't modify the original structure of the `.zip` archives for any of the versions of AHK you intend to use.
+Separate name and version with a space.  There should be NO other spaces except as indicated in the folder names.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file name, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.  Don't modify the original structure of the `.zip` archives for any of the versions of AHK you intend to use.
 
 Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files, `mpress.exe`, and/or `upx.exe` if you want to use it).
 
-In general, for the best ease of use, you should always maintain a copy of the latest version of AutoHotkey or AutoHotkey_H and all associated components listed above in addition to any older versions you plan to use in your setup.  This will simplify your basic setup.
+In general, for the best ease of use, you should always maintain a copy of the latest version of AutoHotkey v2 to run this script.  Then setup your other versions of AutoHotkey as you wish.  This will simplify your basic setup.
 
 In non-portable mode, when you click `Activate EXE`, or double-click on a version in the list, this sets the `base version` and writes registry entries for the `.ahk` extension, context menu entries, and the template that corresponds to the major version (v1 or v2).  The associated template file will also be automatically copied (and overwritten) to `C:\Windows\ShellNew\Template.ahk`.
 

@@ -63,6 +63,7 @@ If A_Args.Length {
     If !FileExist(in_file)
         throw Error("Script file does not exist.",,in_file)
     
+    SplitPath in_file,,&dir
     If A_Args[1] = "Launch" {
         exe := proc_script(in_file)
         If (A_Args.Length > 3) {
@@ -71,10 +72,10 @@ If A_Args.Length {
                 otherParams .= ((i++>3)?" ":"") Chr(34) Chr(34)
         }
         
-        Run Chr(34) exe Chr(34) " " Chr(34) in_file Chr(34) (otherParams?" " otherParams:"")
+        Run Chr(34) exe Chr(34) " " Chr(34) in_file Chr(34) (otherParams?" " otherParams:""), dir
     } Else If A_Args[1] = "Compile" {
         exe := proc_script(in_file, true)
-        Run Chr(34) exe Chr(34) " /in " Chr(34) in_file Chr(34) " /gui"
+        Run Chr(34) exe Chr(34) " /in " Chr(34) in_file Chr(34) " /gui", dir
     }
     
     ExitApp ; Close this instance after deciding which AHK.exe / compiler to run.
@@ -87,7 +88,7 @@ If Settings["PickIcon"] = "Default" {
     ahkProps := GetAhkProps(Settings["ActiveVersionPath"])
     if ahkProps
         TraySetIcon(ahkProps["exePath"],0)
-} Else TraySetIcon("AHK_pi_" Settings["PickIcon"] ".ico")
+} Else TraySetIcon("resources\AHK_pi_" Settings["PickIcon"] ".ico")
 
 If A_IsCompiled {
     Loop 2
@@ -522,7 +523,7 @@ GuiEvents(oCtl,Info) { ; Ahk2ExeHandler
             If Settings["PickIcon"] = "Default" {
                 ahkProps := GetAhkProps(Settings["ActiveVersionPath"])
                 icon := ahkProps["exePath"]
-            } Else icon := A_ScriptDir "\AHK_pi_" Settings["PickIcon"] ".ico"
+            } Else icon := A_ScriptDir "\resources\AHK_pi_" Settings["PickIcon"] ".ico"
             
             FileCreateShortcut exe, lnk,,,,icon
         } Else If FileExist(lnk)
