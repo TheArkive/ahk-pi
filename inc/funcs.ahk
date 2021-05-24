@@ -18,41 +18,50 @@
 ;    - exeDir = dir exe is located in
 ;    - variant = MT for "multi-threading" or blank ("")
 
+
+; sFile := FileSelect()
+; If !sFile
+    ; exitapp    
+; SplitPath sFile, &_FileExt, &_Dir, &_Ext, &_File, &_Drv
+; objShl := ComObject("Shell.Application")
+; objDir := objShl.NameSpace(_Dir)
+; objItm := objDir.ParseName(_FileExt)
+; msgbox "Product Name:`t" objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 7") "`r`n"
+     ; . "File Desc:`t" objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 3") "`r`n"
+     ; . "Product Ver:`t" objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 8") "`r`n" ; (not listed in propkey.h)
+     ; . "Copyright:`t" objItm.ExtendedProperty("{64440492-4C8B-11D1-8B70-080036B11A03} 11") 
+     
+     
 GetAhkProps(sInput) {
     If (!FileExist(sInput))
         return ""
     
     SplitPath sInput, &ahkFile, &curDir
-    isAhkH := false, var := "", installDir := curDir, ahkType := "", bitness := "", var := ""
+    objShl := ComObject("Shell.Application")
+    objDir := objShl.NameSpace(curDir)
+    objItm := objDir.ParseName(ahkFile)
+    FileDesc    := objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 3")
+    ahkVersion  := objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 8")
+    
+    arr := StrSplit(FileDesc," ")
+    ahkProduct := arr[1], bitness := arr[arr.Length]
+    isAhkH := (ahkProduct = "AutoHotkey_H")?true:false
+    ahkType := (arr.Length = 3) ? arr[2] : "Unicode"
+    
+    var := "", installDir := curDir
     
     If (InStr(sInput,"\Win32a_MT\"))
-        installDir := StrReplace(installDir,"\Win32a_MT"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit", var := "MT"
+        installDir := StrReplace(installDir,"\Win32a_MT"), var := "MT"
     Else If (InStr(sInput,"\Win32a\"))
-        installDir := StrReplace(installDir,"\Win32a"), isAhkH := true, ahkType := "ANSI", bitness := "32-bit"
+        installDir := StrReplace(installDir,"\Win32a")
     Else If (InStr(sInput,"\Win32w_MT\"))
-        installDir := StrReplace(installDir,"\Win32w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit", var := "MT"
+        installDir := StrReplace(installDir,"\Win32w_MT"), var := "MT"
     Else If (InStr(sInput,"\Win32w\"))
-        installDir := StrReplace(installDir,"\Win32w"), isAhkH := true, ahkType := "Unicode", bitness := "32-bit"
+        installDir := StrReplace(installDir,"\Win32w")
     Else If (InStr(sInput,"\x64w_MT\"))
-        installDir := StrReplace(installDir,"\x64w_MT"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit", var := "MT"
+        installDir := StrReplace(installDir,"\x64w_MT"), var := "MT"
     Else If (InStr(sInput,"\x64w\"))
-        installDir := StrReplace(installDir,"\x64w"), isAhkH := true, ahkType := "Unicode", bitness := "64-bit"
-    
-    lastSlash := InStr(installDir,"\",false,-1)
-    ahkPropStr := SubStr(installDir,lastSlash+1)
-    propArr := StrSplit(ahkPropStr," ")
-    ahkProduct := propArr[1]
-    ahkVersion := propArr.Has(2) ? propArr[2] : ""
-    ahkVersion := (SubStr(ahkVersion,1,1) = "v") ? SubStr(ahkVersion,2) : ahkVersion
-    
-    If (!isAhkH) {
-        If (InStr(ahkFile,"A32.exe"))
-            ahkType := "ANSI", bitness := "32-bit"
-        Else If (InStr(ahkFile,"U32.exe"))
-            ahkType := "Unicode", bitness := "32-bit"
-        Else If (InStr(ahkFile,"U64.exe"))
-            ahkType := "Unicode", bitness := "64-bit"
-    }
+        installDir := StrReplace(installDir,"\x64w")
     
     ahkProps := Map()
     ahkProps["exePath"] := sInput, ahkProps["installDir"] := installDir, ahkProps["ahkProduct"] := ahkProduct
@@ -160,7 +169,7 @@ proc_script(in_script, compiler:=false) {
         
         If (matchType = 2 And Trim(firstLine) = Trim(regex))
             runNow := true
-        Else If (matchType = 1 And RegExMatch(firstLine,"i)" regex,&match))
+        Else If (matchType = 1 And RegExMatch(firstLine,"i)" regex))
             runNow := true
         
         If (runNow)

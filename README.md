@@ -22,6 +22,8 @@ If you need a version of `Window Spy for AHK v2` go to [this thread](https://www
 
 If you want the latest version of `Ahk2Exe`, you can get it from the latest official AHK v1 zip, or from [here](https://github.com/AutoHotkey/Ahk2Exe).
 
+For the latest test build of `Ahk2Exe` that conforms to the latest features/requirements of AHK v2 a136+ go [here](https://github.com/AutoHotkey/Ahk2Exe/commit/5fff25e5542d4ebdc5f7eba0024e53efff33a8f8).  For notes on this test release of Ahk2Exe, see [this post](https://www.autohotkey.com/boards/viewtopic.php?p=398771#p398771).
+
 The latest versions of AutoHotkey_H v1 and v2 have an updated `Ahk2Exe.exe` included as well.
 
 This script is now supported uncompiled, since McAffee has decided that some of the key (previously compiled) exe files are supposedly viruses (a false positive of course).  Running this as a script should mitigate this issue.
@@ -45,34 +47,36 @@ The following hotkeys are active while the script is running.
 * Displays currently active version of AHK.
 * Provides links to AHK v1 and v2 download pages / version archives.
 * Easily invoke `WindowSpy.ahk`, `help file`, and the `Ahk2Exe` compiler for the selected `base version`.
-* Edit templates for new AutoHotkey.ahk files from GUI.  (only applies to non-portable mode)
+* Edit templates for new AutoHotkey.ahk files from GUI.  (not in portable mode)
 
 ## Basic Setup
 
-Grab the latest copy of AHK v2 alpha, copy the desired version of `AutoHotkey.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Always run this EXE file to launch the script.
+Grab the latest copy of AHK v2 alpha (currently a136), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Always run this EXE file to launch the script.
 
-The AutoHotkey `base folder` is intended to look something like this:
+File version info is now taken directly from the EXE file.  So the directory structure is less strict than before.
+
+The AutoHotkey `base folder` is generally intended to look something like this:
 
 Example:
 ```
 C:\AutoHotkey    <-- place the base folder anywhere you want
-             \AHK Portable Installer\...   <-- main script should go here
+             \_OLD_\old_versions_here...   <-- AHK folders here will not be parsed/listed
              \ahk version blah\...         <-- AHK folders for each version
              \ahk_h another_version\...    <-- AHK folders for each version
-             \etc\...                      <-- AHK folders for each version
+             \and_so_on\...                <-- AHK folders for each version
 
-Folder Name format:
+Folder Name format (suggested):
     [name_no_spaces] [version_no_spaces] [additional_info_optional]
                     ^                   ^
                   space               space
 
 Examples:
     AutoHotkey v1.1.32.00
-    AutoHotkey v2.0-a108-a2fa0498 extra_info not_used
+    AutoHotkey v2.0-a108-a2fa0498
     AutoHotkey_H v1.2.3.4
 ```
 
-Separate name and version with a space.  There should be NO other spaces except as indicated in the folder names.  Note that most of the version info comes from the folder name, so type out the version as you want it to appear in the program.  The type (ANSI / UNICODE) and bitness (64/32 bit) comes from the EXE file name, or in the case of AutoHotkey_H, it comes from the subfolder the EXE is in.  Don't modify the original structure of the `.zip` archives for any of the versions of AHK you intend to use.
+Don't modify the original structure of the `.zip` archives for any of the versions of AHK you intend to use.  Just unzip the contents to a folder, and rename it if you wish, otherwise you can use the default name (the `.zip` file name) for the folder.
 
 Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary support files (like `.bin` files, `mpress.exe`, and/or `upx.exe` if you want to use it).
 
@@ -80,7 +84,7 @@ In general, for the best ease of use, you should always maintain a copy of the l
 
 In non-portable mode, when you click `Activate EXE`, or double-click on a version in the list, this sets the `base version` and writes registry entries for the `.ahk` extension, context menu entries, and the template that corresponds to the major version (v1 or v2).  The associated template file will also be automatically copied (and overwritten) to `C:\Windows\ShellNew\Template.ahk`.
 
-When using Fully Portable Mode, `Activate EXE` will not modify the registry at all.  It simply sets the `base version`.
+When using Fully Portable Mode, `Activate EXE` will not modify the registry at all.  It simply sets the `base version`.  Of course, you must leave the script running in the background when using Fully Portable Mode.
 
 ## AHK Launcher
 
@@ -90,16 +94,16 @@ These settings allow the user to define a `first-line version comment` that corr
 
 Click the `+` and `-` buttons to add and remove entries.  Double-click on a list item to edit.  When adding an entry, give it a display name, specify the match type (regex or exact), the match string, and the `AutoHotkey.exe` file to be used to run the script when a match is made.
 
-You can configure several (practically unlimited) versions of AutoHotkey and AutoHotkey_H to run side-by-side.  Once your settings are set, you won't have to change them again, unless you add/change a version of AHK for use.
+You can configure several (practically unlimited) versions of AutoHotkey and AutoHotkey_H to run side-by-side.  Once your settings are set, you won't have to change them again, unless you add/change a version of AHK for use.  Just don't forget to add the `first-line version comment` to your scripts!
 
-Changing these settings can be done at any time.  When in non-portable mode, simply close the GUI after you are done making changes in the `AHK Launcher` tab in order for the changes to take effect.  In portable mode, the settings take effect immediately.
+Changing these settings can be done at any time.  When in non-portable mode, simply close the GUI after you are done making changes in the `AHK Launcher` tab in order for the changes to take effect.  In portable mode, (and when using the hotkeys listed above) the settings take effect immediately.
 
 There are 9 default values to allow for running the following versions side by side:
 * AHK v1/2 64/32-bit/ANSI
 * AHK_H v1/2 32/64-bit
 * The default match string type is regex.
 
-You will need to specify a `AutoHotkey.exe` variant for each entry you intend to use.  Because regex is the default, spacing variations and optionally excluding the "v" for "v1" or "v2" is supported, and uppercase/lowercase does not matter.  You can remove the entries you don't need.
+You will need to specify a `AutoHotkey.exe` variant for each entry you intend to use (like `AutoHotkeyU32.exe`, etc).  Because regex is the default, spacing variations and optionally excluding the "v" for "v1" or "v2" is supported, and uppercase/lowercase does not matter.  You can remove the entries you don't need.
 
 Examples of default match strings to use as your `first-line version comment` in your scripts are listed directly below.
 
@@ -115,7 +119,7 @@ Examples of default match strings to use as your `first-line version comment` in
 ; AHK_H v2 32-bit
 ```
 
-You can of course modify these match settings and change the `first-line version comment` to be whatever you want for each version of `AutoHotkey.exe` you use.  You can even specify a very precise version number, or a special name, or a silly catch phrase, and craft the match string entry to run a specific version of AutoHotkey you desire.
+You can of course modify these match settings and change the `first-line version comment` to be whatever you want for each version of `AutoHotkey.exe` you use.  You can even specify a very precise version number, or a special name, or a silly catch phrase, and then specify the corresponding version of AutoHotkey you desire.
 
 ## Ahk2Exe Handler and Compiling Scripts
 

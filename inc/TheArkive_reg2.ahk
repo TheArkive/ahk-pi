@@ -286,7 +286,7 @@ class reg {
             return this.LastError
         
         output := Map(), output.CaseSense := false, readValue := true                   ; init base array
-        If (value = "") {                                                           ; only append first default value if (value = "")
+        If (value = "") {                                                               ; only append first default value if (value = "")
             d := Map(), d.CaseSense := false, d["data"] := "", d["type"] := "REG_SZ"    ; init default value for base key
             Try d["data"] := RegRead(key,"")                                            ; try to look up first default key
             d["unset"] := (A_LastError = 2) ? true : false                              ; check if first default value is unset

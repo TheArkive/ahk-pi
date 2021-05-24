@@ -32,8 +32,10 @@ guiAddRegex(label:="") {
     regexGui.Add("Button","vRegexSave y+20 x+-100 w50","Save").OnEvent("click",regex_events)
     regexGui.Add("Button","vRegexCancel x+0 w50","Cancel").OnEvent("click",regex_events)
     
-    If !Settings["PortableMode"]
+    If !Settings["PortableMode"] {
         ctl := regexGui.Add("Text","xm yp+4","Don't forget to close the program for changes to take effect!")
+        ctl.SetFont("cRed")
+    }
     
     regexGui.Show()
     If (label)
@@ -72,7 +74,9 @@ regex_events(ctl,info) {
             Settings["regexList"] := regexList
             
             LstV := oGui["AhkParallelList"]
-            LstV.Modify(LstV.GetNext(), "Col2", curRegex)
+            LstV.Modify(LstV.GetNext(),, curLabel, curRegex)
+            
+            oGui["RegexExe"].Value := curExe
             
             oGui.Opt("-Disabled")
             g.Destroy(), regexGui := ""
@@ -89,7 +93,7 @@ regex_events(ctl,info) {
             Msgbox "Set the Base Folder first."
             g.Destroy(), regexGui := ""
         } Else {
-            regExe := FileSelect("",baseFldr,"Select AutoHotkey EXE:","Executable (*.exe)")
+            regExe := FileSelect("",baseFldr,"Select AutoHotkey EXE for [ " g["RegexLabel"].Value " ] :","Executable (*.exe)")
             If (regExe)
                 g["RegexExe"].Value := regExe
         }
@@ -99,17 +103,9 @@ regex_events(ctl,info) {
 regexRelist() {
     Global regexList
     LstV := oGui["AhkParallelList"]
-    ; ======================================
-    ; old
-    ; ======================================
     LstV.Delete()
     
     For label, obj in regexList
         regex := obj["regex"], LstV.Add("",label,regex)
     obj := ""
-    ; ======================================
-    ; new
-    ; ======================================
-    
-    
 }

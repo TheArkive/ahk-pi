@@ -68,8 +68,8 @@ Jxon_Load(&src, args*) {
 
                 pos := i ; update pos
 
-                  ; val := StrReplace(val,    "\/",  "/")
-                val := StrReplace(val, "\" . q,    q)
+                val := StrReplace(val,    "\/",  "/")
+                , val := StrReplace(val, "\" q,    q)
                 , val := StrReplace(val,    "\b", "`b")
                 , val := StrReplace(val,    "\f", "`f")
                 , val := StrReplace(val,    "\n", "`n")

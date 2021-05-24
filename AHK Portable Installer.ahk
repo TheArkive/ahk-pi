@@ -660,11 +660,11 @@ ActivateEXE() {
     If reg.add("HKEY_LOCAL_MACHINE\Software\AutoHotkey","InstallProduct",InstallProduct)
         MsgBox reg.reason "`r`n`r`n" reg.cmd
     
-    ; Copy selected version to AutoHotkey.exe
-    If (!isAhkH) {
-        Try FileDelete exeDir "\AutoHotkey.exe"
-        FileCopy exeFullPath, exeDir "\AutoHotkey.exe"
-    }
+    ; Copy selected version to AutoHotkey.exe ; not doing this anymore
+    ; If (!isAhkH) {
+        ; Try FileDelete exeDir "\AutoHotkey.exe"
+        ; FileCopy exeFullPath, exeDir "\AutoHotkey.exe"
+    ; }
     
     SetActiveVersionGui()
 }
@@ -763,19 +763,24 @@ ListExes() {
     
     BaseFolder := (!Settings.Has("BaseFolder") Or Settings["BaseFolder"] = "") ? A_ScriptDir : Settings["BaseFolder"]
     
-    Loop Files BaseFolder "\*.exe", "R"
+    Loop Files BaseFolder "\*", "D"
     {
-        f := A_LoopFileName
-        If (InStr(f,"AutoHotkeySC.exe") Or InStr(f,"setup"))
-            continue
+        If RegExMatch(A_LoopFileName,"i)^(_?OLD_?|Ahk2Exe)") ; skip folders starting with "old" and "ahk2exe"
+            Continue
         
-        ahkProps := GetAhkProps(A_LoopFileFullPath)
-        isAhkH := (ahkProps = "") ? false : ahkProps["isAhkH"]
-        
-        If (IsObject(ahkProps)) {
-            ahkName := ahkProps["ahkProduct"] " " ahkProps["ahkType"] " " ahkProps["bitness"]
-            ahkVer := ahkProps["ahkVersion"], exeFile := ahkProps["exeFile"]
-            oCtl.Add("",ahkName,ahkVer,exeFile,A_LoopFileFullPath)
+        Loop Files A_LoopFileFullPath "\*.exe", "R"
+        {
+            If (!InStr(A_LoopFileName,"AutoHotkey") || InStr(A_LoopFileFullPath,"Compiler"))
+                continue
+            
+            ahkProps := GetAhkProps(A_LoopFileFullPath)
+            isAhkH := (ahkProps = "") ? false : ahkProps["isAhkH"]
+            
+            If (IsObject(ahkProps)) {
+                ahkName := ahkProps["ahkProduct"] " " ahkProps["ahkType"] " " ahkProps["bitness"]
+                ahkVer := ahkProps["ahkVersion"], exeFile := ahkProps["exeFile"]
+                oCtl.Add("",ahkName,ahkVer,exeFile,A_LoopFileFullPath)
+            }
         }
     }
     oCtl.ModifyCol(1,180), oCtl.ModifyCol(2,120), oCtl.ModifyCol(3,138), oCtl.ModifyCol(4,0)
