@@ -280,7 +280,7 @@ runGui(minimize:=false) {
     oGui.Add("GroupBox","xm w456 h40 y+4","Context Menu - Only applies when Full Portable Mode is disabled")
     oGui.Add("Checkbox","vShowEditScript xp+10 yp+20","Show " Chr(34) "Edit Script" Chr(34)).OnEvent("Click",GuiEvents)
     oGui.Add("Checkbox","vShowCompileScript x+30","Show " Chr(34) "Compile Script" Chr(34)).OnEvent("Click",GuiEvents)
-    oGui.Add("Checkbox","vShowRunScript x+30","Show " Chr(34) "Run Script" Chr(34)).OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vShowRunScript x+30","Show " Chr(34) "Run as Admin" Chr(34)).OnEvent("Click",GuiEvents)
     
     oGui.Add("Checkbox","vPortableMode y+15 xm+10","Fully Portable Mode").OnEvent("Click",GuiEvents)
     oGui.Add("Checkbox","vHideTrayIcon x+25","Hide Tray Icon").OnEvent("Click",GuiEvents)
@@ -735,14 +735,16 @@ ActivateEXE() {
         MsgBox reg.reason "`r`n`r`n" reg.cmd
     
     ; RunAs Script
-    If reg.add(root "\RunAs","","Run Script")
-        MsgBox reg.reason "`r`n`r`n" reg.cmd
-    
-    _step1 := Chr(34) A_ScriptDir "\AHK Portable Installer.exe" Chr(34) " " Chr(34) A_ScriptFullPath Chr(34)
-    regVal := _step1 " Launch " Chr(34) "%1" Chr(34) " %*"
-    
-    If reg.add(root "\RunAs\Command","",regVal)                                                 ; RunAs verb/command
-        MsgBox reg.reason "`r`n`r`n" reg.cmd
+    If Settings["ShowRunScript"] {
+        If reg.add(root "\RunAs","","Run Script as Admin")
+            MsgBox reg.reason "`r`n`r`n" reg.cmd
+        
+        _step1 := Chr(34) A_ScriptDir "\AHK Portable Installer.exe" Chr(34) " " Chr(34) A_ScriptFullPath Chr(34)
+        regVal := _step1 " Launch " Chr(34) "%1" Chr(34) " %*"
+        
+        If reg.add(root "\RunAs\Command","",regVal)                                                 ; RunAs verb/command
+            MsgBox reg.reason "`r`n`r`n" reg.cmd
+    }
     
     ; Ahk2Exe entries
     If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastBinFile",Ahk2ExeBin)   ; auto set .bin file

@@ -95,6 +95,13 @@ Hotkeys for Fully Portable mode:
 |Shift + MButton|Open script file in specified text editor.            |
 |Ctrl + MButton |Open the compiler with the selected script pre-filled.|
 
+If you want to use Fully Portable Mode, then you will also want to consider the following settings in the Options tab:
+
+* Hide Tray Icon (uncheck?)
+* Close to Tray
+* Minimize on Startup
+* Run on System Startup
+
 ## AHK Launcher
 
 The settings in this tab allow you to run multiple scripts of different versions of AHK with minimal effort.
@@ -176,6 +183,10 @@ This is a PORTABLE installer, so this script:
 * AutoHotkey v1 and v2 all use the same version.
 * AutoHotkey_H v1 has it's own compiler.  The latest one will work for all verions, just replace the olders ones with the latest.
 * AutoHotkey_H v2 has it's own compiler.  The latest one will work for all verions, just replace the olders ones with the latest.
+
+5) In regards to `A_AhkPath`:
+
+For compiled scripts, this is usually pulled from the registry.  If you are managing multiple versions of AHK using this tool, remember that the `base version` selected from the main GUI is the only one written to the registry.  The `AHK Portable Installer.exe` file is what sorts out which AHK exe to use based on the `first-line version comment` (defined in the `AHK Launcher` tab).  Just keep this in mind if you need (for some reason) to reference `A_AhkPath` from a compiled script on your system while using AHK Portable Installer.
 
 ## To-Do List
 
