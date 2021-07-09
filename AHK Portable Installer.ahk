@@ -26,7 +26,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\TheArkive_reg2.ahk
 #INCLUDE inc\funcs.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.16", regexList := Map(), mode := "gui"
+Global oGui := "", Settings := "", AhkPisVersion := "v1.18", regexList := Map(), mode := "gui"
 
 OnExit(on_exit)
 
@@ -40,9 +40,48 @@ SettingsJSON := FileRead("Settings.json")
 Settings := Jxon_Load(&SettingsJSON)
 Settings["toggle"] := 0 ; load settings
 regexList := Settings["regexList"]
+Settings["dclick"] := DllCall("User32\GetDoubleClickTime")
+Settings["last_click"] := 0
+Settings["last_click_diff"] := 1000
+Settings["last_xy"] := 0
 
 If Settings["HideTrayIcon"]
     A_IconHidden := true
+
+; LButton::{ ; work in progress
+    ; Global Settings, oGui
+    ; Static dclick := Settings["dclick"]
+    ; MouseGetPos &x, &y, &winHwnd, &ctlHwnd, 2
+    ; winClass := WinGetClass("ahk_id " winHwnd)
+    
+    ; Settings["last_click_diff"] := click_diff := (Settings["last_click"]) ? A_TickCount-Settings["last_click"] : 1000
+    
+    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") || (click_diff > dclick) || (x y != Settings["last_xy"]) {
+        ; If (winHwnd = oGui.hwnd) {      ; For some reason [ SendInput "{LButton down}" ] causes LB down to freeze, so you end up
+            ; Click "Down"                ; draggingn the window until you hit ESC.  {LButton UP} doesn't happen as expected.
+        ; } Else SendInput "{LButton down}"
+        
+        ; Settings["last_click"] := A_TickCount
+        ; Settings["last_xy"] := x y
+        ; return
+    ; } Else {
+        ; result := ""
+        ; If (Settings["PortableMode"])
+            ; result := LaunchScript()
+        ; Else
+            ; SendInput "{LButton down}"
+        ; If (result="")
+            ; SetTimer err, -1
+    ; }
+; }
+
+; err() {
+    ; Msgbox "Select a version in the AHK Portable Installer main list."
+; }
+
+; LButton UP::{
+    ; SendInput "{LButton up}"
+; }
 
 ; ====================================================================================
 ; ====================================================================================
@@ -51,7 +90,7 @@ If Settings["HideTrayIcon"]
 ; ====================================================================================
 
 If A_Args.Length {
-    mode := "cli"
+    q := Chr(34)
     
     If (A_Args[1] != "Launch" And A_Args[1] != "Compile")
         throw Error("Invalid first parameter.",,"Param one must be LAUNCH or COMPILE.")
@@ -59,27 +98,38 @@ If A_Args.Length {
     If (A_Args.Length < 2)
         throw Error("Invalid second parameter.",,"There appears to be no script file specified.")
     
-    in_file := A_Args[2], otherParams := ""
+    in_file := A_Args[2], op := "" ; op = otherParams
     If !FileExist(in_file)
         throw Error("Script file does not exist.",,in_file)
     
     SplitPath in_file,,&dir
     If A_Args[1] = "Launch" {
-        exe := proc_script(in_file)
-        If (A_Args.Length > 3) {
-            i := 3
-            Loop (A_Args.Length - 2)
-                otherParams .= ((i++>3)?" ":"") Chr(34) Chr(34)
+        obj := proc_script(in_file)
+        If !(exe := obj.exe) {
+            Msgbox "Select a version in the AHK Portable Installer main list."
+            return
         }
         
-        Run Chr(34) exe Chr(34) " " Chr(34) in_file Chr(34) (otherParams?" " otherParams:""), dir
+        If (A_Args.Length > 3) { ; concat otherParams
+            i := 3
+            Loop (A_Args.Length - 2)
+                op .= ((i++>3)?" ":"") q q
+        }
+        
+        Run (obj.admin?"*RunAs ":"") q exe q (obj.admin?" /restart ":" ") q in_file q (op?" " op:""), dir
     } Else If A_Args[1] = "Compile" {
-        exe := proc_script(in_file, true)
-        Run Chr(34) exe Chr(34) " /in " Chr(34) in_file Chr(34) " /gui", dir
+        obj := proc_script(in_file, true)
+        If !(exe := obj.exe) {
+            Msgbox "Select a version in the AHK Portable Installer main list."
+            return
+        }
+        
+        Run q exe q " /in " q in_file q " /gui", dir
     }
     
     ExitApp ; Close this instance after deciding which AHK.exe / compiler to run.
 }
+
 
 ; ====================================================================================
 ; ====================================================================================
@@ -124,7 +174,7 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
                   
         Else If (hwnd = oGui["ExeList"].Hwnd)
             ToolTip "List of Base Versions to choose from.`r`n"
-                  . "Double-click to activate.  Same as pressing [Activate EXE].`r`nBe sure to modify settings as desired first, including templates."
+                  . "Select then click the [Install/Select] button.`r`nBe sure to modify settings as desired first, including templates."
                   
         Else If (hwnd = oGui["CurrentPath"].Hwnd)
             ToolTip oGui["CurrentPath"].Value
@@ -185,7 +235,7 @@ runGui(minimize:=false) {
     oGui.Add("Button","vCompiler x+0","Compiler").OnEvent("Click",GuiEvents)
     oGui.Add("Button","vWindowSpy x+0","Window Spy").OnEvent("Click",GuiEvents)
     oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click",GuiEvents)
-    oGui.Add("Button","vActivateExe x+40 yp","Activate EXE").OnEvent("Click",GuiEvents)
+    oGui.Add("Button","vActivateExe x+40 yp w78","Install").OnEvent("Click",GuiEvents)
     
     tabs := oGui.Add("Tab","y+10 x2 w476 h275",["Basics","AHK Launcher","Options"])
     
@@ -241,6 +291,13 @@ runGui(minimize:=false) {
     oGui.Add("DropDownList","vPickIcon w70 x+4 yp-3",["Default","Blue","Green","Orange","Pink","Red"]).OnEvent("Change",GuiEvents)
     
     oGui.Add("Checkbox","vSystemStartup x+61 yp+3","Run on system startup").OnEvent("Click",GuiEvents)
+    ; oGui.Add("Checkbox","vMulti xm+10 y+10","Allow running multiple selected scripts (applies to Fully Portable mode only)").OnEvent("Click",GuiEvents)
+    
+    oGui.Add("GroupBox","vHotkeys1 xm+10 y+10 w456 h60 y+4 Hidden","Hotkeys")
+    txt := "MButton:`t`tRuns SELECTED scrtips in Explorer window/on desktop.`r`n"
+         . "SHIFT + MButton:`tOpen script file in specified text editor.`r`n"
+         . "CTRL + MButton:`tOpen the compiler with the selected script pre-filled."
+    oGui.Add("Text","vHotkeys2 xp+10 yp+15 Hidden",txt)
     
     x := Settings["posX"], y := Settings["posY"]
     PopulateSettings()
@@ -248,7 +305,17 @@ runGui(minimize:=false) {
     
     oGui.Show("w480 h220 x" x " y" y (minimize?" Minimize":""))
     
-    result := CheckUpdate()
+    If !A_IsAdmin {
+        Msgbox "This program is not running with Administrative privelages.  You will not be able to make changes "
+             . "to the system.`r`n`r`nThat means no installing or uninstalling, no association with [.ahk] file type "
+             . "and no writing any other registry entries.`r`n`r`nIf you need to make changes to the system, please do the following:`r`n`r`n"
+             . "1) Exit this program.`r`n"
+             . "2) Right click on the EXE file in the script folder.`r`n"
+             . "3) Choose 'Run as Administrator'`r`n`r`n"
+             . "Alternatively you can enable Fully Portable mode from the Options tab in settings."
+    }
+    
+    result := CheckUpdate(,false)
     If (result And result != "NoUpdate")
         MsgBox result, "Update Check Failed", 0x10
 }
@@ -313,6 +380,19 @@ PopulateSettings() {
         Settings["PortableMode"] := 0
     oGui["PortableMode"].Value := Settings["PortableMode"]
     
+    If (Settings["PortableMode"])
+        oGui["ActivateExe"].Text := "Select"
+      , oGui["Uninstall"].Enabled := false
+      , oGui["Hotkeys1"].Visible := true
+      , oGui["Hotkeys2"].Visible := true
+      ; , EnableHotkeys(true)
+    Else
+        oGui["ActivateExe"].Text := "Install"
+      , oGui["Uninstall"].Enabled := true
+      , oGui["Hotkeys1"].Visible := false
+      , oGui["Hotkeys2"].Visible := false
+      ; , EnableHotkeys(false)
+    
     If (!Settings.Has("HideTrayIcon"))
         Settings["HideTrayIcon"] := 0
     oGui["HideTrayIcon"].Value := Settings["HideTrayIcon"]
@@ -333,6 +413,10 @@ PopulateSettings() {
         Settings["SystemStartup"] := 0
     oGui["SystemStartup"].Value := Settings["SystemStartup"]
     
+    ; If (!Settings.Has("Multi"))
+        ; Settings["Multi"] := 0
+    ; oGui["Multi"].Value := Settings["Multi"]
+    
     regexRelist()
     
     oCtl := ""
@@ -342,12 +426,13 @@ GuiEvents(oCtl,Info) { ; Ahk2ExeHandler
     Global regexList, Settings, oGui
     If (oCtl.Name = "ToggleSettings") {
         toggle := Settings["toggle"]
+        oGui["ExeList"].Focus()
         
         If (toggle)
             oGui.Show("w480 h220"), Settings["toggle"] := 0
         Else
             oGui.Show("w480 h500"), Settings["toggle"] := 1
-            
+        
     } Else If (oCtl.Name = "Compiler") {
         ahkProps := GetAhkProps(Settings["ActiveVersionPath"])
         Run ahkProps["installDir"] "\Compiler\Ahk2Exe.exe"
@@ -477,6 +562,18 @@ GuiEvents(oCtl,Info) { ; Ahk2ExeHandler
         
     } Else If (oCtl.Name = "PortableMode") {
         Settings["PortableMode"] := oCtl.value
+        If (oCtl.value)
+            oCtl.gui["ActivateExe"].Text := "Select"
+          , oGui["Uninstall"].Enabled := false
+          , oGui["Hotkeys1"].Visible := true
+          , oGui["Hotkeys2"].Visible := true
+          ; , EnableHotkeys(true)
+        Else
+            oCtl.gui["ActivateExe"].Text := "Install"
+          , oGui["Uninstall"].Enabled := true
+          , oGui["Hotkeys1"].Visible := false
+          , oGui["Hotkeys2"].Visible := false
+          ; , EnableHotkeys(false)
         
     } Else If (oCtl.Name = "HideTrayIcon") {
         If (!oGui["HideTrayIcon"].Value And !oGui["CloseToTray"].value)
@@ -528,6 +625,8 @@ GuiEvents(oCtl,Info) { ; Ahk2ExeHandler
             FileCreateShortcut exe, lnk,,,,icon
         } Else If FileExist(lnk)
             FileDelete lnk
+    } Else if (oCtl.Name = "Multi") {
+        Settings["Multi"] := oCtl.Value
     }
 }
 
@@ -577,8 +676,10 @@ ActivateEXE() {
     }
     
     ; .ahk extension and template settings
-    If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk","","AutoHotkeyScript")
-        MsgBox reg.reason "`r`n`r`n" reg.cmd
+    If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk","","AutoHotkeyScript") {
+        MsgBox reg.reason "`r`n`r`nTry running this script as Administrator."
+        return
+    }
     If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew","ItemName","AutoHotkey Script v" majorVer)
         MsgBox reg.reason "`r`n`r`n" reg.cmd
     If reg.add("HKEY_LOCAL_MACHINE\SOFTWARE\Classes\.ahk\ShellNew","FileName","Template.ahk")
@@ -631,6 +732,16 @@ ActivateEXE() {
     regVal := _step1 " Launch " Chr(34) "%1" Chr(34) " %*"
     
     If reg.add(root "\Open\Command","",regVal)                                                 ; Open verb/command
+        MsgBox reg.reason "`r`n`r`n" reg.cmd
+    
+    ; RunAs Script
+    If reg.add(root "\RunAs","","Run Script")
+        MsgBox reg.reason "`r`n`r`n" reg.cmd
+    
+    _step1 := Chr(34) A_ScriptDir "\AHK Portable Installer.exe" Chr(34) " " Chr(34) A_ScriptFullPath Chr(34)
+    regVal := _step1 " Launch " Chr(34) "%1" Chr(34) " %*"
+    
+    If reg.add(root "\RunAs\Command","",regVal)                                                 ; RunAs verb/command
         MsgBox reg.reason "`r`n`r`n" reg.cmd
     
     ; Ahk2Exe entries
@@ -687,6 +798,7 @@ UninstallAhk() {
     }
     
     Settings["ActiveVersionPath"] := ""
+    Settings["ActiveVersionDisp"] := ""
     SetActiveVersionGui()
 }
 
@@ -807,7 +919,7 @@ ListExes() {
     oCtl.Focus(), oCtl := ""
 }
 
-CheckUpdate(override:=0) {
+CheckUpdate(override:=0,confirm:=true) {
     Global Settings, oGui
     If (!override) {
         If (!Settings.Has("AutoUpdateCheck") Or Settings["AutoUpdateCheck"] = 0)
@@ -860,6 +972,8 @@ CheckUpdate(override:=0) {
     
     If (resultMsg)
         MsgBox resultMsg
+    Else If confirm
+        Msgbox "No updates available."
     
     oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
     oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
@@ -867,36 +981,101 @@ CheckUpdate(override:=0) {
     return errMsg
 }
 
-LaunchScript() {
-    Global Settings
-    sel := Explorer_GetSelection()
+LaunchScript(hk:="") {
+    ; MouseGetPos &x, &y, &hwnd,, 2
+    ; winClass := WinGetClass("ahk_id " hwnd)
     
-    If sel {
+    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") {
+        ; dbg("clicking - " hk)
+        ; SendInput hk
+        ; return
+    ; }
+    
+    Global Settings
+    obj := {exe:0}
+    
+    If (sel := Explorer_GetSelection()) {
         a := StrSplit(sel,"`n","`r")
         Loop a.Length {
-            exe_file := proc_script(a[A_index])
-            Run exe_file " " Chr(34) a[A_Index] Chr(34)
+            SplitPath a[A_index],,,&ext
+            If (ext != "ahk") {
+                ; If (winClass = "WorkerW" Or winClass = "Progman") { ; if desktop, Run item
+                    ; Run Chr(34) a[A_Index] Chr(34)
+                ; } Else {                                            ; if explorer window, check if item is folder
+                    ; for window in ComObject("Shell.Application").Windows
+                        ; if (hWnd = window.HWND) && (ie := window)
+                            ; break
+                    
+                    ; If InStr(FileExist(a[A_Index]),"D")
+                        ; ie.Navigate(a[A_Index])             ; change folder view
+                    ; Else
+                        ; Run Chr(34) a[A_Index] Chr(34)      ; run item
+                ; }
+                Continue ; above commented block is for LButton hotkey only - it's finnicky
+            }
+            
+            obj := proc_script(a[A_index])
+            cmd := (obj.admin?"*RunAs ":"") obj.exe (obj.admin?" /restart ":" ") Chr(34) a[A_Index] Chr(34)
+            (obj.exe) ? Run(cmd) : ""
+        }
+    }
+    
+    return !!obj.exe
+}
+
+LaunchCompiler(hk:="") {
+    ; MouseGetPos &x, &y, &hwnd,, 2
+    ; winClass := WinGetClass("ahk_id " hwnd)
+    
+    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") {
+        ; SendInput hk
+        ; return
+    ; }
+    
+    If (sel := Explorer_GetSelection()) {
+        Loop Parse Explorer_GetSelection(), "`n", "`r"
+        {
+            SplitPath A_LoopField,,,&ext
+            If (ext != "ahk")
+               Continue
+            obj := proc_script(A_LoopField, true)
+            Run Chr(34) obj.exe Chr(34) " /in " Chr(34) A_LoopField Chr(34) " /gui"
         }
     }
 }
 
-LaunchCompiler(_in:="") {
-    Global Settings
-    sel := Explorer_GetSelection()
+LaunchEditor(hk:="") {
+    ; MouseGetPos &x, &y, &hwnd,, 2
+    ; winClass := WinGetClass("ahk_id " hwnd)
     
-    Loop Parse sel, "`n", "`r"
-    {
-        exe := proc_script(A_LoopField, true)
-        Run Chr(34) exe Chr(34) " /in " Chr(34) A_LoopField Chr(34) " /gui"
+    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") {
+        ; SendInput hk
+        ; return
+    ; }
+    
+    Global Settings
+    
+    If (sel := Explorer_GetSelection()) {
+        Loop Parse , "`n", "`r"
+        {
+            SplitPath A_LoopField,,,&ext
+            If (ext != "ahk")
+               Continue
+            Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) A_LoopField Chr(34)
+        }
     }
 }
 
-LaunchEditor() {
-    Global Settings
-    sel := Explorer_GetSelection()
-    
-    Loop Parse sel, "`n", "`r"
-        Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) A_LoopField Chr(34)
+EnableHotkeys(status) { ; work in progress
+    status := (status) ? "On" : "Off"
+    Hotkey "MButton", LaunchScript, status
+    Hotkey "+MButton", LaunchEditor, status
+    Hotkey "^MButton", LaunchCompiler, status
+}
+
+dbg(_in) {
+    Loop Parse _in, "`n", "`r"
+        OutputDebug "AHK: " A_LoopField
 }
 
 #HotIf IsObject(regexGui) And WinActive("ahk_id " regexGui.hwnd)
@@ -908,7 +1087,7 @@ Enter::regex_events(regexGui["RegexSave"],"")
 ; CTRL  + MButton:  Launches Ahk2Exe with selected script(s) filled in.  One instance per selection.
 ; ====================================================================================
 #HotIf WinActive("ahk_exe explorer.exe")
-MButton::LaunchScript()
-+MButton::LaunchEditor()
-^MButton::LaunchCompiler()
+MButton::LaunchScript(A_ThisHotkey)
++MButton::LaunchEditor(A_ThisHotkey)
+^MButton::LaunchCompiler(A_ThisHotkey)
 

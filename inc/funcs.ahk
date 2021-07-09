@@ -117,8 +117,9 @@ GetMonitorData(x:="", y:="") {
 ; thanks to TeaDrinker
 ;       https://www.autohotkey.com/boards/viewtopic.php?p=255169#p255169
 ; ====================================================================================
-Explorer_GetSelection(usePath:=false) { ; thanks to boiler, from his RAAV script, slightly modified
-    winClass := WinGetClass("ahk_id " . hWnd := WinExist("A"))
+Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RAAV script, slightly modified
+    hWnd := (!hwnd) ? WinExist("A") : hwnd
+    winClass := WinGetClass("ahk_id " . hwnd)
     
     if !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") ; add checking for icons on desktop
         Return
@@ -156,14 +157,27 @@ Explorer_GetSelection(usePath:=false) { ; thanks to boiler, from his RAAV script
 ; ====================================================================================
 proc_script(in_script, compiler:=false) {
     Global regexList := Settings["regexList"]
+    admin := false, output := ""
     
     If !FileExist(in_script)
         return
     
-    script_text := FileRead(in_script)
-    firstLine := StrReplace(SubStr(script_text,1,InStr(script_text,"`n")-1),"`r","")
+    If !Settings["ActiveVersionPath"]
+        return {exe:"", admin:admin}
     
-    For label, obj in regexList {
+    script_text := FileRead(in_script)
+    
+    firstLine := "", secondLine := ""
+    Loop Parse script_text, "`n", "`r"
+        If (A_Index=1)
+            firstLine := A_LoopField
+        Else If (A_Index=2)
+            secondLine := A_LoopField
+        Else
+            Break
+    
+    exe := Settings["ActiveVersionPath"] ; init exe 
+    For label, obj in regexList { ; match AHK exe version to use for launching script
         regex := obj["regex"], exe := obj["exe"], matchType := Trim(obj["type"])
         runNow := false
         
@@ -176,19 +190,24 @@ proc_script(in_script, compiler:=false) {
             Break
     }
     
+    If RegExMatch(secondLine,"i)^;[ \t]+admin")
+        admin := true
+    
     If (!compiler) {
         If !Settings["AhkLauncher"] ; If not using AHK Launcher, always use Base Version.
-            return Settings["ActiveVersionPath"]
+            output := Settings["ActiveVersionPath"]
         Else                        ; If using AHK Launcher, check for "first-line version comment" match first.
-            return (exe and runNow) ? exe : Settings["ActiveVersionPath"]
+            output := ((exe and runNow) ? exe : Settings["ActiveVersionPath"])
     } Else {
         base_ver := GetAhkProps(Settings["ActiveVersionPath"])
         
         If !Settings["Ahk2ExeHandler"]
-            return base_ver["installDir"] "\Compiler\Ahk2Exe.exe"
+            output := base_ver["installDir"] "\Compiler\Ahk2Exe.exe"
         Else If (exe and runNow) {
             exe_ver := GetAhkProps(exe)
-            return exe_ver["installDir"] "\Compiler\Ahk2Exe.exe"
+            output := exe_ver["installDir"] "\Compiler\Ahk2Exe.exe"
         }
     }
+    
+    return {exe:output, admin:admin}
 }
