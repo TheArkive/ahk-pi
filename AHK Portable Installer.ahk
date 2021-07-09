@@ -734,7 +734,7 @@ ActivateEXE() {
     If reg.add(root "\Open\Command","",regVal)                                                 ; Open verb/command
         MsgBox reg.reason "`r`n`r`n" reg.cmd
     
-    ; RunAs Script
+    ; Run Script as Admin
     If Settings["ShowRunScript"] {
         If reg.add(root "\RunAs","","Run Script as Admin")
             MsgBox reg.reason "`r`n`r`n" reg.cmd
@@ -960,25 +960,25 @@ CheckUpdate(override:=0,confirm:=true) {
     Ahk1Version := (Settings.Has("Ahk1Version")) ? Settings["Ahk1Version"] : ""
     Ahk2Version := (Settings.Has("Ahk2Version")) ? Settings["Ahk2Version"] : ""
     
-    If (Ahk1Version != NewAhk1Version) {
+    If (Ahk1Version != NewAhk1Version && NewAhk1Version) {
         resultMsg := "New AutoHotkey v1 update!"
         Settings["Ahk1Version"] := NewAhk1Version
     } Else
         resultMsg := ""
 
-    If (Ahk2Version != NewAhk2Version) {
+    If (Ahk2Version != NewAhk2Version && NewAhk2Version) {
         resultMsg .= "`r`n`r`nNew AutoHotkey v2 update!"
         Settings["Ahk2Version"] := NewAhk2Version
     } Else
         resultMsg .= ""
     
-    If (resultMsg)
-        MsgBox resultMsg
-    Else If confirm
-        Msgbox "No updates available."
+    If (resultMsg) {
+        oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
+        oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
     
-    oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
-    oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
+        MsgBox resultMsg
+    } Else If (confirm && !errMsg)
+        Msgbox "No updates available."
     
     return errMsg
 }
