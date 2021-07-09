@@ -45,7 +45,7 @@ guiAddRegex(label:="") {
 }
 
 regex_close(o) {
-    Global regexGui, OpenLabel
+    Global regexGui, OpenLabel, oGui
     oGui.Opt("-Disabled"), OpenLabel := ""
     o.Destroy(), regexGui := ""
 }
@@ -56,7 +56,7 @@ regex_edit(ctl,info) {
 }
 
 regex_events(ctl,info) {
-    Global Settings, regexGui, OpenLabel, regexList
+    Global Settings, regexGui, OpenLabel, regexList, oGui
     g := ctl.gui
     If (ctl.Name = "RegexSave") {
         curLabel := g["RegexLabel"].Value
@@ -88,9 +88,10 @@ regex_events(ctl,info) {
         oGui.Opt("-Disabled"), OpenLabel := ""
         g.Destroy(), regexGui := ""
     } Else If (ctl.Name = "SelectExe") {
-        baseFldr := Settings.Has("BaseFolder") ? Settings["BaseFolder"] : ""
+        baseFldr := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir
         If (!baseFldr) {
             Msgbox "Set the Base Folder first."
+            oGui.Opt("-Disabled")
             g.Destroy(), regexGui := ""
         } Else {
             regExe := FileSelect("",baseFldr,"Select AutoHotkey EXE for [ " g["RegexLabel"].Value " ] :","Executable (*.exe)")

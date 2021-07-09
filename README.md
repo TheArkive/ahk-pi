@@ -23,7 +23,7 @@ For notes on this test release of Ahk2Exe, see [this post](https://www.autohotke
 
 [Posted on AutoHotkey.com Forums](https://www.autohotkey.com/boards/viewtopic.php?f=6&t=73056)
 
-This is a portable install manager and allows multiple versions of AutoHotkey to coexist simultaneously.  This script is meant to work with the portable `.zip` archives of AutoHotkey, NOT the setup `.exe` versions.  It is written in AHK v2.
+This is a portable install manager and allows multiple versions of AutoHotkey to coexist simultaneously.  <font color="red">This script is meant to work with the portable `.zip` archives of AutoHotkey, NOT the setup `.exe` versions.</font>  It is written in AHK v2.
 
 You can use this program in 1 of 2 ways:
 1) Change the active AHK version when desired to run different scripts according to selected version.
@@ -187,6 +187,9 @@ This is a PORTABLE installer, so this script:
 5) In regards to `A_AhkPath`:
 
 For compiled scripts, this is usually pulled from the registry.  If you are managing multiple versions of AHK using this tool, remember that the `base version` selected from the main GUI is the only one written to the registry.  The `AHK Portable Installer.exe` file is what sorts out which AHK exe to use based on the `first-line version comment` (defined in the `AHK Launcher` tab).  Just keep this in mind if you need (for some reason) to reference `A_AhkPath` from a compiled script on your system while using AHK Portable Installer.
+
+6) Running scripts in Fully Portable Mode:
+You need first `single click` with the `left mouse button` to select a script, and THEN you can `middle click` to run the script.  Usually after running a script it is not uncommon for the selection to be undone, especially when scripts are on the desktop.  So just remember, SELECT the script first (single left click) then `middle click` to run, every time.  If the file is already selected you can just `middle click`.
 
 ## To-Do List
 

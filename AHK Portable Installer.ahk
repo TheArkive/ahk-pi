@@ -30,6 +30,11 @@ Global oGui := "", Settings := "", AhkPisVersion := "v1.18", regexList := Map(),
 
 OnExit(on_exit)
 
+If !DirExist("temp")
+    DirCreate "temp"
+If !DirExist("versions")
+    DirCreate "versions"
+
 If (A_Is64BitOS)
     reg.view := 64
 
@@ -44,6 +49,7 @@ Settings["dclick"] := DllCall("User32\GetDoubleClickTime")
 Settings["last_click"] := 0
 Settings["last_click_diff"] := 1000
 Settings["last_xy"] := 0
+Settings["ahk_url"] := "https://www.autohotkey.com/download/"
 
 If Settings["HideTrayIcon"]
     A_IconHidden := true
@@ -237,6 +243,7 @@ runGui(minimize:=false) {
     oGui.Add("Button","vUninstall x+0","Uninstall AHK").OnEvent("Click",GuiEvents)
     oGui.Add("Button","vActivateExe x+40 yp w78","Install").OnEvent("Click",GuiEvents)
     
+    ; tabs := oGui.Add("Tab","y+10 x2 w476 h275",["Basics","AHK Launcher","Options","Downloads"])
     tabs := oGui.Add("Tab","y+10 x2 w476 h275",["Basics","AHK Launcher","Options"])
     
     oGui.Add("Text","xm y+10","Base AHK Folder:    (Leave blank for program directory)")
@@ -298,6 +305,14 @@ runGui(minimize:=false) {
          . "SHIFT + MButton:`tOpen script file in specified text editor.`r`n"
          . "CTRL + MButton:`tOpen the compiler with the selected script pre-filled."
     oGui.Add("Text","vHotkeys2 xp+10 yp+15 Hidden",txt)
+    
+    ; tabs.UseTab("Downloads")
+    
+    ; oGui.Add("Text","xm y+10","Version:")
+    ; oGui.Add("DropDownList","vDLVersion x+2 yp-4 w40",["1.0","1.1","2.0"]).OnEvent("change",GuiEvents)
+    ; oGui.Add("Button","vDLRefresh x+10","Refresh List").OnEvent("click",GuiEvents)
+    ; oGui.Add("Button","vDownload xm+398 yp","Download")
+    ; oGui.Add("ListView","vDLList xm y+10 w460 h206",["File","Date"])
     
     x := Settings["posX"], y := Settings["posY"]
     PopulateSettings()
@@ -413,11 +428,15 @@ PopulateSettings() {
         Settings["SystemStartup"] := 0
     oGui["SystemStartup"].Value := Settings["SystemStartup"]
     
-    ; If (!Settings.Has("Multi"))
-        ; Settings["Multi"] := 0
-    ; oGui["Multi"].Value := Settings["Multi"]
+    ; If (!Settings.Has("DLVersion"))
+        ; Settings["DLVersion"] := "2.0"
+    ; oGui["DLVersion"].Text := Settings["DLVersion"]
     
-    regexRelist()
+    ; If (!Settings.Has("version_list"))
+        ; Settings["version_list"] := Map()
+    
+    ; regexRelist()
+    ; PopulateDLList()
     
     oCtl := ""
 }
@@ -454,7 +473,7 @@ GuiEvents(oCtl,Info) { ; Ahk2ExeHandler
         
     } Else If (oCtl.Name = "PickBaseFolder") {
         BaseFolder := (Settings.Has("BaseFolder")) ? Settings["BaseFolder"] : A_ScriptDir
-        BaseFolder := DirSelect("*" BaseFolder,"","Select the base AHK folder:")
+        BaseFolder := FileSelect("D1",BaseFolder,"Select the base AHK folder:")
         
         If (BaseFolder And DirExist(BaseFolder)) {
             oGui["BaseFolder"].Value := BaseFolder
@@ -627,7 +646,59 @@ GuiEvents(oCtl,Info) { ; Ahk2ExeHandler
             FileDelete lnk
     } Else if (oCtl.Name = "Multi") {
         Settings["Multi"] := oCtl.Value
+    } Else If (oCtl.Name = "DLVersion") {
+        Settings["DLVersion"] := oCtl.Text
+        If RefreshDLList()
+            PopulateDLList()
+    } Else if (oCtl.Name = "DLRefresh") {
+        RefreshDLList()
+        PopulateDLList()
     }
+}
+
+RefreshDLList() {
+    Global Settings, oGui
+    Static q := Chr(34)
+    
+    whr := ComObject("WinHttp.WinHttpRequest.5.1")
+    whr.Open("GET", "https://www.autohotkey.com/download/" oGui["DLVersion"].Text "/")
+    Try whr.Send()
+    Catch {
+        Msgbox "Host could not be reached.  Check internet connection."
+        whr := ""
+        return false
+    }
+    whr.WaitForResponse()
+    
+    list := Map()
+    txt := whr.ResponseText
+    
+    Loop Parse, txt, "`n", "`r"
+    {
+        If (r1 := RegExMatch(A_LoopField,"<a href=" q "([^>]+)" q ">",&m) && (r2 := RegExMatch(A_LoopField,"<td align=" q "right" q ">([^<]+)",&n))) {
+            If (m[1] = "/") || (m[1] = "/download/") || (m[1] = "version.txt")
+            || (m[1] = "_AHK-binaries.zip") || (m[1] = "zip%20versions/")
+                continue
+            list[m[1]] := Trim(n[1]," `t")
+        }
+    }
+    
+    Settings["version_list"] := list
+    return true
+}
+
+PopulateDLList() {
+    Global Settings, oGui
+    LV := oGui["DLList"], LV.Delete()
+    LV.Opt("-Redraw")
+    
+    For _file, _date in Settings["version_list"]
+        LV.Add(,_file,_date)
+    
+    LV.ModifyCol(1,330)
+    LV.ModifyCol(2,100)
+    LV.MOdifyCol(2,"Sort")
+    LV.Opt("+Redraw")
 }
 
 ActivateEXE() {
@@ -932,7 +1003,6 @@ CheckUpdate(override:=0,confirm:=true) {
     
     errMsg := "", NewAhk1Version := "", NewAhk2Version := ""
     Try {
-        ; Download Settings["Ahk1Url"], "version1.txt"
         whr := ComObject("WinHttp.WinHttpRequest.5.1")
         whr.Open("GET", Settings["Ahk1Url"])
         whr.Send()
@@ -943,7 +1013,6 @@ CheckUpdate(override:=0,confirm:=true) {
     }
     
     Try {
-        ; Download Settings["Ahk2Url"], "version2.txt"
         whr := ComObject("WinHttp.WinHttpRequest.5.1")
         whr.Open("GET", Settings["Ahk2Url"])
         whr.Send()
@@ -975,7 +1044,10 @@ CheckUpdate(override:=0,confirm:=true) {
     If (resultMsg) {
         oGui["Ahk1Version"].Text := "<a href=" Chr(34) Settings["Ahk1Url"] Chr(34) ">AHKv1:</a>    " NewAhk1Version
         oGui["Ahk2Version"].Text := "<a href=" Chr(34) Settings["Ahk2Url"] Chr(34) ">AHKv2:</a>    " NewAhk2Version
-    
+        
+        RefreshDLList()
+        PopulateDLList()
+        
         MsgBox resultMsg
     } Else If (confirm && !errMsg)
         Msgbox "No updates available."
@@ -1078,6 +1150,41 @@ EnableHotkeys(status) { ; work in progress
 dbg(_in) {
     Loop Parse _in, "`n", "`r"
         OutputDebug "AHK: " A_LoopField
+}
+
+F2::{
+    Global Settings
+    q := Chr(34)
+    
+    whr := ComObject("WinHttp.WinHttpRequest.5.1")
+    whr.Open("GET", "https://www.autohotkey.com/download/2.0/")
+    whr.Send()
+    whr.WaitForResponse()
+    
+    list := Map()
+    txt := whr.ResponseText
+    
+    Loop Parse, txt, "`n", "`r"
+    {
+        If (r1 := RegExMatch(A_LoopField,"<a href=" q "([^>]+)" q ">",&m) && (r2 := RegExMatch(A_LoopField,"<td align=" q "right" q ">([^<]+)",&n))) {
+            If (m[1] = "/") || (m[1] = "/download/") || (m[1] = "version.txt")
+                continue
+            
+            ; msgbox m[1] " --==-- " n[1]
+            
+            
+            list[m[1]] := Trim(n[1]," `t")
+        }
+    }
+    
+    msgbox jxon_dump(list,4)
+}
+
+F3::{
+    objShell := ComObject("Shell.Application")
+    zipFile := objShell.NameSpace(A_ScriptDir "\AutoHotkey_1.1.33.09.zip")
+    objShell.NameSpace(A_ScriptDir "\test").CopyHere(zipFile.Items())
+    msgbox "done?"
 }
 
 #HotIf IsObject(regexGui) And WinActive("ahk_id " regexGui.hwnd)
