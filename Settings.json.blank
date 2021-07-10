@@ -1,24 +1,21 @@
 {
     "ActiveVersionDisp": "",
     "ActiveVersionPath": "",
-    "Ahk1Url": "https://www.autohotkey.com/download/1.1/version.txt",
-    "Ahk1Version": "1.1.33.06",
-    "Ahk2Exe1Path": "",
-    "Ahk2Exe2Path": "",
     "Ahk2ExeAutoClose": 0,
     "Ahk2ExeAutoStart": 0,
     "Ahk2ExeHandler": 1,
-    "Ahk2Url": "https://www.autohotkey.com/download/2.0/version.txt",
-    "Ahk2Version": "2.0-a131-2327728b",
     "AhkLauncher": 1,
+    "AhkUrl": "https:\/\/www.autohotkey.com\/download\/",
     "AutoUpdateCheck": 1,
     "BaseFolder": "",
     "BitFilter": 1,
     "CascadeMenu": 0,
     "CloseToTray": 0,
+    "DLVersion": "2.0",
     "DebugNow": 0,
     "DisableTooltips": 1,
     "HideTrayIcon": 1,
+    "InstallProfile": "Current User",
     "MinimizeOnStart": 0,
     "PickIcon": "Orange",
     "PortableMode": 0,
@@ -28,56 +25,16 @@
     "SystemStartup": 0,
     "TextEditorPath": "notepad.exe",
     "UpdateCheckDate": "",
-    "curPosX": 500,
-    "curPosY": 500,
-    "posX": 500,
-    "posY": 500,
-    "regexList": {
-        "AHK v1 32-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK[ ]*v?1[ ]+32\\-bit",
-            "type": 1
-        },
-        "AHK v1 64-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK[ ]*v?1([ ]+64\\-bit)?",
-            "type": 1
-        },
-        "AHK v1 ANSI": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK[ ]*v?1[ ]+ANSI",
-            "type": 1
-        },
-        "AHK v2 32-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK[ ]*v?2[ ]+32\\-bit",
-            "type": 1
-        },
-        "AHK v2 64-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK[ ]*v?2([ ]+64\\-bit)?",
-            "type": 1
-        },
-        "AHK_H v1 32-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK_H[ ]*v?1[ ]+32\\-bit$",
-            "type": 1
-        },
-        "AHK_H v1 64-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK_H[ ]*v?1([ ]+64\\-bit)?",
-            "type": 1
-        },
-        "AHK_H v2 32-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK_H[ ]*v?2[ ]+32\\-bit$",
-            "type": 1
-        },
-        "AHK_H v2 64-bit": {
-            "exe": "Choose an EXE",
-            "regex": "^;[ ]*AHK_H[ ]*v?2([ ]+64\\-bit)?",
-            "type": 1
-        }
-    },
+    "VerFile": "version.txt",
+    "VerList": "1.1;2.0",
+    "curPosX": 250,
+    "curPosY": 250,
+    "dclick": 500,
+    "last_click": 0,
+    "last_click_diff": 1000,
+    "last_xy": 0,
+    "posX": 250,
+    "posY": 250,
+    "reg": "HKEY_CURRENT_USER",
     "toggle": 0
 }

@@ -278,9 +278,10 @@
 ; ======================================================================================
 
 class reg {
-    Static null := Chr(3), cmd := "", unset := false, reason := "", LastError := 0
+    Static null := Chr(3), cmd := "", unset := false, reason := "", LastError := 0, lastKey := ""
     
     Static query(key, value := "", recurse := false) { ; REG QUERY simulated
+        this.lastKey := key
         this.unset := false, this.LastError := 0, this.result := "", this.cmd := ""
         If (this.access_test(key)) ; test for access denied - this is very appropriate here
             return this.LastError
@@ -312,6 +313,7 @@ class reg {
         return output
     }
     Static read(key, value := "") {
+        this.lastKey := key
         result := "", this.cmd := ""
         Try result := RegRead(key,value)
         this.LastError := A_LastError
@@ -320,6 +322,7 @@ class reg {
         return result
     }
     Static add(key, value := "", data := "", rgType := "REG_SZ") {
+        this.lastKey := key
         this.unset := false, this.LastError := 0, this.result := "", this.cmd := ""
         If (value = this.null And data = "") {  ; write a blank vlaue
             Try RegWrite data, rgType, key
@@ -331,6 +334,7 @@ class reg {
         return this.LastError
     }
     Static delete(key, value := "", clearKey := false) {
+        this.lastKey := key
         this.unset := false, this.LastError := 0, this.result := "", this.cmd := "", curValue := ""
         If (value = this.null And !clearKey) {
             Try RegDeleteKey key
@@ -352,6 +356,7 @@ class reg {
         return this.LastError
     }
     Static export(key, file := "", overwrite := true) {
+        this.lastKey := key
         this.unset := false, this.LastError := 0, this.result := "", this.cmd := ""
         If (this.access_test(key)) ; test for access denied
             return this.LastError
@@ -378,6 +383,7 @@ class reg {
         return this.LastError
     }
     Static import(file, key := "") { ; specify key if you want to test for access first
+        this.lastKey := key
         this.unset := false, this.LastError := 0, this.result := "", this.cmd := ""
         If (key And this.access_test(key))  ; test for access denied
             return this.LastError
@@ -400,6 +406,7 @@ class reg {
         return this.LastError
     }
     Static access_test(key) {
+        this.lastKey := key
         Try test := RegRead(key,"")
         If (A_LastError = 5) {                                                          ; test for access rights / access denied
             this.LastError := A_LastError, this.reason := this.validate_error(A_LastError)

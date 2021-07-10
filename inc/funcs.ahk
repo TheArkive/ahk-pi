@@ -8,9 +8,10 @@
 ;    props: ahkProduct, ahkVersion, installDir, ahkType, bitness, exeFile, exePath, exeDir, variant
 ;
 ;    ahkprop key values:
-;    - ahkProduct = AHK / AutoHotkey / AHK_H / AutoHotkey_H ... however it is typed
-;    - ahkVersion = v1.32.00.....   as typed, but leading "v" will be stripped
-;    - ahkType = Unicode / ANSI
+;    - product = AHK / AutoHotkey / AHK_H / AutoHotkey_H ... however it is typed
+;    - version = Ex:  1.1.32.00
+;    - majVersion = first char of version
+;    - type = Unicode / ANSI
 ;    - bitness = 32-bit / 64-bit
 ;    - installDir = base folder where Ahk2Exe and help file resides
 ;    - exeFile = full name of exe file
@@ -44,7 +45,7 @@ GetAhkProps(sInput) {
     ahkVersion  := objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 8")
     
     arr := StrSplit(FileDesc," ")
-    ahkProduct := arr[1], bitness := arr[arr.Length]
+    ahkProduct := arr[1], bitness := StrReplace(arr[arr.Length],"-bit","")
     isAhkH := (ahkProduct = "AutoHotkey_H")?true:false
     ahkType := (arr.Length = 3) ? arr[2] : "Unicode"
     
@@ -63,10 +64,8 @@ GetAhkProps(sInput) {
     Else If (InStr(sInput,"\x64w\"))
         installDir := StrReplace(installDir,"\x64w")
     
-    ahkProps := Map()
-    ahkProps["exePath"] := sInput, ahkProps["installDir"] := installDir, ahkProps["ahkProduct"] := ahkProduct
-    ahkProps["ahkVersion"] := ahkVersion, ahkProps["ahkType"] := ahkType, ahkProps["bitness"] := bitness
-    ahkProps["variant"] := var, ahkProps["exeFile"] := ahkFile, ahkProps["exeDir"] := curDir, ahkProps["isAhkH"] := isAhkH
+    ahkProps := {exePath:sInput, installDir:installDir, product:ahkProduct, version:ahkVersion, majVersion:SubStr(ahkVersion,1,1)
+               , type:ahkType, bitness:bitness, variant:var, exeFile:ahkFile, exeDir:curDir, isAhkH:isAhkH}
     
     If (ahkType = "" Or bitness = "")
         return ""
@@ -156,58 +155,62 @@ Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RA
 ; version compiler exe) is returned.
 ; ====================================================================================
 proc_script(in_script, compiler:=false) {
-    Global regexList := Settings["regexList"]
-    admin := false, output := ""
+    Global Settings
+    admin := false, exe := ""
+    bitness := A_Is64BitOS ? 64 : 32
+    baseFolder := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions"
     
     If !FileExist(in_script)
-        return
-    
-    If !Settings["ActiveVersionPath"]
-        return {exe:"", admin:admin}
+        return {exe:"", admin:false, err:"File does not exist."}
     
     script_text := FileRead(in_script)
     
-    firstLine := "", secondLine := ""
-    Loop Parse script_text, "`n", "`r"
-        If (A_Index=1)
-            firstLine := A_LoopField
-        Else If (A_Index=2)
-            secondLine := A_LoopField
-        Else
-            Break
-    
-    exe := Settings["ActiveVersionPath"] ; init exe 
-    For label, obj in regexList { ; match AHK exe version to use for launching script
-        regex := obj["regex"], exe := obj["exe"], matchType := Trim(obj["type"])
-        runNow := false
+    If RegExMatch(script_text,"im)^(?:;?[ `t]+)?#Requires.*",&m) {
+        arr := StrSplit(Trim(m[0],";`t "),";")
+        vArr := StrSplit(Trim(RegExReplace(arr[1],"(#Requires|\" Chr(34) ")",""),";`t ")," ")
         
-        If (matchType = 2 And Trim(firstLine) = Trim(regex))
-            runNow := true
-        Else If (matchType = 1 And RegExMatch(firstLine,"i)" regex))
-            runNow := true
+        If !vArr.Has(2)
+            return {exe:"", admin:false, err:"Specify the product (AutoHotkey / AutoHotkey_H) when using #REQUIRES directive."}
         
-        If (runNow)
-            Break
-    }
-    
-    If RegExMatch(secondLine,"i)^;[ \t]+admin")
-        admin := true
-    
-    If (!compiler) {
-        If !Settings["AhkLauncher"] ; If not using AHK Launcher, always use Base Version.
-            output := Settings["ActiveVersionPath"]
-        Else                        ; If using AHK Launcher, check for "first-line version comment" match first.
-            output := ((exe and runNow) ? exe : Settings["ActiveVersionPath"])
-    } Else {
-        base_ver := GetAhkProps(Settings["ActiveVersionPath"])
+        isAhkH := ((prod := vArr[1])="AutoHotkeyH") ? true : false
+        ver := (SubStr(vArr[2],1,1) = "v") ? SubStr(vArr[2],2) : vArr[2]
         
-        If !Settings["Ahk2ExeHandler"]
-            output := base_ver["installDir"] "\Compiler\Ahk2Exe.exe"
-        Else If (exe and runNow) {
-            exe_ver := GetAhkProps(exe)
-            output := exe_ver["installDir"] "\Compiler\Ahk2Exe.exe"
+        If arr.Has(2) {
+            For i, opt in StrSplit(Trim(arr[2]," `t")," ")
+                If InStr(opt,"-bit") || (opt = 32 || opt = 64)
+                    _bitness := StrReplace(opt,"-bit","")
+                Else If (opt = "admin")
+                    admin := true
         }
+        
+        If (_bitness > bitness)
+            return {exe:"", admin:false, err:"64-bit executable specified on 32-bit system - halting."}
+        Else bitness := _bitness
+        
+        exeList := ""
+        Loop Files baseFolder "\AutoHotkey*.exe", "R"
+        {
+            If (A_LoopFileName = "AutoHotkey.exe") || RegExMatch(A_LoopFileFullPath,"i)\\_?OLD_?")
+                Continue
+            
+            f := GetAhkProps(A_LoopFileFullPath)
+            If (!isAhkH && f.isAhkH) || (isAhkH && !f.isAhkH) ; matching exclusive for AHK_H status
+                Continue
+            
+            If (f.majVersion = SubStr(ver,1,1)) ; (VerCompare(f.version,ver) >= 0)
+            && (bitness = f.bitness) && InStr(f.version,ver)
+                exeList .= (exeList?"`r`n":"") f.version "|" f.exePath
+        }
+        
+        Loop Parse Sort(exeList,"N"), "`n", "`r"
+            exe := SubStr(A_LoopField,InStr(A_LoopField,"|")+1)
+    } Else
+        exe := Settings["ActiveVersionPath"]
+    
+    If (compiler) {
+        f := GetAhkProps(exe)
+        exe := f.installDir "\Compiler\Ahk2Exe.exe"
     }
     
-    return {exe:output, admin:admin}
+    return {exe:exe, admin:admin, err:(!exe?"No match for #REQUIRES directive.":"")}
 }
