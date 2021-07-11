@@ -157,7 +157,7 @@ Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RA
 proc_script(in_script, compiler:=false) {
     Global Settings
     admin := false, exe := ""
-    bitness := A_Is64BitOS ? 64 : 32
+    _bitness := bitness := A_Is64BitOS ? 64 : 32
     baseFolder := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions"
     
     If !FileExist(in_script)
