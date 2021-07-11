@@ -739,21 +739,36 @@ DLFile() {
     }
     
     SplitPath (zipFile := oGui["DLList"].GetText(row)),,,,&fileTitle
-    dest := (Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\temp") "\" zipFile
+    dest := (Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions") "\"
+    destTemp := A_ScriptDir "\temp\"
     src := Settings["AhkUrl"] oGui["DLVersion"].Text "/"
-    If !FileExist(dest) {
+    
+    If !FileExist(destTemp zipFile) {
         oGui["StatusBar"].SetText("Downloading " zipFile "...")
-        Try Download src zipFile, dest
+        Try Download src zipFile, destTemp zipFile
         Catch {
             Msgbox "Host could not be reached.  Check internet connection."
             return
         }
-        
-        ; For _file, _date in Settings["AhkVersions"][ver]["list"] { ; verify sha256 hash - need wincrypt wrapper
-            ; If InStr(_file,zipFile ".sha") { 
-                ; Download src _file, dest
-            ; }
-        ; }
+    }
+    
+    For _file, _date in Settings["AhkVersions"][ver]["list"] { ; verify sha256 hash - need wincrypt wrapper
+        If InStr(_file,zipFile ".sha") {
+            SplitPath _file,,,&hType
+            If !FileExist(destTemp _file)
+                Download src _file, destTemp _file
+            
+            h1 := hash(destTemp zipFile,hType)
+            h2 := FileRead(destTemp _file)
+            
+            If (h1 != h2) {
+                Msgbox "File hash does not math!`r`n`r`nTry redownloading the file"
+                FileDelete destTemp zipFile
+                FileDelete destTemp _file
+                return
+            }
+            Break
+        }
     }
     
     dest := (Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions") "\" fileTitle
