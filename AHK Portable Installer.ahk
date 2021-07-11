@@ -30,6 +30,7 @@ class app {
          , lastClick := 0
          , last_click_diff := 1000
          , last_xy := 0
+         , verGui := {hwnd:0}
 }
 
 Global oGui := "", Settings := "", AhkPisVersion := "v1.19", regexList := Map(), mode := "gui"
@@ -203,7 +204,7 @@ runGui(minimize:=false) {
     oGui.OnEvent("Close",gui_Close)
     
     oGui.Add("Edit","vActiveVersionDisp xm y+8 w409 -E0x200 ReadOnly","Base Version:")
-    oGui.Add("Button","vVersionDisp x+2 yp-4 w50","Latest")
+    oGui.Add("Button","vVersionDisp x+2 yp-4 w50","Latest").OnEvent("Click",GuiEvents)
     
     LV := oGui.Add("ListView","xm y+0 r5 w460 vExeList",["Description","Version","File Name","Full Path"])
     LV.OnEvent("DoubleClick",GuiEvents), LV.OnEvent("Click",ListClick)
@@ -236,17 +237,17 @@ runGui(minimize:=false) {
     oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click",GuiEvents)
     oGui.Add("Button","x+0 vClearBaseFolder","X").OnEvent("Click",GuiEvents)
     
-    oGui.Add("Text","xm y+4","AutoHotkey download URL:")
-    oGui.Add("Edit","y+0 r1 w305 vAhkUrl").OnEvent("Change",GuiEvents)
+    oGui.Add("Text","xm y+4 Section","AutoHotkey download URL:")
+    oGui.Add("Edit","y+0 r1 w250 vAhkUrl").OnEvent("Change",GuiEvents)
+    
+    oGui.Add("Text","x+2 ys","Version File:")
+    oGui.Add("Edit","vVerFile y+0 xp w75").OnEvent("Change",GuiEvents)
+    
+    oGui.Add("Text","x+2 ys","Versions:")
+    oGui.Add("Edit","vVerList y+0 xp w75 vVerList").OnEvent("Change",GuiEvents)
     
     oGui.Add("Text","xm y+4 Section","Install For:")
     oGui.Add("DropDownList","vInstallProfile y+0 r2 w100",["Current User","All Users"]).OnEvent("Change",GuiEvents)
-    
-    oGui.Add("Text","x+2 ys","Version File:")
-    oGui.Add("Edit","vVerFile y+0 xp w100").OnEvent("Change",GuiEvents)
-    
-    oGui.Add("Text","x+2 ys","Versions:")
-    oGui.Add("Edit","vVerList y+0 xp w100 vVerList").OnEvent("Change",GuiEvents)
     
     oGui.Add("Checkbox","vDisableTooltips xm y+10","Disable Tooltips").OnEvent("Click",GuiEvents)
     
@@ -654,7 +655,30 @@ GuiEvents(oCtl,Info) {
         Run "explorer.exe " Chr(34) dest Chr(34)
     } Else If (oCtl.Name = "OpenTemp") {
         Run "explorer.exe " Chr(34) A_ScriptDir "\temp" Chr(34)
+    } Else If (oCtl.Name = "VersionDisp") {
+        If !(app.verGui.hwnd) {
+            app.verGui := verGui()
+        } Else {
+            app.verGui.Destroy()
+            app.verGui := {hwnd:0}
+        }
     }
+}
+
+verGui() {
+    oGui.GetClientPos(&x1,&y1)
+    oGui["VersionDisp"].GetPos(&x2,&y2,&w2,&h2)
+    
+    Global Settings, oGui
+    g := Gui("-Caption +Owner" oGui.hwnd)
+    disp := ""
+    For ver, obj in Settings["AhkVersions"]
+        disp .= (disp?"`r`n":"") "AutoHotkey v" ver ":  " obj["latest"]
+    g.Add("Text",,disp)
+    g.Show("x" (x := x1+x2+w2) " y" (y := y1+y2+h2) " hide")
+    g.GetClientPos(,,&w3,)
+    g.Show("x" (x - w3) " y" y)
+    return g
 }
 
 RefreshDLList(url) {
