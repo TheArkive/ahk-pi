@@ -173,6 +173,7 @@ If Settings["posY"] > monitor.bottom Or Settings["posY"] < monitor.top
 OnMessage(0x0200,WM_MOUSEMOVE) ; WM_MOUSEMOVE
 WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
     Global Settings, oGui
+    
     If (!Settings["DisableTooltips"]) {
     
         If (hwnd = oGui["ActivateExe"].Hwnd)
@@ -185,40 +186,10 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
                   
         Else If (hwnd = oGui["CurrentPath"].Hwnd)
             ToolTip oGui["CurrentPath"].Value
-            
-        Else If (hwnd = oGui["Ahk2ExeHandler"].Hwnd)
-            ToolTip "When the Ahk2Exe Handler is enabled, the [first-line version comment]`r`n"
-                  . "is used to determine which compiler to launch.  When disabled, the compiler`r`n"
-                  . "for the selected base version is launched.  The script file path and name`r`n"
-                  . "will be pre-filled in the Source field."
-                  
-        Else If (hwnd = oGui["AhkLauncher"].Hwnd)
-            ToolTip "When enabled, the [first-line version comment] in the script will determine which`r`n"
-                  . "AutoHotkey EXE is used to run the script.  When disabled, the selected base version`r`n"
-                  . "is always used to run every script."
-                  
-        Else If (hwnd = oGui["RegexExeAdd"].Hwnd)
-            ToolTip "Add a parallel EXE match option.`r`n"
-                  . "Each entry will specify a match pattern for the [first-line version comment],`r`n"
-                  . "a match type (regex/exact), and which EXE to use to lauch a script."
-            
-        Else If (hwnd = oGui["RegexExeRemove"].Hwnd)
-            ToolTip "Remove a parallel EXE match option."
-            
-        Else If (hwnd = oGui["AhkParallelList"].Hwnd)
-            ToolTip "Double-click to edit."
         
         Else
             ToolTip
     }
-    
-    If (hwnd = oGui["VersionDisp"].Hwnd) {
-        vDisp := ""
-        For vName, version in Settings["AhkVersions"]
-            vDisp .= (vDisp?"`r`n":"") version["latest"]
-        ToolTip vDisp
-    } Else
-        ToolTip
 }
 
 If (Settings["MinimizeOnStart"]) {
