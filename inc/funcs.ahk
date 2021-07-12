@@ -216,37 +216,36 @@ proc_script(in_script, compiler:=false) {
 }
 
 
-; Supports MD2, MD4, MD5, SHA1, SHA256, SHA384, SHA512
+; =======================================================================
+; hash() - Supports MD2, MD4, MD5, SHA1, SHA256, SHA384, SHA512
+;    buf = can be a buffer, a string, or a file name (string)
+;    hashType = pick one [MD2, MD4, MD5, SHA1, SHA256, SHA384, SHA512]
+; =======================================================================
 hash(buf,hashType:="sha256") {
-    If FileExist(buf)
+    If (Type(buf) = "String") && FileExist(buf) ; to expand:  https://www.phdcc.com/cryptorc4.htm
         buf := FileRead(buf,"RAW")
     Else If (Type(buf) = "String")
         buf := Buffer(StrPut(txt := buf),0)
       , StrPut(txt, buf)
+    Else if (Type(buf) != "Buffer")
+        return -1 ; invalid value passed in buffer
     
     hashList := {MD2:0x8001, MD4:0x8002, MD5:0x8003, SHA:0x8004, SHA1:0x8004
                , SHA256:0x800C, SHA384:0x800D, SHA512:0x800E}
     
-    r1 := DllCall("advapi32\CryptAcquireContext","UPtr*",&hProv:=0
-                                                ,"Ptr",0,"Ptr",0
-                                                ,"UInt",PROV_RSA_AES:=0x18
-                                                ,"UInt",0) ; CRYPT_VERIFYCONTEXT:=0xF0000000
+    r1 := DllCall("advapi32\CryptAcquireContext","UPtr*",&hProv:=0,"Ptr",0,"Ptr",0
+                                                ,"UInt",PROV_RSA_AES:=0x18,"UInt",0xF0000000)
     
-    r3 := DllCall("advapi32\CryptCreateHash","UPtr",hProv
-                                            ,"UInt",hashList.%hashType% ; 0x800C
-                                            ,"UInt",0,"UInt",0
-                                            ,"UPtr*",&hHash:=0)
+    r3 := DllCall("advapi32\CryptCreateHash","UPtr",hProv,"UInt",hashList.%hashType% ; 0x800C
+                                            ,"UInt",0,"UInt",0,"UPtr*",&hHash:=0)
     
     r5 := DllCall("advapi32\CryptHashData","UPtr",hHash,"UPtr",buf.ptr,"UInt",buf.size,"UInt",0)
     
-    r6 := DllCall("advapi32\CryptGetHashParam","UPtr",hHash
-                                              ,"UInt",HP_HASHVAL:=0x2
+    r6 := DllCall("advapi32\CryptGetHashParam","UPtr",hHash,"UInt",HP_HASHVAL:=0x2
                                               ,"UPtr",0,"UInt*",&iSize1:=0,"UInt",0)
-    outHash := Buffer(iSize1,0)
-    r7 := DllCall("advapi32\CryptGetHashParam","UPtr",hHash
-                                              ,"UInt",HP_HASHVAL:=0x2
+    outHash := Buffer(iSize1,0), outVal := ""
+    r7 := DllCall("advapi32\CryptGetHashParam","UPtr",hHash,"UInt",HP_HASHVAL:=0x2
                                               ,"UPtr",outHash.ptr,"UInt*",&iSize2:=iSize1,"UInt",0)
-    outVal := ""
     Loop iSize2
         outVal .= Format("{:02X}",NumGet(outHash,A_Index-1,"UChar"))
     
@@ -255,3 +254,4 @@ hash(buf,hashType:="sha256") {
     
     return outVal
 }
+

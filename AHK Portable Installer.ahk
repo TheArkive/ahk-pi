@@ -179,11 +179,14 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
     
         If (hwnd = oGui["ActivateExe"].Hwnd)
             ToolTip "Sets the Base Version.`r`n`r`n"
-                  . "Modify settings as desired first, including templates.`r`nThen click this button."
+                  . "Modify settings as desired first, including templates.`r`n"
+                  . "Then click this button."
                   
         Else If (hwnd = oGui["ExeList"].Hwnd)
             ToolTip "List of Base Versions to choose from.`r`n"
-                  . "Select then click the [Install/Select] button.`r`nBe sure to modify settings as desired first, including templates."
+                  . "Select then click the [Install/Select] button.`r`n"
+                  . "Be sure to modify settings as desired first, like`r`n"
+                  . "context-menu items and Text Editor."
                   
         Else If (hwnd = oGui["CurrentPath"].Hwnd)
             ToolTip oGui["CurrentPath"].Value
@@ -192,6 +195,20 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
             ToolTip
     }
 }
+
+OnMessage(0x6,WM_ACTIVATE)
+WM_ACTIVATE(wParam, lParam, Msg, hwnd) {
+    Global oGui
+    wp := (wParam & 0xFFFF)
+    
+    If (app.verGui.hwnd) && (hwnd != app.verGui.hwnd) && (hwnd = oGui.hwnd) && (wp > 0)
+        app.verGui.Destroy()
+      , app.verGui := {hwnd:0}
+      , Sleep(100)
+      , oGui["ExeList"].Focus()
+      , dbg("is main: " (hwnd = oGui.hwnd) " / " wp)
+}
+
 
 If (Settings["MinimizeOnStart"]) {
     If !Settings["CloseToTray"]
@@ -203,7 +220,7 @@ runGui(minimize:=false) {
     oGui := Gui("-DPIScale","AHK Portable Installer " AhkPisVersion)
     oGui.OnEvent("Close",gui_Close)
     
-    oGui.Add("Edit","vActiveVersionDisp xm y+8 w409 -E0x200 ReadOnly","Base Version:")
+    oGui.Add("Text","vActiveVersionDisp xm y+8 w409 -E0x200 ReadOnly","Base Version:")
     oGui.Add("Button","vVersionDisp x+2 yp-4 w50","Latest").OnEvent("Click",GuiEvents)
     
     LV := oGui.Add("ListView","xm y+0 r5 w460 vExeList",["Description","Version","File Name","Full Path"])
@@ -327,7 +344,7 @@ conMenu(iName, iPos, m) {
         Try DirDelete oDir, true
         Catch error as e {
             Msgbox "Access is denied, or an executable is still running."
-            throw e
+            return
         }
         
         ticks := A_TickCount
@@ -758,6 +775,8 @@ DLFile() {
             If !FileExist(destTemp _file)
                 Download src _file, destTemp _file
             
+            While !FileExist(destTemp _file)
+                Sleep 100
             h1 := hash(destTemp zipFile,hType)
             h2 := FileRead(destTemp _file)
             
