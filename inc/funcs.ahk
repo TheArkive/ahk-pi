@@ -156,7 +156,7 @@ Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RA
 ; ====================================================================================
 proc_script(in_script, compiler:=false) {
     Global Settings
-    admin := false, exe := ""
+    admin := false, exe := "", err := ""
     _bitness := bitness := A_Is64BitOS ? 64 : 32
     baseFolder := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions"
     
@@ -213,7 +213,10 @@ proc_script(in_script, compiler:=false) {
         exe := f.installDir "\Compiler\Ahk2Exe.exe"
     }
     
-    return {exe:exe, admin:admin, err:(!exe?"No match for #REQUIRES directive.":"")}
+    If (!exe && !Settings["ActiveVersionPath"])
+        err := "You need to select / install a version of AutoHotkey from the main UI."
+    
+    return {exe:exe, admin:admin, err:err}
 }
 
 

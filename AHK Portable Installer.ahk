@@ -50,9 +50,10 @@ If !DirExist("versions")
 If (A_Is64BitOS)
     reg.view := 64
 
+SettingsJSON := ""
 If FileExist("Settings.json")
     SettingsJSON := FileRead("Settings.json")
-Settings := (SettingsJSON) ? Jxon_Load(&SettingsJSON) : Map()
+Settings := (SettingsJSON && (SettingsJSON!=Chr(34) Chr(34))) ? Jxon_Load(&SettingsJSON) : Map()
 
 (!Settings.Has("AhkVersions")) ? Settings["AhkVersions"] := Map() : ""
 (!Settings.Has("posX")) ? Settings["posX"] := 300 : ""
