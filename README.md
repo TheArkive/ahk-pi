@@ -2,18 +2,14 @@
 
 <img src="images/ahk-pi-main.png" width="420" align="top"/>
 
-For details on how to use Fully Portable Mode, skip to that section below.
+## Latest Updates
 
-Latest updates:
+* Removed some redundant code.
+* Improved handling of settings.json - there is no more `settings.json.blank` - the script will create the file with all default settings.
+* Improved handling of errors and related error messages.
+* Added a "ReadOnly" mode for when being invoked by command line/registry.  Now settings are only written to disk when closing the GUI.
 
-* AHK Launcher has been replaced by usage of the #REQUIRES directive (thanks to vvhitevvizard and lexikos for inspiration).
-* Downloading is now possible through the UI.
-* The default `Base Folder` is now the script directory.
-* Installs to HKCU by default.  Can be changed to HKLM in `Settings > Basics tab`.
-* Minor bug fixes, and small adjustments.
-* Reworked some code to be less redundant.
-
-If you need a version of `Window Spy for AHK v2` go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) on AHK forums.
+If you need a version of `Window Spy for AHK v2` go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) on AHK forums.  You will need to place this in your v2 folders manually until the official release of AHK v2.
 
 If you want the latest version of `Ahk2Exe`, you can get it from the latest official AHK v1 zip, or from [here](https://github.com/AutoHotkey/Ahk2Exe).
 
@@ -28,9 +24,13 @@ This is a portable install manager and allows multiple versions of AutoHotkey to
 
 You can use this program in 1 of 2 ways:
 1) Change the active AHK version when desired to run different scripts according to selected version.
-2) Use the #REQUIRES directive in your scripts to specify a version to use.  This program will parse choose the EXE based on that criteria.
+2) Use the #REQUIRES directive in your scripts to specify a version to use.  This program will choose the EXE based on that criteria.
 
-This program can be run as an installer, or as a portable program.  As an installer, registry entries are written to the system to implement the `.ahk` file type association.  In Fully Portable mode, the program must remain running in the background.  Use the hotkes below when using Fully Portable mode.
+This program can be run as an installer, or as a portable program.  As an installer, registry entries are written to the system to implement the `.ahk` file type association.  In Fully Portable mode, the program must remain running in the background.
+
+If you want to use AutoHotkey_H with this program, you can.  Simply download your desired release(s) of AutoHotkey_H and extract the ZIP to a subfolder in the `base folder`.
+
+The default `base folder` is in `Script_Dir\versions`.
 
 ## Features
 * Download/remove AHK versions directly from the UI.
@@ -52,7 +52,7 @@ Grab the latest copy of AHK v2 alpha (currently a138), copy the desired version 
 
 Now you can download AutoHotkey through the UI.  Just click `Settings`, pick a major version from the DropDownList, then select/downlad your desired version(s).  To remove a version of AHK, right click on an entry in the main list, and select `Remove this version` from the context menu.
 
-The AutoHotkey `base folder` is now located in the script directory by default.  As usual, it can be moved to another location if desired.  The structure of the `base folder` is described below.  All downloads are cached.  You can open the `base folder` and `temp folder` from the Download tab.
+The AutoHotkey `base folder` is located in the script directory by default.  It can be moved to another location if desired.  The structure of the `base folder` is described below.  All downloads are cached.  You can open the `base folder` and `temp folder` from the Download tab in Settings.
 
 Example:
 ```
@@ -72,11 +72,9 @@ Now you need to decide how you want to use this program:
 
 ## Installer Mode
 
-This is the default mode.  Simply leave `Fully Portable Mode` unchecked.  When installing, by default method is for the `Current User`.  You can optionally install for `All Users`, but you need to run this program as Admin.  To change the install mode, click `Settings > Basics tab`.
+This is the default mode.  Simply leave `Fully Portable Mode` unchecked.  When installing, by default method is for the `Current User`.  You can optionally install for `All Users`, but you need to run this program as Admin.  To change the install mode, click `Settings > Basics tab` and change the "Install For" drop down menu.
 
-In this mode, when you click `Install` the `base version` is set and the script writes registry entries for the `.ahk` extension, and context menu entries (Right-Click > New).
-
-After you have selected / installed your preferred version, close the program for the settings to take effect.
+In this mode, when you click `Install` the `base version` is set and the script writes registry entries for the `.ahk` extension, and context menu entries (such as Right-Click > New, and "Run Script", "Compile Scrpt", etc).
 
 ## Fully Portable Mode
 
@@ -105,14 +103,25 @@ Example:
 ```
     SYNTAX:  #Requires [product] [version] [; options are optional]
 
-#Requires AutoHotkey 2.0-a136                   <-- Uses a136, with system bitness.
-#Requires AutoHotkey 2.0-a ; 32-bit             <-- Uses the latest v2 alpha on the system
-                                                    and uses only 32-bit.
-#Requires AutoHotkey 2.0-a138 ; 64-bit admin    <-- Uses only v2 alpha a138, uses 64-bit
-                                                    and runs script as admin.
-; #Requires AutoHotkey 1.1.33 ; 32-bit          <-- For versions of AutoHotkey that don't have
-                                                    the #Requires directive, simply comment
-                                                    out the directive but format it the same.
+----------------------------------------------------------------
+* Uses a136, with system bitness.
+
+#Requires AutoHotkey 2.0-a136
+----------------------------------------------------------------
+* Uses the latest v2 alpha on the system and uses only 32-bit.
+
+#Requires AutoHotkey 2.0-a ; 32-bit
+----------------------------------------------------------------
+* Uses only v2 alpha a138, uses 64-bit and runs script as admin.
+
+#Requires AutoHotkey 2.0-a138 ; 64-bit admin
+----------------------------------------------------------------
+* For versions of AutoHotkey that don't have
+  the #Requires directive, simply comment
+  out the directive but format it the same.
+
+; #Requires AutoHotkey 1.1.33 ; 32-bit
+----------------------------------------------------------------
 ```
 
 At a minimum specify the product and the version.  For the most part, how the script selects the EXE to use is the same a the #REQUIRES directive, so please read up on it in the docs, but there are a few differences:
@@ -127,7 +136,7 @@ The #REQUIRES directive is also used to determine which compiler to use.  The lo
 
 ## Setting up Ahk2Exe
 
-All versions of AutoHotkey v1 come with a compiler (Ahk2Exe), `.bin` files, and `mpress.exe`.  These versions of `Ahk2Exe` also work for AutoHotkey v2.  Just copy `Ahk2Exe.exe` and `mpress.exe` from the AHK v1 compiler folder to the AHK v2 compiler folder.  DO NOT copy the `.bin` files, unless you know what you are doing.
+All versions of AutoHotkey v1 come with a compiler (Ahk2Exe), `.bin` files, and `mpress.exe`.  These versions of `Ahk2Exe` also work for AutoHotkey v2.  Just copy `Ahk2Exe.exe` and `mpress.exe` from the AHK v1 compiler folder to the AHK v2 compiler folder.  DO NOT copy the `.bin` files from the AHK v1 folder, unless you know what you are doing.
 
 The latest versions of AutoHotkey_H v1 and v2, as of the updating of this document (2021/04/16), both have their own separate updated compilers which contain `Ahk2Exe.exe`.
 
@@ -148,9 +157,11 @@ This is a PORTABLE installer, so this script:
 
 ## Troubleshooting and avoiding problems
 
+If you need help post on the forums, or [visit the join #ahk on IRC or visit the AutoHotkey Discord](https://www.autohotkey.com/boards/viewtopic.php?f=76&t=59&p=406501&hilit=irc#p406501).  I frequently go on IRC, and I'm usually always connected on Discord.  Send me a PM on the AutoHotkey forums and we can arrange a time to work out some issues.
+
 1) It is NOT recommended to run this script along side a normal installation of AutoHotkey with the setup program, it is however theoretically possible.  But this script will override the proper install with its own settings in the registry.
 
-2) If you move your AutoHotkey folder, then you must "re-install" your chosen AutoHotkey `base version`  Simply click `Install` again to update registry entries that refer to the location of AHK Portable Installer.
+2) If you move your `base folder`, then you must "re-install" your chosen AutoHotkey `base version`  Simply click `Install/Select` again to update registry entries.  Keep in mind, if you don't specify a custom `base folder`, and you move the location of AHK Portable Installer, then you are also moving the `base folder`.
 
 3) Every version folder of AutoHotkey should have its own `help file`, `WindowSpy.ahk`, and `Compiler` folder.
 
@@ -159,21 +170,39 @@ This is a PORTABLE installer, so this script:
 * AutoHotkey_H v1 has it's own compiler.  The latest one will work for all verions, just replace the olders ones with the latest.
 * AutoHotkey_H v2 has it's own compiler.  The latest one will work for all verions, just replace the olders ones with the latest.
 
+Remember that currently, the latest v2 alpha is not compatible with the latest official Ahk2Exe.  See the links in the `Latest Updates` section above.
+
 5) In regards to `A_AhkPath`:
 
-For compiled scripts, this is usually pulled from the registry.  If you are managing multiple versions of AHK using this tool, remember that the `base version` selected from the main GUI is the only one written to the registry.  The `AHK Portable Installer.exe` file is what sorts out which AHK exe to use based on the `first-line version comment` (defined in the `AHK Launcher` tab).  Just keep this in mind if you need (for some reason) to reference `A_AhkPath` from a compiled script on your system while using AHK Portable Installer.
+For older compiled scripts, this is usually pulled from the registry.  If you are managing multiple versions of AHK using this tool, remember that the `base version` selected from the main GUI is the only one written to the registry.
 
 6) Running scripts in Fully Portable Mode:
 You need first `single click` with the `left mouse button` to select a script, and THEN you can `middle click` to run the script.  Usually after running a script it is not uncommon for the selection to be undone, especially when scripts are on the desktop.  So just remember, SELECT the script first (single left click) then `middle click` to run, every time.  If the file is already selected you can just `middle click`.
 
+7) Wrong PID (Process ID) when using Run/RunWait:
+This is something you may encounter if you use `Run(my_script.ahk,,,&pid)`.  Since this program is the actual launcher for the script, this is what is happening:
+
+1) User script invokes `Run(my_script.ahk,,,&pid)`.
+2) Registry queries file type association.
+3) Launcher is invoked.  <-- this is the PID used
+4) Launcher determines which version of AHK to use.
+5) Launcher uses `Run()` to launch the script.
+
+So the PID you are getting is that of the launcher, not the actual script.  I'm afraid there is no way around this, but generally there are better ways of interacting with a program than using the PID, especially in AutoHotkey scripts.
+
+There is of course nothing stopping you from running the script with the proper exe yourself.  So if you use:
+```
+Run("'X:\Path\to\AutoHotkey.exe' 'path\to\script.ahk'",,,&pid)
+```
+... then you will get the expected PID.
+
 ## To-Do List
 
 * Allow options to compile one script into multiple versions with minimal clicks (maybe).
-* Incorporate downloading the sha256 files and verifying downloads.
 
 ## Other remarks...
 
-This program will NOT circumvent User Account Control settings.  If you leave UAC enabled and try to this program as an installer, then you will get an "Access Denied" error.  You will need to run this progrma as Administrator.
+This program will NOT circumvent User Account Control settings.  If you leave UAC enabled and try to this program as an installer, then you will get an "Access Denied" error.  You will need to run this program as Administrator.
 
 If you want to completely disable UAC on Win 7+ you need to disable Admin Approval mode.
 

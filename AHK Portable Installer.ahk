@@ -12,6 +12,8 @@
 ; Also thanks to hoppfrosch for initial testing which helped get the basics working.
 ; =======================================================================================
 
+; "D:\Apps\DEV\AutoHotkey\AutoHotkey_2.0-a138-7538f26f\AutoHotkey64.exe" "D:\Drive\UserData\DEV\AHK\AHK_Portable_Installer\AHK Portable Installer.ahk"
+
 #SingleInstance Off ; Allow multiple instances, for when running in non-portable mode.
                     ; This installer script is "consulted" when launching a script or when
                     ; launching the compiler.  So for a split second, there needs to be 2
@@ -31,9 +33,12 @@ class app {
          , last_click_diff := 1000
          , last_xy := 0
          , verGui := {hwnd:0}
+         , ReadOnly := false
+         , sp := scriptParams()
+         , toggle := 0
 }
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.19", regexList := Map(), mode := "gui"
+Global oGui := "", Settings := "", AhkPisVersion := "v1.20", regexList := Map()
 
 OnExit(on_exit)
 
@@ -45,97 +50,93 @@ If !DirExist("versions")
 If (A_Is64BitOS)
     reg.view := 64
 
-If (FileExist("Settings.json.blank") And !FileExist("Settings.json"))
-    FileMove "Settings.json.blank", "Settings.json"
+If FileExist("Settings.json")
+    SettingsJSON := FileRead("Settings.json")
+Settings := (SettingsJSON) ? Jxon_Load(&SettingsJSON) : Map()
 
-SettingsJSON := FileRead("Settings.json")
-Settings := Jxon_Load(&SettingsJSON)
-Settings["toggle"] := 0 ; load settings
+(!Settings.Has("AhkVersions")) ? Settings["AhkVersions"] := Map() : ""
+(!Settings.Has("posX")) ? Settings["posX"] := 300 : ""
+(!Settings.Has("posY")) ? Settings["posY"] := 300 : ""
+
+(!Settings.Has("DisableTooltips")) ? Settings["DisableTooltips"] := true : ""
+(!Settings.Has("PortableMode")) ? Settings["PortableMode"] := 0 : ""
+(!Settings.Has("ShowCompileScript")) ? Settings["ShowCompileScript"] := true : ""
+(!Settings.Has("ShowEditScript")) ? Settings["ShowEditScript"] := true : ""
+(!Settings.Has("ShowRunScript")) ? Settings["ShowRunScript"] := true : ""
+(!Settings.Has("HideTrayIcon")) ? Settings["HideTrayIcon"] := true : ""
+(!Settings.Has("MinimizeOnStart")) ? Settings["MinimizeOnStart"] := false : ""
+(!Settings.Has("CloseToTry")) ? Settings["CloseToTray"] := 0 : ""
+(!Settings.Has("SystemStartup")) ? Settings["SystemStartup"] := 0 : ""
+(!Settings.Has("PickIcon")) ? Settings["PickIcon"] := "Default" : ""
+(!Settings.Has("AutoUpdateCheck")) ? Settings["AutoUpdateCheck"] := true : ""
+(!Settings.Has("CascadeMenu")) ? Settings["CascadeMenu"] := 0 : ""
+
+(!Settings.Has("ActiveVersionPath")) ? Settings["ActiveVersionPath"] := "" : ""
+(!Settings.Has("ActiveVersionDisp")) ? Settings["ActiveVersionDisp"] := "" : ""
+
+(!Settings.Has("TextEditorPath")) ? Settings["TextEditorPath"] := "notepad.exe" : ""
+
+(!Settings.Has("AhkUrl")) ? Settings["AhkUrl"] := "https://www.autohotkey.com/download/" : ""
+(!Settings.Has("DLVersion")) ? Settings["DLVersion"] := "2.0" : ""
+(!Settings.Has("VerList")) ? Settings["VerList"] := "1.1;2.0" : ""
+(!Settings.Has("VerFile")) ? Settings["VerFile"] := "version.txt" : ""
+
+(!Settings.Has("BaseFolder")) ? Settings["BaseFolder"] := "" : ""
+(!Settings.Has("InstallProfile")) ? Settings["InstallProfile"] := "Current User" : ""
+(!Settings.Has("reg")) ? Settings["reg"] := "HKEY_CURRENT_USER" : ""
+
 
 If Settings["HideTrayIcon"]
     A_IconHidden := true
 
-; LButton::{ ; work in progress
-    ; Global Settings, oGui
-    ; Static dclick := Settings["dclick"]
-    ; MouseGetPos &x, &y, &winHwnd, &ctlHwnd, 2
-    ; winClass := WinGetClass("ahk_id " winHwnd)
-    
-    ; Settings["last_click_diff"] := click_diff := (Settings["last_click"]) ? A_TickCount-Settings["last_click"] : 1000
-    
-    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") || (click_diff > dclick) || (x y != Settings["last_xy"]) {
-        ; If (winHwnd = oGui.hwnd) {      ; For some reason [ SendInput "{LButton down}" ] causes LB down to freeze, so you end up
-            ; Click "Down"                ; draggingn the window until you hit ESC.  {LButton UP} doesn't happen as expected.
-        ; } Else SendInput "{LButton down}"
-        
-        ; Settings["last_click"] := A_TickCount
-        ; Settings["last_xy"] := x y
-        ; return
-    ; } Else {
-        ; result := ""
-        ; If (Settings["PortableMode"])
-            ; result := LaunchScript()
-        ; Else
-            ; SendInput "{LButton down}"
-        ; If (result="")
-            ; SetTimer err, -1
-    ; }
-; }
-
-; err() {
-    ; Msgbox "Select a version in the AHK Portable Installer main list."
-; }
-
-; LButton UP::{
-    ; SendInput "{LButton up}"
-; }
-
-; ====================================================================================
 ; ====================================================================================
 ; Processing Parameters for launching scripts and the Compiler.
 ; - Creates a 2nd instance in non-portable mode for a split second.
 ; ====================================================================================
 
 If A_Args.Length {
-    q := Chr(34)
+    q := Chr(34), app.ReadOnly := true, in_file := A_Args[2], err := ""
     
-    If (A_Args[1] != "Launch" And A_Args[1] != "Compile" And A_Args[1] != "LaunchAdmin")
-        throw Error("Invalid first parameter.",,"Param one must be LAUNCH or COMPILE.")
-    
-    If (A_Args.Length < 2)
-        throw Error("Invalid second parameter.",,"There appears to be no script file specified.")
-    
-    in_file := A_Args[2], op := "" ; op = otherParams
-    If !FileExist(in_file)
-        throw Error("Script file does not exist.",,in_file)
-    
-    SplitPath in_file,,&dir
-    If (A_Args[1] = "Launch" || A_Args[1] = "LaunchAdmin") {
-        obj := proc_script(in_file)
-        If (obj.err) {
-            Msgbox obj.err
-            ExitApp
-        } Else If (A_Args[1] = "LaunchAdmin")
-            obj.admin := true ; force admin mode
-        
-        If (A_Args.Length > 3) { ; concat otherParams
-            i := 3
-            Loop (A_Args.Length - 2)
-                op .= ((i++>3)?" ":"") q q
-        }
-        
-        Run (obj.admin?"*RunAs ":"") q obj.exe q (obj.admin?" /restart ":" ") q in_file q (op?" " op:""), dir
-    } Else If A_Args[1] = "Compile" {
-        obj := proc_script(in_file, true)
-        If obj.err {
-            Msgbox obj.err
-            ExitApp
-        }
-        
-        Run q obj.exe q " /in " q in_file q " /gui", dir
+    If !RegExMatch(A_Args[1],"(?:Compile|Launch(Admin)?)")
+        err := "Invalid first parameter:`r`n`r`nParam one must be LAUNCH, LAUNCHADMIN, or COMPILE."
+    Else If (A_Args.Length < 2)
+        err := "Invalid second parameter.`r`n`r`nThere appears to be no script file specified."
+    Else If !FileExist(in_file)
+        err := "Script file does not exist:`r`n`r`n" in_file
+    If err {
+        Msgbox(err,"ERROR",0x10)
+        ExitApp
     }
     
+    obj := proc_script(in_file, ((A_Args[1]="Compile")?true:false))
+    SplitPath in_file,,&dir
+    If RegExMatch(A_Args[1],"Launch(?:Admin)?") {
+        obj.admin := (A_Args[1] = "LaunchAdmin") ? true : false ; set admin mode
+        ahkCmd := (obj.admin?"*RunAs ":"") q obj.exe q (obj.admin?" /restart ":" ") q in_file q (app.sp?" " app.sp:"")
+    } Else If (A_Args[1] = "Compile")
+        ahkCmd := q obj.exe q " /in " q in_file q " /gui"
+    
+    If obj.err {
+        Msgbox obj.err
+        ExitApp
+    } Else If !FileExist(obj.exe) {
+        msg := "The following EXE cannot be found:`r`n`r`n"
+             . obj.exe "`r`n`r`n"
+             . "Did you recently move or rename some folders?"
+        Msgbox(msg,"File not found",0x10)
+        ExitApp
+    }
+    
+    Run(ahkCmd, dir)
     ExitApp ; Close this instance after deciding which AHK.exe / compiler to run.
+}
+
+scriptParams() {
+    op := "", q := Chr(34)
+    If (A_Args.Length >= 3) && (i := 3) ; concat otherParams
+        Loop (A_Args.Length - 2)
+            op .= ((i>3) ? " " : "") q A_Args[i++] q
+    return op
 }
 
 
@@ -313,8 +314,10 @@ runGui(minimize:=false) {
     oGui.Show("w480 h225 x" x " y" y (minimize?" Minimize":""))
     oGui["StatusBar"].SetText("Administrator: " (A_IsAdmin?"YES":"NO"))
     
-    result := CheckUpdate(,false)
-    If (result And result != "NoUpdate")
+    If !Settings["AhkVersions"].Count
+        CheckUpdate(1)
+    
+    If ((result := CheckUpdate(,false)) != "NoUpdate")
         MsgBox result, "Update Check Failed", 0x10
 }
 
@@ -363,57 +366,17 @@ conMenu(iName, iPos, m) {
 PopulateSettings() {
     Global Settings, oGui
     
-    (!Settings.Has("AhkVersions")) ? Settings["AhkVersions"] := Map() : ""
-    
-    If (!Settings.Has("BaseFolder"))
-        Settings["BaseFolder"] := ""
     oGui["BaseFolder"].Value := Settings["BaseFolder"]
-    
-    If (!Settings.Has("AhkUrl"))
-        Settings["AhkUrl"] := "https://www.autohotkey.com/download/"
     oGui["AhkUrl"].Value := Settings["AhkUrl"]
-    
-    If (!Settings.Has("VerFile"))
-        Settings["VerFile"] := "version.txt"
     oGui["VerFile"].Value := Settings["VerFile"]
-    
-    If (!Settings.Has("VerList"))
-        Settings["VerList"] := "1.1;2.0"
     oGui["VerList"].Value := VerList := Settings["VerList"]
-    
-    If (!Settings.Has("InstallProfile"))
-        Settings["InstallProfile"] := "Current User"
-      , Settings["reg"] := "HKEY_CURRENT_USER"
     oGui["InstallProfile"].Text := Settings["InstallProfile"]
-    
-    If (!Settings.Has("AutoUpdateCheck"))
-        Settings["AutoUpdateCheck"] := 0
     oGui["AutoUpdateCheck"].value := Settings["AutoUpdateCheck"]
-    
-    If (!Settings.Has("TextEditorPath") Or Settings.Has("TextEditorPath") = "")
-        Settings["TextEditorPath"] := "notepad.exe"    ; set default script text editor if blank
-    If (!FileExist(Settings["TextEditorPath"]))
-        Settings["TextEditorPath"] := "notepad.exe"    ; set default script text editor if specified doesn't exist
     oGui["TextEditorPath"].Value := Settings["TextEditorPath"]
-    
-    If (!Settings.Has("ShowEditScript"))
-        Settings["ShowEditScript"] := 0
     oGui["ShowEditScript"].Value := Settings["ShowEditScript"]
-    
-    If (!Settings.Has("ShowCompileScript"))
-        Settings["ShowCompileScript"] := 0
     oGui["ShowCompileScript"].Value := Settings["ShowCompileScript"]
-    
-    If (!Settings.Has("ShowRunScript"))
-        Settings["ShowRunScript"] := 0
     oGui["ShowRunScript"].Value := Settings["ShowRunScript"]
-    
-    If (!Settings.Has("DisableTooltips"))
-        Settings["DisableTooltips"] := 0
     oGui["DisableTooltips"].Value := Settings["DisableTooltips"]
-    
-    If (!Settings.Has("PortableMode"))
-        Settings["PortableMode"] := 0
     oGui["PortableMode"].Value := Settings["PortableMode"]
     
     If (Settings["PortableMode"])
@@ -421,37 +384,19 @@ PopulateSettings() {
       , oGui["Uninstall"].Enabled := false
       , oGui["Hotkeys1"].Visible := true
       , oGui["Hotkeys2"].Visible := true
-      ; , EnableHotkeys(true)
     Else
         oGui["ActivateExe"].Text := "Install"
       , oGui["Uninstall"].Enabled := true
       , oGui["Hotkeys1"].Visible := false
       , oGui["Hotkeys2"].Visible := false
-      ; , EnableHotkeys(false)
     
-    If (!Settings.Has("HideTrayIcon"))
-        Settings["HideTrayIcon"] := 0
     oGui["HideTrayIcon"].Value := Settings["HideTrayIcon"]
-    
-    If (!Settings.Has("CloseToTray"))
-        Settings["CloseToTray"] := 0
     oGui["CloseToTray"].Value := Settings["CloseToTray"]
-    
-    If (!Settings.Has("MinimizeOnStart"))
-        Settings["MinimizeOnStart"] := 0
     oGui["MinimizeOnStart"].Value := Settings["MinimizeOnStart"]
-    
-    If (!Settings.Has("PickIcon"))
-        Settings["PickIcon"] := 0
     oGui["PickIcon"].Text := Settings["PickIcon"]
-    
-    If (!Settings.Has("SystemStartup"))
-        Settings["SystemStartup"] := 0
     oGui["SystemStartup"].Value := Settings["SystemStartup"]
     
     oGui["DLVersion"].Add(StrSplit(VerList,";"))
-    If (!Settings.Has("DLVersion"))
-        Settings["DLVersion"] := "2.0"
     oGui["DLVersion"].Text := Settings["DLVersion"]
     
     PopulateDLList()
@@ -461,14 +406,9 @@ PopulateSettings() {
 GuiEvents(oCtl,Info) {
     Global regexList, Settings, oGui
     If (oCtl.Name = "ToggleSettings") {
-        toggle := Settings["toggle"]
         oGui["ExeList"].Focus()
-        
-        If (toggle)
-            oGui.Show("w480 h225"), Settings["toggle"] := 0
-        Else
-            oGui.Show("w480 h480"), Settings["toggle"] := 1
-        
+        (app.toggle) ? oGui.Show("w480 h225") : oGui.Show("w480 h480")
+        app.toggle := !app.toggle
     } Else If (oCtl.Name = "Compiler") {
         If !Settings["ActiveVersionPath"] {
             Msgbox "Install/Select an AutoHotkey version first."
@@ -529,7 +469,7 @@ GuiEvents(oCtl,Info) {
         
     } Else If (oCtl.Name = "PickTextEditor") {
         textPath := (Settings["TextEditorPath"] = "notepad.exe") ? A_WinDir "\notepad.exe" : Settings["TextEditorPath"]
-        TextEditorPath := FileSelect("",textPath,"Select desired text editor:","Executable (*.exe)")
+        TextEditorPath := FileSelect("1",textPath,"Select desired text editor:","Executable (*.exe)")
         
         If (TextEditorPath) {
             oGui["TextEditorPath"].Value := TextEditorPath
@@ -575,8 +515,7 @@ GuiEvents(oCtl,Info) {
             Else
                 Msgbox "WindowSpy.ahk not found."
         }
-        Else
-            Msgbox "Install/Select an AutoHotkey version first."
+        Else Msgbox "Install/Select an AutoHotkey version first."
         
     } Else If (oCtl.Name = "Uninstall") {
         If (MsgBox("Remove AutoHotkey from registry?","Uninstall AutoHotkey",0x24) = "Yes")
@@ -604,13 +543,11 @@ GuiEvents(oCtl,Info) {
           , oGui["Uninstall"].Enabled := false
           , oGui["Hotkeys1"].Visible := true
           , oGui["Hotkeys2"].Visible := true
-          ; , EnableHotkeys(true)
         Else
             oCtl.gui["ActivateExe"].Text := "Install"
           , oGui["Uninstall"].Enabled := true
           , oGui["Hotkeys1"].Visible := false
           , oGui["Hotkeys2"].Visible := false
-          ; , EnableHotkeys(false)
         
     } Else If (oCtl.Name = "HideTrayIcon") {
         If (!oGui["HideTrayIcon"].Value And !oGui["CloseToTray"].value)
@@ -664,6 +601,8 @@ GuiEvents(oCtl,Info) {
             FileDelete lnk
     } Else If (oCtl.Name = "DLVersion") {
         Settings["DLVersion"] := oCtl.Text
+        ; If !Settings["AhkVersions"].Count
+            ; CheckUpdate(1)
         PopulateDLList()
     } Else If (oCtl.Name = "Download") {
         DLFile()
@@ -862,7 +801,6 @@ ActivateEXE() {
     }
     
     reg.delete(hive "\Software\AutoHotkey")
-    
     Sleep 350 ; make it easier to see something happenend when re-installing over same version
     
     ; define ProgID
@@ -988,9 +926,8 @@ gui_Close(o) {
 }
 
 on_exit(*) {
-    Global Settings, mode
-    
-    If (mode = "gui") { ; don't re-save ever time script is launched by the registry
+    Global Settings
+    If (!app.ReadOnly) { ; don't re-save ever time script is launched by the registry
         Try FileDelete "Settings.json"
         SettingsJSON := Jxon_Dump(Settings,4)
         FileAppend SettingsJSON, "Settings.json"
@@ -1042,10 +979,11 @@ ListExes() {
     
     Loop Files BaseFolder "\AutoHotkey*.exe", "R"
     {
-        If (A_LoopFileName="AutoHotkey.exe") || RegExMatch(A_LoopFileFullPath,"i)(\\_?OLD_?|Ahk2Exe)")
+        f := GetAhkProps(A_LoopFileFullPath)
+        If ((A_LoopFileName = "AutoHotkey.exe") && (!f.isAhkH))
+        || RegExMatch(A_LoopFileFullPath,"i)\\(_*OLD_*|Compiler)\\")
             continue
         
-        f := GetAhkProps(A_LoopFileFullPath)
         If (IsObject(f))
             LV.Add("",f.product " " f.Type " " f.bitness "-bit",f.Version,f.exeFile,A_LoopFileFullPath)
     }
@@ -1081,7 +1019,7 @@ CheckUpdate(override:=0,confirm:=true) {
     If (!override) {
         If (!Settings.Has("AutoUpdateCheck") Or Settings["AutoUpdateCheck"] = 0)
             return "NoUpdate"
-        Else If (Settings.Has("UpdateCheckDate") And Settings["UpdateCheckDate"] = FormatTime(,"yyyy-MM-dd"))
+        Else If Settings.Has("UpdateCheckDate") And (Settings["UpdateCheckDate"] = FormatTime(,"yyyy-MM-dd"))
             return "NoUpdate"
     }
     
@@ -1102,13 +1040,12 @@ CheckUpdate(override:=0,confirm:=true) {
               , verList[ver]["list"] := RefreshDLList(ahkUrl ver "/")
         } Catch {
             errMsg .= (errMsg?"`r`n`r`n":"") "Could not reach AHK v" ver " page."
+            msgbox whr.ResponseText
         }
     }
-    
     whr := "" ; free whr obj
     
-    If (!errMsg)
-        Settings["UpdateCheckDate"] := FormatTime(,"yyyy-MM-dd")
+    (!errMsg) ? Settings["UpdateCheckDate"] := FormatTime(,"yyyy-MM-dd") : ""
     
     If (resultMsg) {
         Settings["AhkVersions"] := verList
@@ -1122,15 +1059,6 @@ CheckUpdate(override:=0,confirm:=true) {
 }
 
 LaunchScript(hk:="") {
-    ; MouseGetPos &x, &y, &hwnd,, 2
-    ; winClass := WinGetClass("ahk_id " hwnd)
-    
-    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") {
-        ; dbg("clicking - " hk)
-        ; SendInput hk
-        ; return
-    ; }
-    
     Global Settings
     obj := {exe:0}
     
@@ -1138,21 +1066,8 @@ LaunchScript(hk:="") {
         a := StrSplit(sel,"`n","`r")
         Loop a.Length {
             SplitPath a[A_index],,,&ext
-            If (ext != "ahk") {
-                ; If (winClass = "WorkerW" Or winClass = "Progman") { ; if desktop, Run item
-                    ; Run Chr(34) a[A_Index] Chr(34)
-                ; } Else {                                            ; if explorer window, check if item is folder
-                    ; for window in ComObject("Shell.Application").Windows
-                        ; if (hWnd = window.HWND) && (ie := window)
-                            ; break
-                    
-                    ; If InStr(FileExist(a[A_Index]),"D")
-                        ; ie.Navigate(a[A_Index])             ; change folder view
-                    ; Else
-                        ; Run Chr(34) a[A_Index] Chr(34)      ; run item
-                ; }
-                Continue ; above commented block is for LButton hotkey only - it's finnicky
-            }
+            If (ext != "ahk")
+                Continue
             
             obj := proc_script(a[A_index])
             cmd := (obj.admin?"*RunAs ":"") obj.exe (obj.admin?" /restart ":" ") Chr(34) a[A_Index] Chr(34)
@@ -1164,14 +1079,6 @@ LaunchScript(hk:="") {
 }
 
 LaunchCompiler(hk:="") {
-    ; MouseGetPos &x, &y, &hwnd,, 2
-    ; winClass := WinGetClass("ahk_id " hwnd)
-    
-    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") {
-        ; SendInput hk
-        ; return
-    ; }
-    
     If (sel := Explorer_GetSelection()) {
         Loop Parse Explorer_GetSelection(), "`n", "`r"
         {
@@ -1185,14 +1092,6 @@ LaunchCompiler(hk:="") {
 }
 
 LaunchEditor(hk:="") {
-    ; MouseGetPos &x, &y, &hwnd,, 2
-    ; winClass := WinGetClass("ahk_id " hwnd)
-    
-    ; If !(winClass ~= "((Cabinet|Explore)WClass|WorkerW|Progman)") {
-        ; SendInput hk
-        ; return
-    ; }
-    
     Global Settings
     
     If (sel := Explorer_GetSelection()) {
@@ -1204,13 +1103,6 @@ LaunchEditor(hk:="") {
             Run Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) A_LoopField Chr(34)
         }
     }
-}
-
-EnableHotkeys(status) { ; work in progress
-    status := (status) ? "On" : "Off"
-    Hotkey "MButton", LaunchScript, status
-    Hotkey "+MButton", LaunchEditor, status
-    Hotkey "^MButton", LaunchCompiler, status
 }
 
 dbg(_in) {

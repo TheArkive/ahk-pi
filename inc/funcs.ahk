@@ -190,10 +190,11 @@ proc_script(in_script, compiler:=false) {
         exeList := ""
         Loop Files baseFolder "\AutoHotkey*.exe", "R"
         {
-            If (A_LoopFileName = "AutoHotkey.exe") || RegExMatch(A_LoopFileFullPath,"i)\\_?OLD_?")
+            f := GetAhkProps(A_LoopFileFullPath)
+            If ((A_LoopFileName = "AutoHotkey.exe") && (!f.isAhkH))
+            || RegExMatch(A_LoopFileFullPath,"i)\\(_*OLD_*|Compiler)\\")
                 Continue
             
-            f := GetAhkProps(A_LoopFileFullPath)
             If (!isAhkH && f.isAhkH) || (isAhkH && !f.isAhkH) ; matching exclusive for AHK_H status
                 Continue
             
