@@ -48,7 +48,7 @@ The default `base folder` is in `Script_Dir\versions`.
 
 ## Basic Setup
 
-Grab the latest copy of AHK v2 alpha (currently a138), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Always run this EXE file to launch the script.
+Grab the latest copy of AHK v2 alpha (currently beta.1), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Always run this EXE file to launch the script.
 
 Now you can download AutoHotkey through the UI.  Just click `Settings`, pick a major version from the DropDownList, then select/downlad your desired version(s).  To remove a version of AHK, right click on an entry in the main list, and select `Remove this version` from the context menu.
 

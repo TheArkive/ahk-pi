@@ -36,6 +36,10 @@ class app {
          , ReadOnly := false
          , sp := scriptParams()
          , toggle := 0
+         , w := 480
+         , h := 225
+         ; , w := 480 * (A_ScreenDPI / 96)
+         ; , h := 225 * (A_ScreenDPI / 96)
 }
 
 Global oGui := "", Settings := "", AhkPisVersion := "v1.20", regexList := Map()
@@ -219,7 +223,7 @@ If (Settings["MinimizeOnStart"]) {
 
 runGui(minimize:=false) {
     Global oGui, AhkPisVersion, Settings
-    oGui := Gui("-DPIScale","AHK Portable Installer " AhkPisVersion)
+    oGui := Gui("","AHK Portable Installer " AhkPisVersion)
     oGui.OnEvent("Close",gui_Close)
     
     oGui.Add("Text","vActiveVersionDisp xm y+8 w409 -E0x200 ReadOnly","Base Version:")
@@ -312,7 +316,11 @@ runGui(minimize:=false) {
     PopulateSettings()
     ListExes()
     
-    oGui.Show("w480 h225 x" x " y" y (minimize?" Minimize":""))
+    If (A_ScreenDPI != 96) {
+        app.h := 210
+    }
+    
+    oGui.Show("w" app.w " h" app.h " x" x " y" y (minimize?" Minimize":""))
     oGui["StatusBar"].SetText("Administrator: " (A_IsAdmin?"YES":"NO"))
     
     If !Settings["AhkVersions"].Count
@@ -408,7 +416,7 @@ GuiEvents(oCtl,Info) {
     Global regexList, Settings, oGui
     If (oCtl.Name = "ToggleSettings") {
         oGui["ExeList"].Focus()
-        (app.toggle) ? oGui.Show("w480 h225") : oGui.Show("w480 h480")
+        (app.toggle) ? oGui.Show("w" app.w " h" app.h) : oGui.Show("w480 h" ((A_ScreenDPI = 96) ? 480 : 465))
         app.toggle := !app.toggle
     } Else If (oCtl.Name = "Compiler") {
         If !Settings["ActiveVersionPath"] {
@@ -946,7 +954,7 @@ SetActiveVersionGui() {
         Try InstProd := reg.read(hive "\SOFTWARE\AutoHotkey","InstallProduct")
         Try ver := reg.read(hive "\SOFTWARE\AutoHotkey","Version")
         
-        regVer := InstProd " " ver
+        regVer := (InstProd && ver) ? (InstProd " " ver) : ""
         ActiveVersion := (Settings.Has("ActiveVersionDisp")) ? Settings["ActiveVersionDisp"] : ""
         
         oCtl := oGui["ActiveVersionDisp"]
@@ -1056,7 +1064,7 @@ CheckUpdate(override:=0,confirm:=true) {
     } Else If (confirm && !errMsg)
         Msgbox "No updates available."
     
-    return errMsg
+    return (errMsg?errMsg:"NoUpdate")
 }
 
 LaunchScript(hk:="") {
