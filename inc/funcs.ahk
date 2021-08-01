@@ -46,7 +46,7 @@ GetAhkProps(sInput) {
     
     arr := StrSplit(FileDesc," ")
     ahkProduct := arr[1]
-    bitness := (SubStr(ahkVersion,1,3) = "1.0") ? StrReplace(arr[arr.Length],"-bit","") : 32 ; thanks to use LBJ for this
+    bitness := (SubStr(ahkVersion,1,3) = "1.0") ? 32 : StrReplace(arr[arr.Length],"-bit","") ; thanks to use LBJ for this
     isAhkH := (ahkProduct = "AutoHotkey_H")?true:false
     ahkType := (arr.Length = 3) ? arr[2] : "Unicode"
     
