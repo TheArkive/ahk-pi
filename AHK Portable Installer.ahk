@@ -103,11 +103,11 @@ If A_Args.Length {
     q := Chr(34), app.ReadOnly := true, in_file := A_Args[2], err := ""
     
     If !RegExMatch(A_Args[1],"(?:Compile|Launch(Admin)?)")
-        err := "Invalid first parameter:`r`n`r`nParam one must be LAUNCH, LAUNCHADMIN, or COMPILE."
+        err := "Invalid first parameter:`n`nParam one must be LAUNCH, LAUNCHADMIN, or COMPILE."
     Else If (A_Args.Length < 2)
-        err := "Invalid second parameter.`r`n`r`nThere appears to be no script file specified."
+        err := "Invalid second parameter.`n`nThere appears to be no script file specified."
     Else If !FileExist(in_file)
-        err := "Script file does not exist:`r`n`r`n" in_file
+        err := "Script file does not exist:`n`n" in_file
     If err {
         Msgbox(err,"ERROR",0x10)
         ExitApp
@@ -124,12 +124,17 @@ If A_Args.Length {
     If obj.err {
         Msgbox obj.err
         ExitApp
-    } Else If !FileExist(obj.exe) {
-        msg := "The following EXE cannot be found:`r`n`r`n"
-             . obj.exe "`r`n`r`n"
+    } Else If !FileExist(obj.exe) && obj.exe { ; i suppose this might not happen very often, or ever?
+        msg := "The following EXE cannot be found:`n`n"
+             . obj.exe "`n`n"
              . "Did you recently move or rename some folders?"
         Msgbox(msg,"File not found",0x10)
         ExitApp
+    } Else If !obj.exe {
+        msg := "The following #REQUIRES directive could not find a match:`n`n"
+             . obj.cond "`n`n"
+             . "Did you recently move or rename some folders?"
+        Msgbox(msg,"No match found",0x10)
     }
     
     Run(ahkCmd, dir)

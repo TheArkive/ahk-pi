@@ -42,10 +42,11 @@ GetAhkProps(sInput) {
     objDir := objShl.NameSpace(curDir)
     objItm := objDir.ParseName(ahkFile)
     FileDesc    := objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 3")
-    ahkVersion  := objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 8")
+    ahkVersion  := RegExReplace(objItm.ExtendedProperty("{0CEF7D53-FA64-11D1-A203-0000F81FEDEE} 8"),"\, ?",".")
     
     arr := StrSplit(FileDesc," ")
-    ahkProduct := arr[1], bitness := StrReplace(arr[arr.Length],"-bit","")
+    ahkProduct := arr[1]
+    bitness := (SubStr(ahkVersion,1,3) = "1.0") ? StrReplace(arr[arr.Length],"-bit","") : 32 ; thanks to use LBJ for this
     isAhkH := (ahkProduct = "AutoHotkey_H")?true:false
     ahkType := (arr.Length = 3) ? arr[2] : "Unicode"
     
@@ -156,21 +157,21 @@ Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RA
 ; ====================================================================================
 proc_script(in_script, compiler:=false) {
     Global Settings
-    admin := false, exe := "", err := ""
+    admin := false, exe := "", err := "", cond := ""
     _bitness := bitness := A_Is64BitOS ? 64 : 32
     baseFolder := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions"
     
     If !FileExist(in_script)
-        return {exe:"", admin:false, err:"File does not exist."}
+        return {exe:"", admin:false, err:"File does not exist.", cond:""}
     
     script_text := FileRead(in_script)
     
     If RegExMatch(script_text,"im)^(?:;?[ `t]+)?#Requires.*",&m) {
-        arr := StrSplit(Trim(m[0],";`t "),";")
+        arr := StrSplit(Trim(cond:=m[0],";`t "),";")
         vArr := StrSplit(Trim(RegExReplace(arr[1],"(#Requires|\" Chr(34) ")",""),";`t ")," ")
         
         If !vArr.Has(2)
-            return {exe:"", admin:false, err:"Specify the product (AutoHotkey / AutoHotkey_H) when using #REQUIRES directive."}
+            return {exe:"", admin:false, err:"Specify the product (AutoHotkey / AutoHotkey_H) when using #REQUIRES directive.", cond:cond}
         
         isAhkH := ((prod := vArr[1])="AutoHotkeyH") ? true : false
         ver := (SubStr(vArr[2],1,1) = "v") ? SubStr(vArr[2],2) : vArr[2]
@@ -184,7 +185,7 @@ proc_script(in_script, compiler:=false) {
         }
         
         If (_bitness > bitness)
-            return {exe:"", admin:false, err:"64-bit executable specified on 32-bit system - halting."}
+            return {exe:"", admin:false, err:"64-bit executable specified on 32-bit system - halting.",cond:cond}
         Else bitness := _bitness
         
         exeList := ""
@@ -216,7 +217,7 @@ proc_script(in_script, compiler:=false) {
     If (!exe && !Settings["ActiveVersionPath"])
         err := "You need to select / install a version of AutoHotkey from the main UI."
     
-    return {exe:exe, admin:admin, err:err}
+    return {exe:exe, admin:admin, err:err, cond:cond}
 }
 
 
