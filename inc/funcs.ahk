@@ -149,15 +149,12 @@ Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RA
 }
 
 ; ====================================================================================
-; This func parses the first line of a script, and checks for
-; a "first-line version comment" match.  If one is found then
-; the corresponding AutoHotkey.exe or Ahk2Exe.exe is returned.
-; Otherwise, the user selected "base version" EXE (or base
-; version compiler exe) is returned.
+; This func parses a script for a #Requires directive.  If one is found, the param
+; is parsed to determine which EXE to use to run the script.  If not found
 ; ====================================================================================
 proc_script(in_script, compiler:=false) {
     Global Settings
-    admin := false, exe := "", err := "", cond := ""
+    admin := false, stdoutdebug := false, exe := "", err := "", cond := ""
     _bitness := bitness := A_Is64BitOS ? 64 : 32
     baseFolder := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions"
     
@@ -182,6 +179,8 @@ proc_script(in_script, compiler:=false) {
                     _bitness := StrReplace(opt,"-bit","")
                 Else If (opt = "admin")
                     admin := true
+                Else If (opt = "stdoutdebug")
+                    stdoutdebug := true
         }
         
         If (_bitness > bitness)
@@ -206,8 +205,9 @@ proc_script(in_script, compiler:=false) {
         
         Loop Parse Sort(exeList,"N"), "`n", "`r"
             exe := SubStr(A_LoopField,InStr(A_LoopField,"|")+1)
-    } Else
+    } Else {
         exe := Settings["ActiveVersionPath"]
+    }
     
     If (compiler) {
         f := GetAhkProps(exe)
@@ -217,7 +217,7 @@ proc_script(in_script, compiler:=false) {
     If (!exe && !Settings["ActiveVersionPath"])
         err := "You need to select / install a version of AutoHotkey from the main UI."
     
-    return {exe:exe, admin:admin, err:err, cond:cond}
+    return {exe:exe, admin:admin, err:err, cond:cond, stdoutdebug:stdoutdebug}
 }
 
 

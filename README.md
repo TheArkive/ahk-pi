@@ -4,10 +4,12 @@
 
 ## Latest Updates
 
-* Removed some redundant code.
-* Improved handling of settings.json - there is no more `settings.json.blank` - the script will create the file with all default settings.
-* Improved handling of errors and related error messages.
-* Added a "ReadOnly" mode for when being invoked by command line/registry.  Now settings are only written to disk when closing the GUI.
+* Added missing setting on 1st init: "UpdateCheckDate"
+* Fixed update checks to be asynchronous, so the UI won't freeze when checking for updates and the AHK server is sluggish or down.
+* Now, when using the installer, changing the installed version takes effect immediately.  No need to close the UI first.
+* Built option to add "AHK Portable Installer" path to PATH environment variable.  The "Install For" option affects adding to the user PATH or system PATH.
+* Built option to copy installed EXE to "AHK Portable Installer" dir as "AutoHotkey.exe".
+* Renamed script to "AHK_Portable_Installer.ahk" (removed spaces) to make command line usage more consistent.
 
 If you need a version of `Window Spy for AHK v2` go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) on AHK forums.  You will need to place this in your v2 folders manually until the official release of AHK v2.
 
@@ -48,7 +50,7 @@ The default `base folder` is in `Script_Dir\versions`.
 
 ## Basic Setup
 
-Grab the latest copy of AHK v2 alpha (currently beta.1), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK Portable Installer.exe`.  Always run this EXE file to launch the script.
+Grab the latest copy of AHK v2 alpha (currently beta.1), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK_Portable_Installer.exe`.  Always run this EXE file to launch the script.
 
 Now you can download AutoHotkey through the UI.  Just click `Settings`, pick a major version from the DropDownList, then select/downlad your desired version(s).  To remove a version of AHK, right click on an entry in the main list, and select `Remove this version` from the context menu.
 
@@ -195,6 +197,24 @@ There is of course nothing stopping you from running the script with the proper 
 Run("'X:\Path\to\AutoHotkey.exe' 'path\to\script.ahk'",,,&pid)
 ```
 ... then you will get the expected PID.
+
+## Command Line Usage
+
+Usage: `AHK_Portable_Installer.exe [Behavior] "path\to\script.ahk" params...`
+
+```
+Simple:
+    AHK_Portable_Installer.exe "path\to\script.ahk" params...
+
+Specify Behavior:
+    AHK_Portable_Installer.exe [Launch|LaunchAdmin|Compiler] "path\to\script.ahk" params...
+```
+
+If the first parameter is not `Launch`, `LaunchAdmin`, or `Compiler`, then the behavior defaults to `Launch`.  If the selected behavior is `Launch` and the `Admin` option is used on the #Requires directive within the script, then the script will still be launched as admin.
+
+Place parameters to be passed to the script after the `path\to\scrpt.ahk` parameter as usual.
+
+When launching scripts on the command line with `AHK_Portable_Installer.exe` , the script will be launched with an EXE according to the #Requires directive.  If no #Requires directive is found, then the script will be launched by the installed/selectd EXE from the main UI.
 
 ## To-Do List
 
