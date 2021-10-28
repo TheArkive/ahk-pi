@@ -151,13 +151,13 @@ This setup will allow you to properly compile any version of AutoHotkey you wish
 
 The below options pertain to using this program as an Installer only.  All other options not discussed either pertain to the Context Menu, or to "Fully Portable Mode".  I gave the below options arbitrary numbers for easy reference in this document.
 
-#### Option #1: `Add to PATH on install`
+#### Option #1: `Add to PATH on Install`
 
 This option adds the script directory to the PATH environment variable.  This setting follows the `Install For` option on the `Basics` tab.  This allows the Launcher (`AHK_Portable_Installer.exe`) to be used on the command line.  (See "Command Line Usage" below.)
 
 #### Option #2: `Copy Installed EXE to "AutoHotkey.exe" on Install`
 
-If this option and Option #1 is enabled, then you can also use `AutoHotkey.exe` on the command line according to the AutoHotkey docs.
+If this option and Option #1 are enabled, then you can also use `AutoHotkey.exe` on the command line according to the AutoHotkey docs.
 
 Checking this option alone, while copying the installed EXE to the script directory, will basically have no worth while effect on the system.  Normally this option is used with Option #1, Option #3, or both.
 
