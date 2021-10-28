@@ -46,7 +46,7 @@ class app {
          ; , h := 225 * (A_ScreenDPI / 96)
 }
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.21", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.22", regexList := Map()
 
 OnExit(on_exit)
 
@@ -79,9 +79,9 @@ Settings := (SettingsJSON && (SettingsJSON!=Chr(34) Chr(34))) ? Jxon_Load(&Setti
 (!Settings.Has("PickIcon")) ? Settings["PickIcon"] := "Default" : ""
 (!Settings.Has("AutoUpdateCheck")) ? Settings["AutoUpdateCheck"] := true : ""
 (!Settings.Has("UpdateCheckDate")) ? Settings["UpdateCheckDate"] := "" : ""
-(!Settings.Has("CascadeMenu")) ? Settings["CascadeMenu"] := 0 : ""
 (!Settings.Has("AddToPath")) ? Settings["AddToPath"] := 0 : ""
 (!Settings.Has("CopyExe")) ? Settings["CopyExe"] := 0 : ""
+(!Settings.Has("RegisterAHKexe")) ? Settings["RegisterAHKexe"] := 0 : ""
 
 (!Settings.Has("ActiveVersionPath")) ? Settings["ActiveVersionPath"] := "" : ""
 (!Settings.Has("ActiveVersionDisp")) ? Settings["ActiveVersionDisp"] := "" : ""
@@ -326,7 +326,9 @@ runGui(minimize:=false) {
     oGui.Add("Checkbox","vSystemStartup x+61 yp+3","Run on system startup").OnEvent("Click",GuiEvents)
     
     oGui.Add("Checkbox","vAddToPath xm+10 y+10","Add to PATH on Install").OnEvent("Click",GuiEvents)
-    oGui.Add("Checkbox","vCopyExe x+10",'Copy Installed EXE to "AutoHotkey.exe"').OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vCopyExe x+10",'Copy Installed EXE to "AutoHotkey.exe" on Install').OnEvent("Click",GuiEvents)
+    oGui.Add("Checkbox","vRegisterAHKexe xm+10 y+10"
+            ,'Register "AutoHotkey.exe" with .ahk files instead of Launcher on Install').OnEvent("Click",GuiEvents)
     
     oGui.Add("GroupBox","vHotkeys1 xm+10 y+10 w456 h60 y+4 Hidden","Hotkeys")
     txt := "MButton:`t`tRuns SELECTED scrtips in Explorer window/on desktop.`r`n"
@@ -414,6 +416,7 @@ PopulateSettings() {
     oGui["PortableMode"].Value := Settings["PortableMode"]
     oGui["AddToPath"].Value := Settings["AddToPath"]
     oGui["CopyExe"].Value := Settings["CopyExe"]
+    oGui["RegisterAHKexe"].Value := Settings["RegisterAHKexe"]
     
     If (Settings["PortableMode"]) {
         oGui["ActivateExe"].Text := "Select"
@@ -660,9 +663,16 @@ GuiEvents(oCtl,Info) {
             app.verGui := {hwnd:0}
         }
     
-    } Else If (oCtl.Name = "AddToPath") || (oCtl.Name = "CopyExe") {
+    } Else If (oCtl.Name = "AddToPath") || (oCtl.Name = "CopyExe") || (oCtl.Name = "RegisterAHKexe") {
         Settings[oCtl.Name] := oCtl.Value
         
+        If (oCtl.Name = "CopyExe" && !oCtl.Value) {
+            oCtl.gui["RegisterAHKexe"].Value := false
+            Settings["RegisterAHKexe"] := false
+        } Else If (oCtl.Name = "RegisterAHKexe" && oCtl.Value) {
+            oCtl.gui["CopyExe"].Value := true
+            Settings["CopyExe"] := true
+        }
     }
 }
 
@@ -774,9 +784,10 @@ ActivateEXE() {
     row := LV.GetNext(), exeFullPath := LV.GetText(row,4)
     
     If !Settings["PortableMode"]
-        UninstallAhk() ; ... shouldn't need this
+        UninstallAhk()
     
     hive := Settings["reg"]
+    launcher := (Settings["RegisterAHKexe"]) ? "AutoHotkey.exe" : "AHK_Portable_Installer.exe"
     
     ; props: product, version, installDir, type, bitness, exeFile, exePath, exeDir, variant
     f := GetAhkProps(exeFullPath)
@@ -814,46 +825,50 @@ ActivateEXE() {
         FileAppend templateText, A_WinDir "\ShellNew\Template.ahk"
     }
     
-    reg.delete(hive "\Software\AutoHotkey")
+    ; reg.delete(hive "\Software\AutoHotkey")
     Sleep 350 ; make it easier to see something happenend when re-installing over same version
     
     ; define ProgID
-    root := hive "\SOFTWARE\Classes\AutoHotkeyScript\Shell" (Settings["CascadeMenu"] ? "\AutoHotkey\Shell" : "")
-    If reg.add(hive "\SOFTWARE\Classes\AutoHotkeyScript","","AutoHotkey Script") ; ProgID title, asthetic only?
+    root := hive "\SOFTWARE\Classes\AutoHotkeyScript\Shell"
+    If reg.add(hive "\SOFTWARE\Classes\AutoHotkeyScript","","AutoHotkey Script")    ; ProgID title
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
-    If reg.add(hive "\SOFTWARE\Classes\AutoHotkeyScript\DefaultIcon","",Chr(34) exeFullPath Chr(34) ",1")
+    If reg.add(hive "\SOFTWARE\Classes\AutoHotkeyScript\DefaultIcon","",'"' exeFullPath '",1')
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
     If reg.add(root,"","Open")
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
     
     ; Compiler Context Menu (Ahk2Exe)
     If Settings["ShowCompileScript"] {
-        If reg.add(root "\Compile","","Compile Script")                                                ; Compile context menu entry
+        If reg.add(root "\Compile","","Compile Script")                             ; Compile context menu entry
             MsgBox reg.reason "`r`n`r`n" reg.lastKey
         
-        _step1 := Chr(34) A_ScriptDir "\AHK_Portable_Installer.exe" Chr(34) " " Chr(34) A_ScriptFullPath Chr(34)
-        regVal := _step1 " Compile " Chr(34) "%1" Chr(34) 
+        If (Settings["RegisterAHKexe"])
+            compiler := '"' f.exeDir '\Compiler\Ahk2Exe.exe" /in "%1" /gui'
+        Else
+            compiler := '"' A_ScriptDir '\AHK_Portable_Installer.exe" "' A_ScriptFullPath '" Compile "%1"'
         
-        If reg.add(root "\Compile\Command","",regVal)
+        If reg.add(root "\Compile\Command","",compiler)
             MsgBox reg.reason "`r`n`r`n" reg.lastKey
     }
     
     ; Edit Script
     If Settings["ShowEditScript"] {
-        If reg.add(root "\Edit","","Edit Script")                                                      ; Edit context menu entry
+        If reg.add(root "\Edit","","Edit Script")                                   ; Edit context menu entry
             MsgBox reg.reason "`r`n`r`n" reg.lastKey
-        If reg.add(root "\Edit\Command","",Chr(34) Settings["TextEditorPath"] Chr(34) " " Chr(34) "%1" Chr(34))    ; Edit command
+        If reg.add(root "\Edit\Command","",'"' Settings["TextEditorPath"] '" "%1"') ; Edit command
             MsgBox reg.reason "`r`n`r`n" reg.lastKey
-    }
+    } 
     
     ; Run Script
     If reg.add(root "\Open","","Run Script")
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
     
-    _step1 := Chr(34) A_ScriptDir "\AHK_Portable_Installer.exe" Chr(34) " " Chr(34) A_ScriptFullPath Chr(34)
-    regVal := _step1 " Launch " Chr(34) "%1" Chr(34) " %*"
+    If (!Settings["RegisterAHKexe"])
+        launcher := '"' A_ScriptDir '\AHK_Portable_Installer.exe" "' A_ScriptFullPath '" Launch "%1" %*'
+    Else
+        launcher := '"' A_ScriptDir '\AutoHotkey.exe" "%1" %*'
     
-    If reg.add(root "\Open\Command","",regVal)                                                 ; Open verb/command
+    If reg.add(root "\Open\Command","",launcher)                 ; Open verb/command
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
     
     ; Run Script as Admin
@@ -861,17 +876,19 @@ ActivateEXE() {
         If reg.add(root "\RunAs","","Run Script as Admin")
             MsgBox reg.reason "`r`n`r`n" reg.lastKey
         
-        _step1 := Chr(34) A_ScriptDir "\AHK_Portable_Installer.exe" Chr(34) " " Chr(34) A_ScriptFullPath Chr(34)
-        regVal := _step1 " LaunchAdmin " Chr(34) "%1" Chr(34) " %*"
+        If (!Settings["RegisterAHKexe"])
+            launcher := '"' A_ScriptDir '\AHK_Portable_Installer.exe" "' A_ScriptFullPath '" LaunchAdmin "%1" %*'
+        Else
+            launcher := '"' A_ScriptDir '\AutoHotkey.exe" "%1" %*'
         
-        If reg.add(root "\RunAs\Command","",regVal)                                                 ; RunAs verb/command
+        If reg.add(root "\RunAs\Command","",launcher)       ; RunAs verb/command
             MsgBox reg.reason "`r`n`r`n" reg.lastKey
     }
     
     ; Ahk2Exe entries
     If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastBinFile",f.type " " f.bitness "-bit.bin")   ; auto set .bin file
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
-    If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastUseMPRESS",mpress)     ; auto set mpress usage
+    If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","LastUseMPRESS",mpress)      ; auto set mpress usage
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
     If reg.add("HKEY_CURRENT_USER\Software\AutoHotkey\Ahk2Exe","Ahk2ExePath",f.installDir "\Compiler\Ahk2Exe.exe")  ; for easy reference...
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
@@ -895,7 +912,7 @@ ActivateEXE() {
     If reg.add(hive "\Software\AutoHotkey","InstallProduct",Settings["ActiveVersionDisp"])
         MsgBox reg.reason "`r`n`r`n" reg.lastKey
     
-    AddToPath() ; always run this have opportunity to remove the ahk-pi path
+    AddToPath() ; always run this to have opportunity to remove the ahk-pi path
 
     If FileExist("AutoHotkey.exe")
         FileDelete A_ScriptDir "\AutoHotkey.exe"

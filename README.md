@@ -1,15 +1,12 @@
-# AHK Portable Installer (now completely portable)
+# AHK Portable Installer
 
 <img src="images/ahk-pi-main.png" width="420" align="top"/>
 
 ## Latest Updates
 
-* Added missing setting on 1st init: "UpdateCheckDate"
-* Fixed update checks to be asynchronous, so the UI won't freeze when checking for updates and the AHK server is sluggish or down.
-* Now, when using the installer, changing the installed version takes effect immediately.  No need to close the UI first.
-* Built option to add "AHK Portable Installer" path to PATH environment variable.  The "Install For" option affects adding to the user PATH or system PATH.
-* Built option to copy installed EXE to "AHK Portable Installer" dir as "AutoHotkey.exe".
-* Renamed script to "AHK_Portable_Installer.ahk" (removed spaces) to make command line usage more consistent.
+* Built option to register "AutoHotkey.exe" with .ahk files, instead of using the launcher.
+* Fixed "Run Script as Admin" to follow settings for PATH and "Register AutoHotkey.exe".
+* Updated readme to include explanation of Installer Options and updated Command Line Usage docs.
 
 If you need a version of `Window Spy for AHK v2` go to [this thread](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=72333) on AHK forums.  You will need to place this in your v2 folders manually until the official release of AHK v2.
 
@@ -150,6 +147,44 @@ So if you were to run all versions of AutoHotkey in parallel (in theory) your co
 
 This setup will allow you to properly compile any version of AutoHotkey you wish to setup on your system.
 
+## Options Tab - Install Options
+
+The below options pertain to using this program as an Installer only.  All other options not discussed either pertain to the Context Menu, or to "Fully Portable Mode".  I gave the below options arbitrary numbers for easy reference in this document.
+
+#### Option #1: `Add to PATH on install`
+
+This option adds the script directory to the PATH environment variable.  This setting follows the `Install For` option on the `Basics` tab.  This allows the Launcher (`AHK_Portable_Installer.exe`) to be used on the command line.  (See "Command Line Usage" below.)
+
+#### Option #2: `Copy Installed EXE to "AutoHotkey.exe" on Install`
+
+If this option and Option #1 is enabled, then you can also use `AutoHotkey.exe` on the command line according to the AutoHotkey docs.
+
+Checking this option alone, while copying the installed EXE to the script directory, will basically have no worth while effect on the system.  Normally this option is used with Option #1, Option #3, or both.
+
+#### Option #3: `Register "AutoHotkey.exe" with .ahk files instead of Launcher on Install`
+
+If this option is enabled, then the usage of the #REQUIRES directive as explained above will have no effect.  Only the installed/selected version of AutoHotkey will be used to run `.ahk` scripts.  This effectively turns this program into an "EXE switcher" similar to "AHK-EXE-Swapper".
+
+If you check this option, Option #2 to be automatically checked.  If you uncheck Option #2, then this option will be automatically unchecked.
+
+## Command Line Usage
+
+Usage: `AHK_Portable_Installer.exe [Behavior] "path\to\script.ahk" params...`
+
+```
+Simple:
+    AHK_Portable_Installer.exe "path\to\script.ahk" params...
+
+Specify Behavior:
+    AHK_Portable_Installer.exe [Launch|LaunchAdmin|Compiler] "path\to\script.ahk" params...
+```
+
+If the first parameter is not `Launch`, `LaunchAdmin`, or `Compiler`, then the behavior defaults to `Launch`.  If the selected behavior is `Launch` and the `Admin` option is used on the #Requires directive within the script, then the script will still be launched as admin.
+
+Place parameters to be passed to the script after the `path\to\scrpt.ahk` parameter as usual.
+
+When launching scripts on the command line with `AHK_Portable_Installer.exe` , the script will be launched with an EXE according to the #Requires directive.  If no #Requires directive is found, then the script will be launched by the installed/selectd EXE from the main UI.
+
 ## What AHK Portable Installer does NOT do...
 
 This is a PORTABLE installer, so this script:
@@ -197,24 +232,6 @@ There is of course nothing stopping you from running the script with the proper 
 Run("'X:\Path\to\AutoHotkey.exe' 'path\to\script.ahk'",,,&pid)
 ```
 ... then you will get the expected PID.
-
-## Command Line Usage
-
-Usage: `AHK_Portable_Installer.exe [Behavior] "path\to\script.ahk" params...`
-
-```
-Simple:
-    AHK_Portable_Installer.exe "path\to\script.ahk" params...
-
-Specify Behavior:
-    AHK_Portable_Installer.exe [Launch|LaunchAdmin|Compiler] "path\to\script.ahk" params...
-```
-
-If the first parameter is not `Launch`, `LaunchAdmin`, or `Compiler`, then the behavior defaults to `Launch`.  If the selected behavior is `Launch` and the `Admin` option is used on the #Requires directive within the script, then the script will still be launched as admin.
-
-Place parameters to be passed to the script after the `path\to\scrpt.ahk` parameter as usual.
-
-When launching scripts on the command line with `AHK_Portable_Installer.exe` , the script will be launched with an EXE according to the #Requires directive.  If no #Requires directive is found, then the script will be launched by the installed/selectd EXE from the main UI.
 
 ## To-Do List
 
