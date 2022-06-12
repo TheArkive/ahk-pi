@@ -11,7 +11,7 @@ MPRESS is currently not included for automatic downloads.
 
 > `Window Spy` is now automatically included as of AHK v2.beta-4
 
-Thanks to lexikos' release of AHK v2-beta.4, I got the idea of a short and direct way to check for Ahk2Exe updates.
+Thanks to lexikos' release of AHK v2-beta.4, I got the idea of a short and direct way to check for Ahk2Exe updates from his code/release.
 
 ## Intro
 
