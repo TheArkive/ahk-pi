@@ -27,7 +27,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\TheArkive_reg2.ahk
 #INCLUDE inc\funcs.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.23", regexList := Map()
+Global oGui := "", Settings := "", AhkPisVersion := "v1.24", regexList := Map()
 
 class app {
     Static dclick := DllCall("User32\GetDoubleClickTime")
@@ -718,14 +718,15 @@ DLFile() { ; download file if not already cached - then check hash if available
     dest := (Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions") "\"
     destTemp := A_ScriptDir "\temp\"
     
-    ahk2exe := check_ahk2exe()
+    ahk2exe := check_ahk2exe() ; check latest Ahk2Exe version (and download if not exist or outdated)
     
     zipFile := LV.GetText(row)
+    src_url := Settings["AhkVersions"][ver]["list"][zipFile]["url"]
     SplitPath zipFile,,,,&fileTitle
     
-    If !FileExist(destTemp zipFile) { ; check latest Ahk2Exe version
+    If !FileExist(destTemp zipFile) {
         app.gui["StatusBar"].SetText("Downloading " zipFile "...")
-        Try Download ahk2exe.url, destTemp zipFile
+        Try Download src_url, destTemp zipFile
         Catch {
             Msgbox "Host could not be reached.  Check internet connection."
             return
