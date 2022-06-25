@@ -27,32 +27,30 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 #INCLUDE inc\TheArkive_reg2.ahk
 #INCLUDE inc\funcs.ahk
 
-Global oGui := "", Settings := "", AhkPisVersion := "v1.24", regexList := Map()
+Global oGui := "", Settings := ""
 
 class app {
-    Static dclick := DllCall("User32\GetDoubleClickTime")
-         , lastClick := 0
-         , last_click_diff := 1000
-         , last_xy := 0
-         , verGui := {hwnd:0}
-         , ReadOnly := false
-         , toggle := 0
-         , w := 480
-         , h := 225
-         , verList := []
+    Static ver := "v1.25"
+         , lastClick := 0, last_click_diff := 1000, last_xy := 0
+         , ReadOnly := false ; this is for launching a version of AHK, and is set to TRUE when doing so - prevents unnecessary saving settings to disk
+         , toggle := 0, w := 480, h := 225
          , http := ComObject("Msxml2.XMLHTTP") ; Msxml2.XMLHTTP ; WinHttp.WinHttpRequest.5.1
          , http_url_list := []
-         , latest_list     := Map("1.1"    ,{url:"https://www.autohotkey.com/download/1.1/version.txt", format:"html"}
-                                 ,"2.0"    ,{url:"https://www.autohotkey.com/download/2.0/version.txt", format:"html"}
-                                 ,"Ahk2Exe",{url:"https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest", format:"json"})
-         , get_list := Map("1.1"    ,{url:"https://www.autohotkey.com/download/1.1", format:"html"}
-                          ,"2.0"    ,{url:"https://www.autohotkey.com/download/2.0", format:"html"}
-                          ,"Ahk2Exe",{url:"https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest", format:"json"})
-         , http_check_msg := ""
-         , gui := ""
-         , update := false
-         ; , w := 480 * (A_ScreenDPI / 96)
-         ; , h := 225 * (A_ScreenDPI / 96)
+         
+         , latest_list := Map("AutoHotkey v1.1" ,{url:"https://www.autohotkey.com/download/1.1/version.txt"            , format:"html", filter:""}
+                             ,"AutoHotkey v2.0" ,{url:"https://www.autohotkey.com/download/2.0/version.txt"            , format:"html", filter:""}
+                             ,"Ahk2Exe"         ,{url:"https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest", format:"json", filter:"Ahk2Exe"}
+                             ,"UPX"             ,{url:"https://api.github.com/repos/upx/upx/releases/latest"           , format:"json", filter:""})
+         
+         , get_list := Map("AutoHotkey v1.1"    ,{url:"https://www.autohotkey.com/download/1.1"                        , format:"html", filter:""}
+                          ,"AutoHotkey v2.0"    ,{url:"https://www.autohotkey.com/download/2.0"                        , format:"html", filter:""}
+                          ,"Ahk2Exe"            ,{url:"https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest", format:"json", filter:"Ahk2Exe"}
+                          ,"UPX"                ,{url:"https://api.github.com/repos/upx/upx/releases/latest"           , format:"json", filter:""}
+                          
+                          ,"MPRESS" ,{url:"https://web.archive.org/web/20130516045244if_/http://www.matcode.com/mpress.219.zip", format:"zip", filter:""})
+         
+         , verUpdate := Map(), gui := ""
+         , AhkDlVer := ["1.1","2.0"] ; versions of AHK inthe drop down menu, relates to the URL
 }
 
 OnExit(on_exit)
@@ -68,7 +66,7 @@ If (A_Is64BitOS)
 SettingsJSON := ""
 If FileExist("Settings.json")
     SettingsJSON := FileRead("Settings.json")
-Settings := (SettingsJSON && (SettingsJSON!=Chr(34) Chr(34))) ? Jxon_Load(&SettingsJSON) : Map()
+Settings := (SettingsJSON && (SettingsJSON!='""')) ? Jxon_Load(&SettingsJSON) : Map()
 
 (!Settings.Has("AhkVersions")) ? Settings["AhkVersions"] := Map() : ""
 (!Settings.Has("posX")) ? Settings["posX"] := 300 : ""
@@ -95,21 +93,19 @@ Settings := (SettingsJSON && (SettingsJSON!=Chr(34) Chr(34))) ? Jxon_Load(&Setti
 
 (!Settings.Has("TextEditorPath")) ? Settings["TextEditorPath"] := "notepad.exe" : ""
 
-(!Settings.Has("AhkUrl")) ? Settings["AhkUrl"] := "https://www.autohotkey.com/download/" : ""
-(!Settings.Has("Ahk2ExeUrl")) ? Settings["Ahk2ExeUrl"] := "https://api.github.com/repos/AutoHotkey/Ahk2Exe/releases/latest" : ""
 (!Settings.Has("DLVersion")) ? Settings["DLVersion"] := "2.0" : ""
-(!Settings.Has("VerList")) ? Settings["VerList"] := "1.1;2.0" : ""
-(!Settings.Has("VerFile")) ? Settings["VerFile"] := "version.txt" : ""
 
 (!Settings.Has("BaseFolder")) ? Settings["BaseFolder"] := "" : ""
 (!Settings.Has("InstallProfile")) ? Settings["InstallProfile"] := "Current User" : ""
 (!Settings.Has("reg")) ? Settings["reg"] := "HKEY_CURRENT_USER" : ""
+(!Settings.Has("UPX")) ? Settings["UPX"] := "win32" : ""
 
-app.verList := StrSplit(Trim(Settings["VerList"],"; "),";"," ")
-
-If Settings["HideTrayIcon"]
+If Settings["HideTrayIcon"] {
     A_IconHidden := true
+}
 
+app.latest_list["UPX"].filter := Settings["UPX"]
+app.get_list["UPX"].filter := Settings["UPX"]
 ; ====================================================================================
 ; Processing Parameters for launching scripts and the Compiler.
 ; - Creates a 2nd instance in non-portable mode for a split second.
@@ -233,28 +229,14 @@ WM_MOUSEMOVE(wParam, lParam, Msg, hwnd) {
     }
 }
 
-OnMessage(0x6,WM_ACTIVATE)
-WM_ACTIVATE(wParam, lParam, Msg, hwnd) {
-    Global oGui
-    wp := (wParam & 0xFFFF)
-    
-    If (app.verGui.hwnd) && (hwnd != app.verGui.hwnd) && (hwnd = oGui.hwnd) && (wp > 0)
-        app.verGui.Destroy()
-      , app.verGui := {hwnd:0}
-      , Sleep(100)
-      , oGui["ExeList"].Focus()
-      , dbg("is main: " (hwnd = oGui.hwnd) " / " wp)
-}
-
-
 If (Settings["MinimizeOnStart"]) {
     If !Settings["CloseToTray"]
         runGui(true)
 } Else RunGui()
 
 runGui(minimize:=false) {
-    Global oGui, AhkPisVersion, Settings
-    oGui := Gui("","AHK Portable Installer " AhkPisVersion)
+    Global oGui, Settings
+    oGui := Gui("","AHK Portable Installer " app.ver)
     oGui.OnEvent("Close",gui_Close)
     
     oGui.Add("Text","vActiveVersionDisp xm y+8 w409 -E0x200 ReadOnly","Base Version:")
@@ -290,15 +272,6 @@ runGui(minimize:=false) {
     oGui.Add("Edit","y+0 r1 w410 vBaseFolder ReadOnly")
     oGui.Add("Button","x+0 vPickBaseFolder","...").OnEvent("Click",GuiEvents)
     oGui.Add("Button","x+0 vClearBaseFolder","X").OnEvent("Click",GuiEvents)
-    
-    oGui.Add("Text","xm y+4 Section","AutoHotkey download URL:")
-    oGui.Add("Edit","y+0 r1 w250 vAhkUrl").OnEvent("Change",GuiEvents)
-    
-    oGui.Add("Text","x+2 ys","Version File:")
-    oGui.Add("Edit","vVerFile y+0 xp w75").OnEvent("Change",GuiEvents)
-    
-    oGui.Add("Text","x+2 ys","Versions:")
-    oGui.Add("Edit","vVerList y+0 xp w75 vVerList").OnEvent("Change",GuiEvents)
     
     oGui.Add("Text","xm y+4 Section","Install For:")
     oGui.Add("DropDownList","vInstallProfile y+0 r2 w100",["Current User","All Users"]).OnEvent("Change",GuiEvents)
@@ -338,6 +311,9 @@ runGui(minimize:=false) {
     oGui.Add("Checkbox","vRegisterAHKexe xm+10 y+10"
             ,'Register "AutoHotkey.exe" with .ahk files instead of Launcher on Install').OnEvent("Click",GuiEvents)
     
+    oGui.Add("Text","xm+10 y+10","UPX:")
+    oGui.Add("DropDownList","x+4 yp-3 w55 vUPX",["win32","win64"]).OnEvent("change",GuiEvents)
+    
     oGui.Add("GroupBox","vHotkeys1 xm+10 y+10 w456 h60 y+4 Hidden","Hotkeys")
     txt := "MButton:`t`tRuns SELECTED scrtips in Explorer window/on desktop.`r`n"
          . "SHIFT + MButton:`tOpen script file in specified text editor.`r`n"
@@ -353,9 +329,8 @@ runGui(minimize:=false) {
     PopulateSettings()
     ListExes()
     
-    If (A_ScreenDPI != 96) {
+    If (A_ScreenDPI != 96)
         app.h := 210
-    }
     
     oGui.Show("w" app.w " h" app.h " x" x " y" y (minimize?" Minimize":""))
     oGui["StatusBar"].SetText("Administrator: " (A_IsAdmin?"YES":"NO"))
@@ -412,9 +387,6 @@ PopulateSettings() {
     Global Settings, oGui
     
     oGui["BaseFolder"].Value := Settings["BaseFolder"]
-    oGui["AhkUrl"].Value := Settings["AhkUrl"]
-    oGui["VerFile"].Value := Settings["VerFile"]
-    oGui["VerList"].Value := VerList := Settings["VerList"]
     oGui["InstallProfile"].Text := Settings["InstallProfile"]
     oGui["AutoUpdateCheck"].value := Settings["AutoUpdateCheck"]
     oGui["TextEditorPath"].Value := Settings["TextEditorPath"]
@@ -444,8 +416,9 @@ PopulateSettings() {
     oGui["MinimizeOnStart"].Value := Settings["MinimizeOnStart"]
     oGui["PickIcon"].Text := Settings["PickIcon"]
     oGui["SystemStartup"].Value := Settings["SystemStartup"]
+    oGui["UPX"].Text := Settings["UPX"]
     
-    oGui["DLVersion"].Add(StrSplit(VerList,";"))
+    oGui["DLVersion"].Add(app.AhkDlVer)
     oGui["DLVersion"].Text := Settings["DLVersion"]
     
     PopulateDLList()
@@ -453,7 +426,7 @@ PopulateSettings() {
 }
 
 GuiEvents(oCtl,Info) {
-    Global regexList, Settings, oGui
+    Global Settings, oGui
     If (oCtl.Name = "ToggleSettings") {
         oGui["ExeList"].Focus()
         (app.toggle) ? oGui.Show("w" app.w " h" app.h) : oGui.Show("w480 h" ((A_ScreenDPI = 96) ? 480 : 465))
@@ -496,15 +469,6 @@ GuiEvents(oCtl,Info) {
         } Else If (!DirExist(BaseFolder) And BaseFolder != "")
             MsgBox "Chosen folder does not exist."
             
-    } Else If (oCtl.Name = "AhkUrl") {
-        Settings["AhkUrl"] := oCtl.Value
-        
-    } Else If (oCtl.Name = "VerFile") {
-        Settings["VerFile"] := oCtl.Value
-    
-    } Else If (oCtl.Name = "VerList") {
-        Settings["VerList"] := oCtl.Value
-    
     } Else If (oCtl.Name = "InstallProfile") {
         Settings["InstallProfile"] := oCtl.Text
         If (oCtl.Text = "Current User")
@@ -676,13 +640,17 @@ GuiEvents(oCtl,Info) {
             oCtl.gui["CopyExe"].Value := true
             Settings["CopyExe"] := true
         }
+    } Else if (oCtl.name = "UPX") {
+        Settings["UPX"] := oCtl.text
+        Loop Files, A_ScriptDir "\temp\upx*.zip"
+            FileDelete(A_LoopFileFullPath)
     }
 }
 
 verGui(x,y) {
     m := menu()
-    For ver, obj in Settings["AhkVersions"]
-        m.Add((IsFloat(ver) ? "AutoHotkey v" ver : ver) ":  " obj["latest"],dummy(*) => "")
+    For name, obj in Settings["AhkVersions"]
+        m.Add(name ":  " obj["latest"] (app.verUpdate.Has(name) ? " *" : ""),(*) => "")
     m.Show(x,y)
 }
 
@@ -690,13 +658,13 @@ PopulateDLList() {
     Global Settings
     LV := app.gui["DLList"]
     LV.Delete()
-    ver := app.gui["DLVersion"].Text
+    name := "AutoHotkey v" app.gui["DLVersion"].Text
     LV.Opt("-Redraw")
     
-    If (!ver || !Settings["AhkVersions"].Has(ver))
+    If (!name || !Settings["AhkVersions"].Has(name))
         return
     
-    For _file, obj in Settings["AhkVersions"][ver]["list"]
+    For _file, obj in Settings["AhkVersions"][name]["list"]
         If RegExMatch(_file,"\.zip$")
             LV.Add(,_file,obj["date"])
     
@@ -708,20 +676,18 @@ PopulateDLList() {
 
 DLFile() { ; download file if not already cached - then check hash if available
     Global Settings
-    LV := app.gui["DLList"], ver := app.gui["DLVersion"].Text, file_list := []
+    LV := app.gui["DLList"], name := "AutoHotkey v" app.gui["DLVersion"].Text, file_list := []
     If !(row := LV.GetNext()) {
         MsgBox "Select a download first."
         return
     }
     
-    src := Settings["AhkUrl"] ver "/" ; ver := app.gui["DLVersion"].Text
+    src := app.get_list[name].url "/"
     dest := (Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions") "\"
     destTemp := A_ScriptDir "\temp\"
     
-    ahk2exe := check_ahk2exe() ; check latest Ahk2Exe version (and download if not exist or outdated)
-    
     zipFile := LV.GetText(row)
-    src_url := Settings["AhkVersions"][ver]["list"][zipFile]["url"]
+    src_url := Settings["AhkVersions"][name]["list"][zipFile]["url"]
     SplitPath zipFile,,,,&fileTitle
     
     If !FileExist(destTemp zipFile) {
@@ -736,7 +702,7 @@ DLFile() { ; download file if not already cached - then check hash if available
     If (hash_file := check_hash()) {
         SplitPath hash_file,,,&hType
         
-        src_url := Settings["AhkVersions"][ver]["list"][hash_file]["url"]
+        src_url := Settings["AhkVersions"][name]["list"][hash_file]["url"]
         If !FileExist(destTemp hash_file)
             Download src hash_file, destTemp hash_file
         
@@ -762,11 +728,32 @@ DLFile() { ; download file if not already cached - then check hash if available
         return
     }
     
+    app.gui["StatusBar"].SetText("Decompressing " zipFile "...")
+    objShell := ComObject("Shell.Application")
+    zipFile := objShell.NameSpace(A_ScriptDir "\temp\" zipFile)
+    objShell.NameSpace(dest).CopyHere(zipFile.Items()), objShell := ""
+    
+    check_extras(dest)
+    
+    ListExes()
+    app.gui["StatusBar"].SetText("")
+    
+    check_hash() {
+        For i, hType in ["md2", "md4", "md5", "sha1", "sha256", "sha384", "sha512"] {
+            If Settings["AhkVersions"][name]["list"].Has(zipFile "." hType)
+                return zipFile "." hType
+            Else If Settings["AhkVersions"][name]["list"].Has(zipFile "." StrUpper(hType))
+                return zipFile "." StrUpper(hType)
+        }
+    }
+}
+
+check_extras(dest) {
     objShell := ComObject("Shell.Application")
     
-    app.gui["StatusBar"].SetText("Decompressing " zipFile "...")
-    zipFile := objShell.NameSpace(A_ScriptDir "\temp\" zipFile)
-    objShell.NameSpace(dest).CopyHere(zipFile.Items())
+    ahk2exe := check_github("Ahk2Exe")
+    upx     := check_github("UPX")
+    mpress  := check_mpress()
     
     If !DirExist(dest "\Compiler") { ; copy / extract Ahk2Exe if "Compiler" folder does not exist
         DirCreate dest "\Compiler"
@@ -775,44 +762,60 @@ DLFile() { ; download file if not already cached - then check hash if available
         objShell.NameSpace(dest "\Compiler").CopyHere(zipFile.Items())
     }
     
-    objShell := ""
-    
-    ListExes()
-    app.gui["StatusBar"].SetText("")
-    
-    check_hash() {
-        For i, hType in ["md2", "md4", "md5", "sha1", "sha256", "sha384", "sha512"] {
-            If Settings["AhkVersions"][ver]["list"].Has(zipFile "." hType)
-                return zipFile "." hType
-            Else If Settings["AhkVersions"][ver]["list"].Has(zipFile "." StrUpper(hType))
-                return zipFile "." StrUpper(hType)
-        }
+    If !FileExist(dest "\Compiler\upx.exe") { ; copy / extract upx.exe
+        SplitPath upx.update_file,,,,&title
+        objShell.NameSpace(dest "\Compiler").CopyHere(A_ScriptDir "\temp\" upx.update_file "\" title "\upx.exe")
     }
+    
+    If !FileExist(dest "\Compiler\mpress.exe") ; copy / extract mpress.exe
+        objShell.NameSpace(dest "\Compiler").CopyHere(A_ScriptDir "\temp\" mpress.update_file "\mpress.exe")
+    
+    objShell := ""
 }
 
-check_ahk2exe() {
-    Global Settings
-    result := "", path:="", update := Settings["AhkVersions"]["Ahk2Exe"]
-    ahk2exe := file_check()
-    
-    If !(ahk2exe.file) || (update["latest"] != ahk2exe.ver) {
-        If FileExist(ahk2exe.path)
-            FileDelete ahk2exe.path
-        
-        ; msgbox "url: " ahk2exe.update_url
-        
-        Try Download ahk2exe.update_url, A_ScriptDir "\temp\" ahk2exe.update_file
+check_mpress() {
+    if !FileExist(A_ScriptDir "\temp\mpress.219.zip") {
+        Try Download app.get_list["MPRESS"].url, A_ScriptDir "\temp\mpress.219.zip"
         Catch
-            Msgbox "Checking Ahk2Exe...`n`nHost could not be reached.  Check internet connection."
+            Msgbox "Checking MPRESS...`n`nHost could not be reached.  Check internet connection."
+    }
+    return obj := {file:"mpress.219.zip"
+                 , ver:"2.19"
+                 , update_file:"mpress.219.zip"
+                 , update_url:""
+                 , update_ver:""
+                 , update_path:""
+                 , path:A_ScriptDir "\temp\mpress.219.zip"}
+}
+
+check_github(name:="") {
+    Global Settings
+    result := "", path:="", update := Settings["AhkVersions"][name]
+    github := file_check()
+    
+    If !(github.file) || (update["latest"] != github.ver) {
+        If FileExist(github.path)
+            FileDelete github.path
+        
+        Try Download github.update_url, A_ScriptDir "\temp\" github.update_file
+        Catch
+            Msgbox "Checking " name "...`n`nHost could not be reached.  Check internet connection."
     }
     
-    return ahk2exe
+    return github
     
     file_check() {
-        Loop Files A_ScriptDir "\temp\Ahk2exe*.zip"
-            result := A_LoopFileName, path := A_LoopFileFullPath ; RegExReplace(A_LoopFileName,"i)Ahk2Exe(.+)\.zip","$1")
+        Loop Files A_ScriptDir "\temp\" name "*.zip"
+            result := A_LoopFileName, path := A_LoopFileFullPath
+        
+        Switch name {
+            Case "Ahk2Exe": ver := RegExReplace(result,"i)^Ahk2Exe(.+)\.zip","$1")
+            Case "UPX"    : ver := RegExReplace(result,"i)^upx\-([^\-]+)\-","$1")
+            Default: ver := ""
+        }
+        
         obj := {file:result
-              , ver:RegExReplace(result,"i)Ahk2Exe(.+)\.zip","$1")
+              , ver:ver
               , update_file:update["list"]["file"]
               , update_url:update["list"]["url"]
               , update_ver:update["latest"]
@@ -1143,10 +1146,20 @@ CheckUpdate(override:=0,confirm:=true) {
             return
     }
     
-    For ver, obj in app.latest_list
-        app.http_url_list.Push({url:obj.url, ver:ver, type:"version", format:obj.format, confirm:confirm})
+    app.verUpdate := Map() ; reset recorded updates
     
+    For name, obj in app.latest_list {
+        ; list_props(obj)
+        app.http_url_list.Push({url:obj.url, name:name, type:"version", format:obj.format, confirm:confirm, filter:obj.filter})
+    }
     ProcessURLs()
+    
+    list_props(obj) {
+        txt := ""
+        For name, value in obj.OwnProps()
+            txt .= (txt?"`r`n":"") name
+        msgbox txt
+    }
 }
 
 ProcessURLs() {
@@ -1159,7 +1172,7 @@ ProcessURLs() {
         app.http.onreadystatechange := CheckUpdate_callback.Bind(obj)
         app.http.Send()
     } Catch Error {
-        msg := "Could not reach " ((obj.ver="Ahk2Exe")?"Ahk2Exe":"AHK v" obj.ver) " page."
+        msg := "Could not reach " obj.name " page."
         Msgbox msg, "Update Check Failed", 0x10
     }
 }
@@ -1176,28 +1189,29 @@ CheckUpdate_callback(obj) {
             
             obj.confirm := false
             obj.status := "failed: " app.http.Status
-            msg := "Could not reach " ((obj.ver="Ahk2Exe")?"Ahk2Exe":"AHK v" obj.ver) " page."
-            MsgBox msg, "Update Check Failed", 0x10
+            msg := "Could not reach " obj.name " page."
+            MsgBox(msg, "Update Check Failed", 0x10)
             app.http_url_list := []     ; url clear list
-            app.http_check_msg := ""    ; clear update msg
+            app.verUpdate := Map()      ; clear current updates list
             
         } else {
             result := app.http.ResponseText
             if obj.format = "json"
-                result := jxon_load(&result), result := RegExReplace(result["name"],"i)^ahk2exe +v")
+                result := jxon_load(&result), result := RegExReplace(result["name"],"i)^" obj.name " *v?")
             
-            If  (!Settings["AhkVersions"].Has(obj.ver)
-              || (Settings["AhkVersions"][obj.ver]["latest"] != result)
-              || (Settings["AhkVersions"][obj.ver]["list"].Count = 0)) { ; need to get download list for indicatd ver
+            If  (!Settings["AhkVersions"].Has(obj.name)
+              || (Settings["AhkVersions"][obj.name]["latest"] != result)
+              || (Settings["AhkVersions"][obj.name]["list"].Count = 0)) { ; need to get download list for indicatd name
                 
-                app.http_url_list.Push({    url:app.get_list[obj.ver].url ; add url to get download list
-                                      ,     ver:obj.ver
+                app.http_url_list.Push({    url:app.get_list[obj.name].url ; add url to get download list
+                                      ,    name:obj.name
                                       ,    type:"list"
-                                      ,  format:app.get_list[obj.ver].format
-                                      , confirm:obj.confirm})
+                                      ,  format:app.get_list[obj.name].format
+                                      , confirm:obj.confirm
+                                      ,  filter:app.get_list[obj.name].filter})
                 
-                app.http_check_msg .= (app.http_check_msg?"`n`n":"") "New " ((obj.ver="Ahk2Exe")?"Ahk2Exe":"AutoHotkey v" obj.ver) " update!" ; add to final update msg
-                Settings["AhkVersions"][obj.ver] := Map("latest",result,"list",Map())
+                app.verUpdate[obj.name] := result
+                Settings["AhkVersions"][obj.name] := Map("latest",result,"list",Map())
             }
             
             Settings["UpdateCheckDate"] := FormatTime(,"yyyy-MM-dd")
@@ -1205,20 +1219,20 @@ CheckUpdate_callback(obj) {
             ProcessURLs() ; process next url
         }
     } Else if (obj.type = "list") {
-        If obj.format = "html"
-            list := format_html(app.http.ResponseText)
-        else
-            list := format_json(app.http.ResponseText)
         
-        Settings["AhkVersions"][obj.ver]["list"] := list
+        If (response:=app.http.ResponseText) && (obj.format = "html")
+            list := format_html(response)
+        else
+            list := format_json(response,obj.filter)
+        
+        Settings["AhkVersions"][obj.name]["list"] := list
         
         app.http_url_list.RemoveAt(1) ; remove processed item
         ProcessURLs() ; process next url
     
         if !app.http_url_list.Length { ; when finished, display confirmation if enabled
             if (obj.confirm) {
-                if (app.http_check_msg) {
-                    ; MsgBox app.http_check_msg
+                if (app.verUpdate.Count) {
                     If !InStr(title := app.gui.Title,"Update Available")
                         app.gui.Title := title "   (Update Available!)"
                 }
@@ -1226,21 +1240,20 @@ CheckUpdate_callback(obj) {
             
             Settings["UpdateCheckDate"] := FormatTime(,"yyyy-MM-dd")
             PopulateDLList()
-            app.http_check_msg := ""
         }
     }
     
     format_html(txt) {
-        list := Map()
+        list := Map(), ver := RegExReplace(obj.name,"AutoHotkey *v?","")
         Loop Parse, txt, "`n", "`r"
         {
             If (r1 := RegExMatch(A_LoopField,'<a href="([^>]+)">',&m)
             && (r2 := RegExMatch(A_LoopField,'<td align="right">([^<]+)',&n))) {
                 If (m[1] = "/") || (m[1] = "/download/") || (m[1] = "version.txt")
-                || (m[1] = "_AHK-binaries.zip") || (m[1] = "zip%20versions/")
+                || (m[1] = "_AHK-binaries.zip") || (m[1] = "zip%20versions/") || InStr(m[1],"Ahk2Exe")
                     Continue
                 If InStr(m[1],".zip") {
-                    item := Map("date",Trim(n[1]," `t"),"url","https://www.autohotkey.com/download/" obj.ver "/" m[1])
+                    item := Map("date",Trim(n[1]," `t"),"url",obj.url "/" m[1])
                     list[m[1]] := item
                 }
             }
@@ -1248,13 +1261,18 @@ CheckUpdate_callback(obj) {
         return list
     }
     
-    format_json(txt) {
-        _map := jxon_load(&txt)
-        url := _map["assets"][1]["browser_download_url"]
-        _file := (arr:=StrSplit(url,"/"))[arr.Length]
-        return Map("date",_map["published_at"]
-                  ,"url" ,_map["assets"][1]["browser_download_url"]
-                  ,"file",_file)
+    format_json(txt,filter:="") {
+        _map := jxon_load(&txt), idx := 1
+        
+        While _map["assets"].Has(idx) {
+            ; msgbox idx "`r`n`r`n" jxon_dump(_map["assets"][idx],4)
+            
+            url := _map["assets"][idx]["browser_download_url"]
+            _file := (arr:=StrSplit(url,"/"))[arr.Length]
+            If InStr(url,filter)
+                return Map("date",_map["published_at"],"url" ,url,"file",_file)
+            idx++
+        }
     }
 }
 

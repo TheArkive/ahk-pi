@@ -2,12 +2,13 @@
 
 <img src="images/ahk-pi-main.png" width="420" align="top"/>
 
-README Updated on 2022-06-12
+README Updated on 2022-06-25
 
 ## Latest Updates
 
-* Ahk2Exe is now automatically downloaded, and extracted to install dir if no "Compiler" folder exists.\
-MPRESS is currently not included for automatic downloads.
+* MPRESS and UPX are now automatically downloaded if it doesn't exist, and is automatically extracted to the Compiler folder
+* Cleaned up some code, removed unused bits
+* Reorganized some settings
 
 > `Window Spy` is now automatically included as of AHK v2.beta-4
 
