@@ -30,7 +30,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 Global oGui := "", Settings := ""
 
 class app {
-    Static ver := "v1.25"
+    Static ver := "v1.26"
          , lastClick := 0, last_click_diff := 1000, last_xy := 0
          , ReadOnly := false ; this is for launching a version of AHK, and is set to TRUE when doing so - prevents unnecessary saving settings to disk
          , toggle := 0, w := 480, h := 225
@@ -976,6 +976,8 @@ ActivateEXE() {
         FileAppend _file, "AutoHotkey.exe", "RAW"
     }
     
+    DllCall("shell32\SHChangeNotify", "uint", 0x08000000, "uint", 0, "int", 0, "int", 0) ; thanks lexikos!
+    
     SetActiveVersionGui()
 }
 
@@ -1007,6 +1009,24 @@ AddToPath() {
 
 UninstallAhk() {
     Global Settings, oGui
+    
+    userchoice := true, result := "yes"
+    Try RegRead("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ahk\UserChoice","Hash")
+    Catch
+        userchoice := false
+    
+    If userchoice {
+        msg := "UserChoice for the .ahk extension has been activated.  This will interfere with the normal functionality of AHK PI.`n`n"
+             . "This usually happens when the user uses 'Open With' and checks the checkbox to 'always use' the selected app to open .ahk files."
+             . "To remove this key, simply click 'Yes' to continue."
+             
+        If msgbox(msg,"User Attention Required",4) != "yes"
+            userchoice := false
+    }
+    
+    If userchoice
+        reg.delete("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ahk\UserChoice")
+    
     k1 := reg.delete(k1k := "HKLM\SOFTWARE\AutoHotkey")
     k2 := reg.delete(k2k := "HKLM\SOFTWARE\Classes\.ahk")
     k3 := reg.delete(k3k := "HKLM\SOFTWARE\Classes\AutoHotkeyScript")
@@ -1029,6 +1049,8 @@ UninstallAhk() {
     Settings["ActiveVersionPath"] := ""
     Settings["ActiveVersionDisp"] := ""
     SetActiveVersionGui()
+    
+    DllCall("shell32\SHChangeNotify", "uint", 0x08000000, "uint", 0, "int", 0, "int", 0) ; thanks lexikos!
 }
 
 gui_Close(o) {
@@ -1148,18 +1170,9 @@ CheckUpdate(override:=0,confirm:=true) {
     
     app.verUpdate := Map() ; reset recorded updates
     
-    For name, obj in app.latest_list {
-        ; list_props(obj)
+    For name, obj in app.latest_list
         app.http_url_list.Push({url:obj.url, name:name, type:"version", format:obj.format, confirm:confirm, filter:obj.filter})
-    }
     ProcessURLs()
-    
-    list_props(obj) {
-        txt := ""
-        For name, value in obj.OwnProps()
-            txt .= (txt?"`r`n":"") name
-        msgbox txt
-    }
 }
 
 ProcessURLs() {
@@ -1265,8 +1278,6 @@ CheckUpdate_callback(obj) {
         _map := jxon_load(&txt), idx := 1
         
         While _map["assets"].Has(idx) {
-            ; msgbox idx "`r`n`r`n" jxon_dump(_map["assets"][idx],4)
-            
             url := _map["assets"][idx]["browser_download_url"]
             _file := (arr:=StrSplit(url,"/"))[arr.Length]
             If InStr(url,filter)

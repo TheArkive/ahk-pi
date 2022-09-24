@@ -2,17 +2,21 @@
 
 <img src="images/ahk-pi-main.png" width="420" align="top"/>
 
-README Updated on 2022-06-25
+README Updated on 2022-09-24
 
 ## Latest Updates
 
-* MPRESS and UPX are now automatically downloaded if it doesn't exist, and is automatically extracted to the Compiler folder
-* Cleaned up some code, removed unused bits
-* Reorganized some settings
+* Added a fix to remove UserChoice key from the registry if it exists.  This is optional, and the user can elect to keep the key on uninstall, but this will likely interfere with normal AHK PI functionality.
 
 > `Window Spy` is now automatically included as of AHK v2.beta-4
 
-Thanks to lexikos' release of AHK v2-beta.4, I got the idea of a short and direct way to check for Ahk2Exe updates from his code/release.
+Special thanks to the following users for their help and/or works that I was able to derive from, which were crucial to making this script what it is today:
+
+* boiler
+* teadrinker
+* Rapte_Of_Suzaku
+* lexikos
+* DaveT1 - for finding some of the most creative ways to break this script (through no fault of his own!), and thus make it better `;-)`
 
 ## Intro
 
@@ -48,7 +52,7 @@ The default `base folder` is in `%A_ScriptDir%\versions`.
 
 ## Basic Setup
 
-Grab the latest copy of AHK v2 (currently recommended is beta.4), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK_Portable_Installer.exe`.  Always run this EXE file to launch the script.
+Grab the latest copy of AHK v2 (currently recommended is beta.9), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK_Portable_Installer.exe`.  Always run this EXE file to launch the script.
 
 Now you can download AutoHotkey through the UI.  Just click `Settings`, pick a major version from the DropDownList, then select/downlad your desired version(s).  To remove a version of AHK, right click on an entry in the main list, and select `Remove this version` from the context menu.
 
@@ -243,7 +247,6 @@ Run("'X:\Path\to\AutoHotkey.exe' 'path\to\script.ahk'",,,&pid)
 
 ## To-Do List
 
-* Include MPRESS and UPX as automatic downloads for AHK v2-beta+
 * Allow options to compile one script into multiple versions with minimal clicks (maybe).
 
 ## Other remarks...
@@ -252,9 +255,9 @@ This program will NOT circumvent User Account Control settings.  If you leave UA
 
 If you want to install for "All Users" (which affects the entire system) then you must run this program as admin.  You can do this by right-clicking on the Launcher EXE (`AHK_Portable_Installer.exe`) and selecting "Run as administrator".
 
-If you want to completely disable UAC on Win 7+ you need to disable Admin Approval Mode.  Note that this will have the effect of launching ALL scripts (and all programs on your system for that matter) as admin.  And all scripts will have UI access as well.  At this time, UI Access is not possible with AHK Portable Installer when UAC/Admin Approval Mode is enabled.
+If you want to completely disable UAC on Win 7+ you need to disable Admin Approval Mode as well.  Note that this will have the effect of launching ALL scripts (and all programs on your system for that matter) as admin.  And all scripts will have UI access as well.  At this time, UI Access is not possible with AHK Portable Installer when UAC/Admin Approval Mode is enabled.
 
-Below is the registry key modifications needed to disable UAC and Admin Approval Mode in one registry key.
+Below is the registry key modifications needed to disable UAC and Admin Approval Mode in one registry key, but first open the User Account Control window and pull the slider all the way down.  Then merge the below registry setting.
 
 ```
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
@@ -264,6 +267,8 @@ Below is the registry key modifications needed to disable UAC and Admin Approval
 If you don't have some of these registry keys/items you need to create them.
 
 You can also follow [this tutorial on TenForums](https://www.tenforums.com/tutorials/112488-enable-disable-user-account-control-uac-windows.html).
+
+
 
 ## *** WARNING ABOUT DISABLING UAC ***
 If you disable UAC, you will disable some of the built-in countermeasures in Windows that protect your system.
