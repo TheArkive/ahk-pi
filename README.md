@@ -2,7 +2,7 @@
 
 <img src="images/ahk-pi-main.png" width="420" align="top"/>
 
-README Updated on 2022-09-24
+README Updated on 2022-11-12
 
 ## Latest Updates
 
@@ -52,7 +52,7 @@ The default `base folder` is in `%A_ScriptDir%\versions`.
 
 ## Basic Setup
 
-Grab the latest copy of AHK v2 (currently recommended is beta.9), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK_Portable_Installer.exe`.  Always run this EXE file to launch the script.
+Grab the latest copy of AHK v2 (currently recommended is beta.13), copy the desired version of `AutoHotkey32/64.exe` into the script dir and rename it to `AHK_Portable_Installer.exe`.  Always run this EXE file to launch the script.
 
 Now you can download AutoHotkey through the UI.  Just click `Settings`, pick a major version from the DropDownList, then select/downlad your desired version(s).  To remove a version of AHK, right click on an entry in the main list, and select `Remove this version` from the context menu.
 
@@ -67,12 +67,12 @@ C:\AutoHotkey\   <-- base folder -> place this anywhere you want, or leave it in
              \and_so_on\...                <-- AHK folders for each version
 ```
 
-Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary components (like `.bin` files, `mpress.exe`, and/or `upx.exe` as needed).  Note, that `Ahk2Exe Compiler` and `WindowSpy.ahk` are not currently packaged with AutoHotkey v2-beta releases.  See the links in the "Latest Updates" section at the top of this page if you need these components.
+Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary components (like `.bin` files, `mpress.exe`, and/or `upx.exe` as needed).  `Ahk2Exe Compiler` is downloaded automatically when installing through this script's UI.
 
 Now you need to decide how you want to use this program:
 1) Change the version as needed to run different scripts (like AHK-EXE-Switcher).
 2) Use the #REQUIRE directive in your scripts (recommended).  You will need to make small changes to your scripts, but you will be able to run multiple versions of AHK simultaneously without switching.  Read more below.
-3) You also need to decide if you want to use this program as an installer (registers the `.ahk` extension on the system) or if you want to run in Fully Portable mode.
+3) Use this program as an installer (registers the `.ahk` extension on the system) or run it in Fully Portable mode.
 
 ## Installer Mode
 
@@ -142,13 +142,15 @@ The #REQUIRES directive is also used to determine which compiler to use.  The lo
 
 ## Setting up Ahk2Exe
 
-All versions of AutoHotkey v1 come with a compiler (Ahk2Exe), `.bin` files, and `mpress.exe`.  These versions of `Ahk2Exe` also work for AutoHotkey v2.  Just copy `Ahk2Exe.exe` and `mpress.exe` from the AHK v1 compiler folder to the AHK v2 compiler folder.  DO NOT copy the `.bin` files from the AHK v1 folder.
+`Ahk2Exe`, `mpress.exe`, and `upx` are automatically checked and downloaded when selecting to install AHK from the main script UI.
+
+If you want to change a version of `Ahk2Exe` in a specific version of AutoHotkey, then you can do so manually.
 
 The latest versions of AutoHotkey_H v1 and v2, as of this document update, both have their own separate updated compilers which contain `Ahk2Exe.exe`.
 
 So if you were to run all versions of AutoHotkey in parallel (in theory) your compiler setup for each version of AutoHotkey in your base folder should follow these general guidelines:
 
-* All AutoHotkey v1 and v2 folders should have the same latest release of Ahk2Exe, but the `.bin` files will be different.
+* All AutoHotkey v1 and v2 folders should have the same latest release of Ahk2Exe.  Only AHK v1 will have `.bin` files.
 * All AutoHotkey_H v1 folders should have the same version compiler.  Just replace the older compiler with the newer one.
 * All AutoHotkey_H v2 folders should have the same version compiler.  Just replace the older compiler with the newer one.
 
@@ -194,7 +196,7 @@ If the first parameter is an `.ahk` script file, then the default behavior is `L
 
 Place parameters to be passed to the script after the `path\to\scrpt.ahk` parameter as usual.
 
-When launching scripts on the command line with `AHK_Portable_Installer.exe` , the script will be launched with an EXE according to the #Requires directive.  If no `#Requires` directive is found, then the script will be launched by the installed/selectd EXE from the main UI.
+When launching scripts on the command line with `AHK_Portable_Installer.exe`, the script will be launched with an EXE according to the #Requires directive.  If no `#Requires` directive is found, then the script will be launched by the installed/selectd EXE from the main UI.
 
 ## What AHK Portable Installer does NOT do...
 
@@ -209,11 +211,9 @@ If you need help post on the forums, or [visit the join #ahk on IRC or visit the
 
 Otherwise here are some basics to keep in mind:
 
-1) It is NOT recommended to run this script along side a normal installation of AutoHotkey with the setup program, it is however theoretically possible.  But this script will override the proper install with its own settings in the registry.  This will render the Uninstall option of your legit install inoperable.  You will need to reinstall your legit install in order to do a normal removal from the "Installed Programs" list in the Windows Control Panel / App Settings.
+1) It is NOT recommended to run this script along side a normal installation of AutoHotkey with the setup program.  It is theoretically possible, but this script will override the proper install with its own settings in the registry.  This will render the Uninstall option of your legit install inoperable.  You will need to reinstall your legit install in order to do a normal removal from the "Installed Programs" list in the Windows Control Panel / App Settings.
 
-2) If you move your `base folder`, then you must "re-install" your chosen AutoHotkey `base version`.  Simply click `Install/Select` again to update the setting.  Keep in mind, if you don't specify a custom `base folder`, and you move the location of AHK Portable Installer, then you are also moving the `base folder` to the default location which is:\
-\
-`%A_ScriptDir%\versions`
+2) If you move your `base folder`, then you must "re-install" your chosen AutoHotkey `base version`.  Simply click `Install/Select` again to update the setting.  Keep in mind, if you don't specify a custom `base folder`, and you move the location of AHK Portable Installer, then you are also moving the `base folder` located in  `%A_ScriptDir%\versions`.  In this case you also need to reinstall your selected version of AutoHotkey.
 
 3) Every version folder of AutoHotkey should have its own `help file`, `WindowSpy.ahk`, and `Compiler` folder with your desired compiler components.
 
@@ -257,7 +257,7 @@ If you want to install for "All Users" (which affects the entire system) then yo
 
 If you want to completely disable UAC on Win 7+ you need to disable Admin Approval Mode as well.  Note that this will have the effect of launching ALL scripts (and all programs on your system for that matter) as admin.  And all scripts will have UI access as well.  At this time, UI Access is not possible with AHK Portable Installer when UAC/Admin Approval Mode is enabled.
 
-Below is the registry key modifications needed to disable UAC and Admin Approval Mode in one registry key, but first open the User Account Control window and pull the slider all the way down.  Then merge the below registry setting.
+Below is the registry modification needed to disable UAC and Admin Approval Mode, but first open the User Account Control window and pull the slider all the way down.  Then merge the below registry setting.
 
 ```
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System]
