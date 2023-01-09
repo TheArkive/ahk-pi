@@ -11,7 +11,9 @@ README Updated on 2023-01-09
 * added "match" option for #Requires
 * updated readme
 
-> `Window Spy` is now automatically included as of AHK v2.beta-4
+Links:
+* [Ahk2Exe](https://github.com/AutoHotkey/Ahk2Exe)
+* [Window Spy](https://github.com/AutoHotkey/AutoHotkeyUX/blob/main/WindowSpy.ahk)
 
 Special thanks to the following users for their help and/or works that I was able to derive from, which were crucial to making this script what it is today:
 
@@ -70,11 +72,11 @@ C:\AutoHotkey\   <-- base folder -> place this anywhere you want, or leave it in
              \and_so_on\...                <-- AHK folders for each version
 ```
 
-Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary components (like `.bin` files, `mpress.exe`, and/or `upx.exe` as needed).  Note, that `Ahk2Exe Compiler` and `WindowSpy.ahk` are not currently packaged with AutoHotkey v2-beta releases.  See the links in the "Latest Updates" section at the top of this page if you need these components.
+Each subfolder should have it's own copy of a `help file`, `WindowSpy.ahk`, and `Compiler` folder with `Ahk2Exe` and all necessary components (like `.bin` files, `mpress.exe`, and/or `upx.exe` as needed).  Note, that development version of AHK are likely to not include the `Ahk2Exe Compiler` and `WindowSpy.ahk`.  See the links in the "Latest Updates" section at the top of this page if you need these components.
 
 Now you need to decide how you want to use this program:
 1) Change the version as needed to run different scripts (like AHK-EXE-Switcher).
-2) Use the #REQUIRE directive in your scripts (recommended).  You will need to make small changes to your scripts, but you will be able to run multiple versions of AHK simultaneously without switching.  Read more below.
+2) Use the `#Requires` directive in your scripts (recommended).  You will need to make small changes to your scripts, but you will be able to run multiple versions of AHK simultaneously without switching.  Read more below.
 3) You also need to decide if you want to use this program as an installer (registers the `.ahk` extension on the system) or if you want to run in Fully Portable mode.
 
 ## Installer Mode
