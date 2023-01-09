@@ -30,7 +30,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 Global oGui := "", Settings := ""
 
 class app {
-    Static ver := "v1.26"
+    Static ver := "v1.27"
          , lastClick := 0, last_click_diff := 1000, last_xy := 0
          , ReadOnly := false ; this is for launching a version of AHK, and is set to TRUE when doing so - prevents unnecessary saving settings to disk
          , toggle := 0, w := 480, h := 225
@@ -1123,19 +1123,33 @@ ListExes() {
     
     BaseFolder := (Settings["BaseFolder"] = "") ? A_ScriptDir "\versions" : Settings["BaseFolder"]
     
+    list := Map()
+    
     Loop Files BaseFolder "\AutoHotkey*.exe", "R"
     {
-        f := GetAhkProps(A_LoopFileFullPath)
-        If ((A_LoopFileName = "AutoHotkey.exe") && (!f.isAhkH))
+        _f := GetAhkProps(A_LoopFileFullPath)
+        
+        If ((A_LoopFileName = "AutoHotkey.exe") && (!_f.isAhkH))
         || RegExMatch(A_LoopFileFullPath,"i)\\(_*OLD_*|Compiler)\\")
             continue
         
-        If (IsObject(f))
-            LV.Add("",f.product " " f.Type " " f.bitness "-bit",f.Version,f.exeFile,A_LoopFileFullPath)
+        If !list.Has(_f.product)
+            list[_f.product] := Map()
+        
+        If !list[_f.product].Has(_f.majVersion)
+            list[_f.product][_f.majVersion] := Map()
+        
+        list[_f.product][_f.majVersion][_f.date] := _f
+    }
+    
+    For prod, o1 in list {
+        For mv, o2 in o1 {
+            For date, f in o2
+                LV.Add("",f.product " " f.Type " " f.bitness "-bit",f.Version,f.exeFile,f.exePath)
+        }
     }
     
     LV.ModifyCol(1,180), LV.ModifyCol(2,120), LV.ModifyCol(3,138), LV.ModifyCol(4,0)
-    LV.ModifyCol(1,"Sort"), LV.ModifyCol(2,"Sort")
     LV.Opt("+Redraw")
     
     ActiveVersionPath := (Settings.Has("ActiveVersionPath")) ? Settings["ActiveVersionPath"] : ""

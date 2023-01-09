@@ -66,9 +66,9 @@ GetAhkProps(sInput) {
         installDir := StrReplace(installDir,"\x64w")
     
     ahkProps := {exePath:sInput, installDir:installDir, product:ahkProduct, version:ahkVersion, majVersion:SubStr(ahkVersion,1,1)
-               , type:ahkType, bitness:bitness, variant:var, exeFile:ahkFile, exeDir:curDir, isAhkH:isAhkH}
+               , type:ahkType, bitness:bitness, variant:var, exeFile:ahkFile, exeDir:curDir, isAhkH:isAhkH, date:FileGetTime(sInput,"M")}
     
-    If (ahkType = "" Or bitness = "")
+    If (ahkType = "" || bitness = "")
         return ""
     Else
         return ahkProps
@@ -154,7 +154,7 @@ Explorer_GetSelection(hwnd:=0, usePath:=false) { ; thanks to boiler, from his RA
 ; ====================================================================================
 proc_script(in_script, compiler:=false) {
     Global Settings
-    admin := false, stdoutdebug := false, exe := "", err := "", cond := ""
+    admin := false, stdoutdebug := false, exe := "", err := "", cond := "", match := false
     _bitness := bitness := A_Is64BitOS ? 64 : 32
     baseFolder := Settings["BaseFolder"] ? Settings["BaseFolder"] : A_ScriptDir "\versions"
     
@@ -163,14 +163,14 @@ proc_script(in_script, compiler:=false) {
     
     script_text := FileRead(in_script)
     
-    If RegExMatch(script_text,"im)^(?:;?[ `t]+)?#Requires.*",&m) {
+    If RegExMatch(script_text,"im)^(?:;[ `t]+)?#Requires.*",&m) {
         arr := StrSplit(Trim(cond:=m[0],";`t "),";")
         vArr := StrSplit(Trim(RegExReplace(arr[1],"(#Requires|\" Chr(34) ")",""),";`t ")," ")
         
         If !vArr.Has(2)
             return {exe:"", admin:false, err:"Specify the product (AutoHotkey / AutoHotkey_H) when using #REQUIRES directive.", cond:cond}
         
-        isAhkH := ((prod := vArr[1])="AutoHotkeyH") ? true : false
+        isAhkH := RegExMatch((prod := vArr[1]),"AutoHotkey_?H") ? true : false
         ver := (SubStr(vArr[2],1,1) = "v") ? SubStr(vArr[2],2) : vArr[2]
         
         If arr.Has(2) {
@@ -181,30 +181,32 @@ proc_script(in_script, compiler:=false) {
                     admin := true
                 Else If (opt = "stdoutdebug")
                     stdoutdebug := true
+                Else If (opt = "match")
+                    match := true
         }
         
         If (_bitness > bitness)
             return {exe:"", admin:false, err:"64-bit executable specified on 32-bit system - halting.",cond:cond}
-        Else bitness := _bitness
         
-        exeList := ""
+        lastVer := ver
         Loop Files baseFolder "\AutoHotkey*.exe", "R"
         {
             f := GetAhkProps(A_LoopFileFullPath)
+            
             If ((A_LoopFileName = "AutoHotkey.exe") && (!f.isAhkH))
             || RegExMatch(A_LoopFileFullPath,"i)\\(_*OLD_*|Compiler)\\")
+            || (isAhkH != f.isAhkH) ; matching exclusive for AHK_H status
+            || (_bitness != f.bitness)
+            || (VerCompare(f.version,ver) = -1)
                 Continue
             
-            If (!isAhkH && f.isAhkH) || (isAhkH && !f.isAhkH) ; matching exclusive for AHK_H status
-                Continue
+            If (comp := VerCompare(f.version,lastVer)) >= 0 ; find highest version match
+                exe := f.exePath, lastVer := f.version
             
-            If (f.majVersion = SubStr(ver,1,1)) ; (VerCompare(f.version,ver) >= 0)
-            && (bitness = f.bitness) && InStr(f.version,ver)
-                exeList .= (exeList?"`r`n":"") f.version "|" f.exePath
+            If match && (comp=0) ; stop on equal match if "match" is specified
+                Break
         }
         
-        Loop Parse Sort(exeList,"N"), "`n", "`r"
-            exe := SubStr(A_LoopField,InStr(A_LoopField,"|")+1)
     } Else {
         exe := Settings["ActiveVersionPath"]
     }
