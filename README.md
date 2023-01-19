@@ -2,13 +2,12 @@
 
 <img src="images/ahk-pi-main.png" width="420" align="top"/>
 
-README Updated on 2023-01-09
+README Updated on 2023-01-19
 
 ## Latest Updates
 
-* improved sorting of main list
-* improved execution of #Requires directive
-* added "match" option for #Requires
+* fixed execution of #Requires directive to filter by major version, as is done by AHK
+* fixed execution of "match" option
 * updated readme
 
 Links:
@@ -119,9 +118,15 @@ Available options:
 * 32-bit = use only 32-bit AHK version
 * 64-bit = use only 64-but AHK version
 * admin = try to elevate and use *RunAs verb to run as Admin
-* match = match the version number in #Requires instead of ensuring minimum version is available
+* match = match the version number exactly in #Requires instead of ensuring minimum version is available.
 
-`Note:  "32-bit" and "64-bit" cannot be combined.`
+```
+Note:  "32-bit" and "64-bit" cannot be combined.  Also when using the "match" option, the match must be exact.  An entry like:
+
+#Requires AutoHotkey v1.1 ; match
+
+... will not work, because version numbers are actually longer than that.  Therefore no match will be found.
+```
 
 Example:
 ```

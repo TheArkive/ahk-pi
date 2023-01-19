@@ -30,7 +30,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 Global oGui := "", Settings := ""
 
 class app {
-    Static ver := "v1.27"
+    Static ver := "v1.28"
          , lastClick := 0, last_click_diff := 1000, last_xy := 0
          , ReadOnly := false ; this is for launching a version of AHK, and is set to TRUE when doing so - prevents unnecessary saving settings to disk
          , toggle := 0, w := 480, h := 225
@@ -153,9 +153,10 @@ If A_Args.Length {
         Msgbox(msg,"File not found",0x10)
         ExitApp
     } Else If !obj.exe {
-        msg := "The following #REQUIRES directive could not find a match:`n`n"
+        msg := "The following #Requires directive could not find a match:`n`n"
              . obj.cond "`n`n"
-             . "Did you recently move or rename some folders?"
+             . "If you are using the 'match' option, the #Requires filter may be too inspecific.`n`n"
+             . "Either define a more specific #Requires filter, or don't use the 'match' option."
         Msgbox(msg,"No match found",0x10)
     }
     

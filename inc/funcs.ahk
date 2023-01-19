@@ -188,7 +188,7 @@ proc_script(in_script, compiler:=false) {
         If (_bitness > bitness)
             return {exe:"", admin:false, err:"64-bit executable specified on 32-bit system - halting.",cond:cond}
         
-        lastVer := ver
+        lastVer := ver, mVer := SubStr(ver,1,1)
         Loop Files baseFolder "\AutoHotkey*.exe", "R"
         {
             f := GetAhkProps(A_LoopFileFullPath)
@@ -198,10 +198,14 @@ proc_script(in_script, compiler:=false) {
             || (isAhkH != f.isAhkH) ; matching exclusive for AHK_H status
             || (_bitness != f.bitness)
             || (VerCompare(f.version,ver) = -1)
+            || (mVer != f.majVersion)
                 Continue
             
             If (comp := VerCompare(f.version,lastVer)) >= 0 ; find highest version match
                 exe := f.exePath, lastVer := f.version
+            
+            If match && (comp != 0) ; if no match, and 'match' option is used, clear "exe" var
+                exe := ""
             
             If match && (comp=0) ; stop on equal match if "match" is specified
                 Break
