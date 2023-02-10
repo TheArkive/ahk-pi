@@ -30,7 +30,7 @@ SetWorkingDir A_ScriptDir  ; Ensures a consistent starting directory.
 Global oGui := "", Settings := ""
 
 class app {
-    Static ver := "v1.28"
+    Static ver := "v1.29"
          , lastClick := 0, last_click_diff := 1000, last_xy := 0
          , ReadOnly := false ; this is for launching a version of AHK, and is set to TRUE when doing so - prevents unnecessary saving settings to disk
          , toggle := 0, w := 480, h := 225
@@ -98,7 +98,7 @@ Settings := (SettingsJSON && (SettingsJSON!='""')) ? Jxon_Load(&SettingsJSON) : 
 (!Settings.Has("BaseFolder")) ? Settings["BaseFolder"] := "" : ""
 (!Settings.Has("InstallProfile")) ? Settings["InstallProfile"] := "Current User" : ""
 (!Settings.Has("reg")) ? Settings["reg"] := "HKEY_CURRENT_USER" : ""
-(!Settings.Has("UPX")) ? Settings["UPX"] := "win32" : ""
+(!Settings.Has("UPX")) ? Settings["UPX"] := "win64" : ""
 
 If Settings["HideTrayIcon"] {
     A_IconHidden := true
@@ -645,6 +645,8 @@ GuiEvents(oCtl,Info) {
         Settings["UPX"] := oCtl.text
         Loop Files, A_ScriptDir "\temp\upx*.zip"
             FileDelete(A_LoopFileFullPath)
+        app.latest_list["UPX"].filter := oCtl.text
+        app.get_list["UPX"].filter := oCtl.text
     }
 }
 
@@ -798,6 +800,8 @@ check_github(name:="") {
         If FileExist(github.path)
             FileDelete github.path
         
+        
+        
         Try Download github.update_url, A_ScriptDir "\temp\" github.update_file
         Catch
             Msgbox "Checking " name "...`n`nHost could not be reached.  Check internet connection."
@@ -814,6 +818,14 @@ check_github(name:="") {
             Case "UPX"    : ver := RegExReplace(result,"i)^upx\-([^\-]+)\-","$1")
             Default: ver := ""
         }
+        
+        ; msgbox result "`n`n"
+             ; . ver "`n`n"
+             ; . update["list"]["file"] "`n`n"
+             ; . update["list"]["url"] "`n`n"
+             ; . update["latest"] "`n`n"
+             ; . A_ScriptDir "\temp\" update["list"]["file"] "`n`n"
+             ; . path
         
         obj := {file:result
               , ver:ver
@@ -1225,11 +1237,12 @@ CheckUpdate_callback(obj) {
         } else {
             result := app.http.ResponseText
             if obj.format = "json"
-                result := jxon_load(&result), result := RegExReplace(result["name"],"i)^" obj.name " *v?")
+                result := jxon_load(&result), result := RegExReplace(result["tag_name"],"Ahk2Exe","")
             
             If  (!Settings["AhkVersions"].Has(obj.name)
               || (Settings["AhkVersions"][obj.name]["latest"] != result)
-              || (Settings["AhkVersions"][obj.name]["list"].Count = 0)) { ; need to get download list for indicatd name
+              || (Settings["AhkVersions"][obj.name]["list"].Count = 0))
+              || (app.get_list[obj.name].filter && !InStr(app.get_list[obj.name].url,app.get_list[obj.name].filter)) { ; need to get download list for indicatd name
                 
                 app.http_url_list.Push({    url:app.get_list[obj.name].url ; add url to get download list
                                       ,    name:obj.name
