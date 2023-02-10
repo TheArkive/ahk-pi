@@ -647,6 +647,7 @@ GuiEvents(oCtl,Info) {
             FileDelete(A_LoopFileFullPath)
         app.latest_list["UPX"].filter := oCtl.text
         app.get_list["UPX"].filter := oCtl.text
+        CheckUpdate(1)
     }
 }
 
